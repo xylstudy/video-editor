@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Bot, Download, Trash2 } from 'lucide-react'
-import { deleteTask, downloadTaskResult, getStoryboard, getTask, mediaUrl } from '../api.js'
+import { deleteTask, downloadTaskResult, getStoryboard, getTask, getTaskEvaluation, mediaUrl } from '../api.js'
 import {
   Button,
   Card,
@@ -18,6 +18,22 @@ const TASK_TYPE_LABELS = {
   end_to_end: '端到端生成',
   material_analysis: '素材分析',
   analyze_video: '视频结构分析',
+}
+
+const EVALUATION_CHECK_LABELS = {
+  pipeline_summary: '运行摘要',
+  run_info: '运行信息',
+  agent_stage_coverage: 'Agent 阶段',
+  structured_artifacts: '方案与素材',
+  pipeline_errors: '执行错误',
+  review_artifact: '评审记录',
+  review_pass: '方案评审',
+  media_output: '视频解码',
+  video_duration: '视频时长',
+  material_coverage: '素材覆盖',
+  model_execution: '模型调用',
+  render_review_artifact: '成片评审记录',
+  render_review_current: '成片评审版本',
 }
 
 function WsDot({ status }) {
@@ -42,6 +58,7 @@ export default function TaskDetail() {
   const [logs, setLogs] = useState([])
   const [draft, setDraft] = useState(null)
   const [draftError, setDraftError] = useState('')
+  const [evaluation, setEvaluation] = useState(null)
   const [wsStatus, setWsStatus] = useState('connecting')
   const wsRef = useRef(null)
 
@@ -96,6 +113,20 @@ export default function TaskDetail() {
         setDraftError('')
       })
       .catch((error) => setDraftError(error.response?.data?.detail || '分镜草案加载失败'))
+  }, [id, task?.status, task?.draft_revision])
+
+  useEffect(() => {
+    if (!['awaiting_confirmation', 'success', 'failed'].includes(task?.status)) {
+      setEvaluation(null)
+      return
+    }
+    if (task.status === 'awaiting_confirmation' && task.draft_revision > 0) {
+      setEvaluation(null)
+      return
+    }
+    getTaskEvaluation(id)
+      .then((response) => setEvaluation(response.data))
+      .catch(() => setEvaluation(null))
   }, [id, task?.status, task?.draft_revision])
 
   const handleDownload = async () => {
@@ -209,6 +240,60 @@ export default function TaskDetail() {
             controls
             className="w-full rounded-xl bg-black"
           />
+        </Card>
+      )}
+
+      {evaluation && (
+        <Card className="mb-6 p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-white">Agent 评测</h2>
+            <span className="text-sm text-[#8888a8]">
+              {evaluation.phase === 'awaiting_confirmation' ? '草案阶段' : '最终结果'} · {evaluation.score} 分
+            </span>
+          </div>
+          <p className="text-sm text-[#b8b8ce]">
+            {evaluation.phase === 'awaiting_confirmation'
+              ? (evaluation.ready_for_render ? '草案生成与阶段记录完整，等待确认渲染。' : '草案阶段存在待检查项。')
+              : (evaluation.success ? '方案评审与视频技术检查通过。' : '评测发现待检查项，视频仍可单独查看。')}
+          </p>
+          {evaluation.phase !== 'awaiting_confirmation' && (
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#8888a8]">
+              <span>Reviewer：{evaluation.quality?.review_score ?? '未完成'}</span>
+              <span>成片视觉评审：{evaluation.quality?.render_review_score ?? (evaluation.quality?.render_review_status === 'skipped' ? '未配置' : '未完成')}</span>
+              <span>全片解码：{evaluation.media?.full_decode_valid ? '通过' : '未通过'}</span>
+              <span>音轨：{evaluation.media?.has_audio === false ? '未检测到' : evaluation.media?.has_audio === true ? '存在' : '未知'}</span>
+              <span>素材覆盖：{evaluation.quality?.material_coverage == null ? '未知' : `${Math.round(evaluation.quality.material_coverage * 100)}%`}</span>
+              <span>模型 Token：{evaluation.llm_usage?.total_tokens ?? '未提供'}</span>
+            </div>
+          )}
+          {evaluation.render_review && (
+            <div className="mt-3 rounded-lg border border-[#2d2d4a] bg-[#151524] p-3 text-xs">
+              <p className="text-[#d9d9ec]">
+                成片评测：{evaluation.render_review.status === 'completed' ? (evaluation.render_review.summary || '已基于分镜时间轴抽帧完成视觉评审。') : (evaluation.render_review.reason || '仅保留技术检查与抽帧证据。')}
+              </p>
+              {evaluation.render_review.technical?.issues?.length > 0 && (
+                <ul className="mt-2 space-y-1 text-[#fbbf24]">
+                  {evaluation.render_review.technical.issues.slice(0, 3).map((issue, index) => (
+                    <li key={`${issue.type}-${index}`}>{issue.detail}{issue.start != null ? `（${issue.start}s–${issue.end}s）` : ''}</li>
+                  ))}
+                </ul>
+              )}
+              {evaluation.render_review.issues?.length > 0 && (
+                <ul className="mt-2 space-y-1 text-[#fbbf24]">
+                  {evaluation.render_review.issues.slice(0, 3).map((issue, index) => (
+                    <li key={`${issue.category}-${index}`}>{issue.description}{issue.evidence_times?.length ? `（${issue.evidence_times.join(', ')}s）` : ''}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          {evaluation.checks?.some((check) => !check.passed) && (
+            <ul className="mt-3 space-y-1 text-xs text-[#fbbf24]">
+              {evaluation.checks.filter((check) => !check.passed).map((check) => (
+                <li key={check.name}>{EVALUATION_CHECK_LABELS[check.name] || check.name}：{check.detail}</li>
+              ))}
+            </ul>
+          )}
         </Card>
       )}
 

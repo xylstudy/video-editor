@@ -7,8 +7,8 @@ from typing import Optional
 from sqlmodel import Session, select
 
 from database import engine
-from db_models import Task, TaskStatus
-from pipeline_runner import run_pipeline
+from db_models import Project, Task, TaskStatus
+from pipeline_runner import record_agent_failure, run_pipeline
 from websocket_manager import ws_manager
 
 logger = logging.getLogger(__name__)
@@ -167,11 +167,22 @@ class TaskQueue:
             logger.exception(f"Pipeline failed for task {item.task_id}: {e}")
             with Session(engine) as session:
                 task = session.get(Task, item.task_id)
+                project = session.get(Project, item.project_id)
+                is_agent_task = bool(
+                    task and task.type.value == "end_to_end"
+                    and project and project.pipeline_mode.value == "agent_pipeline"
+                )
+                target_topic = project.topic if project else ""
                 task.status = TaskStatus.FAILED
                 task.error_message = str(e)
                 task.updated_at = datetime.utcnow()
                 session.add(task)
                 session.commit()
+            if is_agent_task:
+                try:
+                    record_agent_failure(item.task_id, str(e), target_topic or "")
+                except Exception:
+                    logger.exception("Failed to persist Agent evaluation for task %s", item.task_id)
             await ws_manager.broadcast(
                 str(item.task_id),
                 {"type": "status", "data": {"status": "failed", "error": str(e)}},

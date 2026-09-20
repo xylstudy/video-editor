@@ -834,6 +834,7 @@ async def reviewer_node(state: ViralEngineState) -> dict:
             for vs in structures
         )
         scheme_json = json.dumps(scheme.to_dict() if hasattr(scheme, "to_dict") else {}, ensure_ascii=False)
+        out.save_json("planner", "scheme_final.json", json.loads(scheme_json))
 
         # ---- 素材覆盖描述 ----
         storyboard = getattr(scheme, "storyboard", [])
@@ -876,6 +877,8 @@ async def reviewer_node(state: ViralEngineState) -> dict:
             transition_summary=transition_summary,
             gene_json=gene_json,
         )
+        from evaluation.run_evaluator import scheme_fingerprint
+        review["scheme_fingerprint"] = scheme_fingerprint(json.loads(scheme_json))
         # 关联本方案参考的知识/手法，供后续统计「知识 → 审核分数」效果
         review["knowledge_refs_applied"] = list(getattr(scheme, "knowledge_refs", []))
         review["skill_refs_applied"] = list(getattr(scheme, "skill_refs_used", []))

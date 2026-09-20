@@ -287,6 +287,37 @@ def write_materials_json(photos: list[Material], path: Path) -> Path:
     return path
 
 
+def record_agent_failure(task_id: int, error: str, target_topic: str = "") -> None:
+    """Keep a failed Agent run visible even if it stopped before planning."""
+    from config.output_manager import OutputManager
+    from evaluation.run_evaluator import evaluate_run
+
+    out = OutputManager(f"web_task_{task_id}")
+    existing = out.run_dir / "pipeline_summary.json"
+    try:
+        if json.loads(existing.read_text(encoding="utf-8")).get("status") == "failed":
+            if not (out.run_dir / "evaluation" / "report.json").is_file():
+                out.save_json("evaluation", "report.json", evaluate_run(out.run_dir))
+            return
+    except (OSError, ValueError, AttributeError):
+        pass
+    if not (out.run_dir / "run_info.json").is_file():
+        out.save_run_info(
+            target_topic=target_topic,
+            sample_videos=[],
+            execution_mode="plan_render",
+            expected_stages=["analyst", "material", "planner", "renderer", "assembler", "reviewer"],
+        )
+    out.save_pipeline_summary({
+        "status": "failed",
+        "target_topic": target_topic,
+        "phase": "execution_failed",
+        "is_complete": False,
+        "errors": [error],
+    })
+    out.save_json("evaluation", "report.json", evaluate_run(out.run_dir))
+
+
 def write_lightweight_inventory(photos: list[Material], path: Path) -> Path:
     """Create a deterministic, model-free inventory for editing transfer."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -446,7 +477,9 @@ async def run_pipeline(
         if workflow_stage == "render":
             scheme_path = Path(saved_scheme_path) if saved_scheme_path else context.scheme
             return await _run_storyboard_render(
-                video, scheme_path, context, python_exe, emit_progress
+                video, scheme_path, context, python_exe, emit_progress,
+                evaluation_run_id=f"web_task_{task_id}" if pipeline_mode == "agent_pipeline" else None,
+                model_env=model_env,
             )
 
         if pipeline_mode == "editing_transfer":
@@ -680,40 +713,47 @@ async def _run_agent_pipeline(
     model_env: dict[str, str],
 ) -> str:
     """多智能体路线：基于已分析的结构生成待确认方案。"""
-    if not context.video_structure.is_file():
-        raise RuntimeError(f"视频结构分析结果未生成: {context.video_structure}")
-
-    with Session(engine) as session:
-        personal_knowledge = _personal_knowledge_entries(session, project.user_id)
-    context.personal_knowledge.write_text(
-        json.dumps(personal_knowledge, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
     run_id = f"web_task_{task_id}"
-    emit_progress("pipeline", "开始端到端多智能体流水线", 60)
-    await run_command(
-        [
-            python_exe, "run_pipeline_e2e.py",
-            "--struct", str(context.video_structure),
-            "--struct-analysis", str(context.structure_analysis),
-            "--inventory", str(context.material_inventory),
-            "--topic", project.topic or "旅行Vlog",
-            "--run-id", run_id,
-            "--knowledge-context", str(context.personal_knowledge),
-            "--output", str(context.final_video),
-            "--scheme-output", str(context.scheme),
-            "--prepare-only",
-        ],
-        cwd=VSE_DIR,
-        emit_progress=emit_progress,
-        step="pipeline",
-        start_percent=60,
-        end_percent=68,
-        env_overrides=model_env,
-    )
-    if not context.scheme.is_file():
-        raise RuntimeError(f"分镜草案不存在: {context.scheme}")
+    try:
+        if not context.video_structure.is_file():
+            raise RuntimeError(f"视频结构分析结果未生成: {context.video_structure}")
+
+        with Session(engine) as session:
+            personal_knowledge = _personal_knowledge_entries(session, project.user_id)
+        context.personal_knowledge.write_text(
+            json.dumps(personal_knowledge, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+        emit_progress("pipeline", "开始端到端多智能体流水线", 60)
+        await run_command(
+            [
+                python_exe, "run_pipeline_e2e.py",
+                "--struct", str(context.video_structure),
+                "--struct-analysis", str(context.structure_analysis),
+                "--inventory", str(context.material_inventory),
+                "--topic", project.topic or "旅行Vlog",
+                "--run-id", run_id,
+                "--knowledge-context", str(context.personal_knowledge),
+                "--output", str(context.final_video),
+                "--scheme-output", str(context.scheme),
+                "--prepare-only",
+            ],
+            cwd=VSE_DIR,
+            emit_progress=emit_progress,
+            step="pipeline",
+            start_percent=60,
+            end_percent=68,
+            env_overrides=model_env,
+        )
+        if not context.scheme.is_file():
+            raise RuntimeError(f"分镜草案不存在: {context.scheme}")
+    except Exception as exc:
+        try:
+            record_agent_failure(task_id, str(exc), project.topic or "旅行Vlog")
+        except Exception:
+            logger.exception("草案生成失败后的 Agent 评测报告生成失败")
+        raise
     emit_progress("storyboard", f"分镜草案已生成: {context.scheme.name}", 70)
     return str(context.scheme)
 
@@ -724,40 +764,82 @@ async def _run_storyboard_render(
     context: TaskRunContext,
     python_exe: str,
     emit_progress: Callable,
+    evaluation_run_id: str | None = None,
+    model_env: dict[str, str] | None = None,
 ) -> str:
-    """Render a user-confirmed storyboard without calling an LLM."""
-    if not scheme_path.is_file():
-        raise RuntimeError(f"分镜草案不存在: {scheme_path}")
-    if not context.material_inventory.is_file():
-        raise RuntimeError(f"素材库存不存在: {context.material_inventory}")
-
+    """Render a confirmed storyboard and finalize Agent evaluation when enabled."""
     emit_progress("render", "开始渲染已确认的分镜方案", 75)
-    await run_command(
-        [
-            python_exe,
-            "run_storyboard_render.py",
-            "--scheme",
-            str(scheme_path),
-            "--materials",
-            str(context.material_inventory),
-            "--reference-video",
-            str(Path(video.storage_path).resolve()),
-            "--output",
-            str(context.final_video),
-        ],
-        cwd=VSE_DIR,
-        emit_progress=emit_progress,
-        step="render",
-        start_percent=75,
-        end_percent=98,
-        env_overrides={
-            "VISION_API_KEY": "",
-            "VISION_CONFIGURED": "",
-            "TEXT_API_KEY": "",
-            "TEXT_CONFIGURED": "",
-        },
-    )
+    command = [
+        python_exe, "run_storyboard_render.py",
+        "--scheme", str(scheme_path),
+        "--materials", str(context.material_inventory),
+        "--reference-video", str(Path(video.storage_path).resolve()),
+        "--output", str(context.final_video),
+    ]
+    if evaluation_run_id:
+        command.extend([
+            "--run-id", evaluation_run_id,
+            "--reference-structure", str(context.video_structure),
+        ])
+    try:
+        if not scheme_path.is_file():
+            raise RuntimeError(f"分镜草案不存在: {scheme_path}")
+        if not context.material_inventory.is_file():
+            raise RuntimeError(f"素材库存不存在: {context.material_inventory}")
+        await run_command(
+            command,
+            cwd=VSE_DIR,
+            emit_progress=emit_progress,
+            step="render",
+            start_percent=75,
+            end_percent=98,
+            env_overrides=model_env if evaluation_run_id else {
+                "VISION_API_KEY": "",
+                "VISION_CONFIGURED": "",
+                "TEXT_API_KEY": "",
+                "TEXT_CONFIGURED": "",
+            },
+        )
+    except Exception as exc:
+        if evaluation_run_id:
+            report_path = VSE_DIR / "data" / "runs" / evaluation_run_id / "evaluation" / "report.json"
+            try:
+                report_phase = json.loads(report_path.read_text(encoding="utf-8")).get("phase")
+            except (OSError, ValueError, AttributeError):
+                report_phase = None
+            if report_phase != "failed":
+                try:
+                    from evaluation.web_run import finalize_web_run
+                    await finalize_web_run(
+                        evaluation_run_id, scheme_path, context.material_inventory, None,
+                        reference_structure_path=context.video_structure,
+                        render_error=str(exc),
+                        model_config=model_env,
+                    )
+                except Exception:
+                    logger.exception("渲染失败后的 Agent 评测报告生成失败")
+        raise
     if not context.final_video.is_file():
+        if evaluation_run_id:
+            from evaluation.web_run import finalize_web_run
+            await finalize_web_run(
+                evaluation_run_id, scheme_path, context.material_inventory, None,
+                render_error=f"结果文件不存在: {context.final_video}",
+                model_config=model_env,
+            )
         raise RuntimeError(f"结果文件不存在: {context.final_video}")
+    if evaluation_run_id:
+        report_path = VSE_DIR / "data" / "runs" / evaluation_run_id / "evaluation" / "report.json"
+        try:
+            report_phase = json.loads(report_path.read_text(encoding="utf-8")).get("phase")
+        except (OSError, ValueError, AttributeError):
+            report_phase = None
+        if report_phase != "completed":
+            from evaluation.web_run import finalize_web_run
+            await finalize_web_run(
+                evaluation_run_id, scheme_path, context.material_inventory, context.final_video,
+                reference_structure_path=context.video_structure,
+                model_config=model_env,
+            )
     emit_progress("done", f"渲染完成: {context.final_video.name}", 100)
     return str(context.final_video)

@@ -82,7 +82,7 @@ class OutputManager:
         scheme = state.get("scheme")
         review = state.get("review_result", {})
         summary = {
-            "status": "completed",
+            "status": state.get("status", "completed"),
             "target_topic": state.get("target_topic", ""),
             "phase": state.get("phase", ""),
             "iteration": state.get("iteration", 0),

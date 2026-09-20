@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -16,6 +17,7 @@ from config.llm_client import LLMTools
 from config import settings
 from config.output_manager import OutputManager
 from agents.planner import PlannerAgent
+from agents.reviewer import ReviewerAgent
 from knowledge.techniques_loader import get_summary
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -129,12 +131,34 @@ async def main():
     run_id = args.run_id
     out = OutputManager(run_id=run_id)
     logger.info(f"输出目录: {out.run_dir}")
+    run_logs: list[dict] = []
+    errors: list[str] = []
+    stage_started = time.perf_counter()
+    previous_usage: dict = {}
+
+    def record_stage(stage: str, **details) -> None:
+        nonlocal stage_started, previous_usage
+        now = time.perf_counter()
+        entry = {"stage": stage, "duration_seconds": round(now - stage_started, 3), **details}
+        stage_started = now
+        if stage in {"planner", "renderer", "reviewer"}:
+            current_usage = llm.usage_snapshot()
+            entry["llm_usage"] = {
+                key: (current_usage[key] - (previous_usage.get(key) or 0) if isinstance(current_usage.get(key), int) else None)
+                for key in ("requests", "attempts", "responses", "mock_requests", "prompt_tokens", "completion_tokens", "total_tokens")
+            }
+            entry["llm_usage"]["model"] = current_usage["model"]
+            previous_usage = current_usage
+        run_logs.append(entry)
+        out.append_log(stage, entry)
 
     # ===== 1. 加载现有视频结构分析 =====
     logger.info("=" * 60)
     logger.info("1. 加载视频结构分析")
     struct_path = Path(args.struct)
     struct = json.loads(struct_path.read_text(encoding="utf-8"))
+    out.save_json("analyst", "reference_structure.json", struct)
+    record_stage("analyst", reused=True, shot_count=len(struct.get("shots", [])))
     target_duration = infer_target_duration(args.topic, float(struct.get("duration", 0) or 0))
     logger.info(f"   视频: {struct.get('source_video', '?')}")
     logger.info(f"   时长: {struct.get('duration', 0):.1f}s, 镜头: {len(struct.get('shots', []))}")
@@ -162,6 +186,15 @@ async def main():
     else:
         raise ValueError("必须传入 --inventory 或 --photo-dir")
     inventory["materials"] = inventory["items"]
+    out.save_run_info(
+        target_topic=args.topic,
+        sample_videos=[],  # Web flow receives a precomputed structure artifact.
+        user_materials_count=len(inventory["items"]),
+        execution_mode="plan_render",
+        expected_stages=["analyst", "material", "planner", "renderer", "assembler", "reviewer", "render_reviewer"],
+    )
+    out.save_json("material", "inventory.json", inventory)
+    record_stage("material", item_count=len(inventory["items"]))
     logger.info(f"   共 {len(inventory['items'])} 张照片")
 
     # ===== 3. 注入剪辑手法学识，生成方案 =====
@@ -225,6 +258,8 @@ async def main():
 
     scheme = planner.build_scheme(scheme_data, args.topic, iteration=0)
     out.save_json("planner", "scheme.json", scheme)
+    out.save_json("planner", "scheme_v0.json", scheme)
+    record_stage("planner", frame_count=len(scheme.storyboard))
     logger.info(f"   方案: {scheme.title}, {len(scheme.storyboard)} 个分镜, {scheme.target_duration}s")
 
     for f in scheme.storyboard:
@@ -240,6 +275,7 @@ async def main():
     scheme_json = json.dumps(scheme.to_dict() if hasattr(scheme, "to_dict") else scheme_data, ensure_ascii=False)
     decisions = await renderer._analyze_scheme(scheme_json, f"{len(inventory['items'])} 个素材")
     out.save_json("renderer", "render_decisions.json", decisions)
+    record_stage("renderer", decision_count=len(decisions.get("frame_decisions", [])))
 
     frame_decisions = decisions.get("frame_decisions", [])
     for d in frame_decisions:
@@ -255,6 +291,7 @@ async def main():
     for frame in scheme_dict.get("storyboard", []):
         d = decisions_map.get(frame.get("index", -1), {})
         frame["render_component"] = d.get("render_component", "auto")
+    out.save_json("planner", "scheme_final.json", scheme_dict)
 
     if args.scheme_output:
         scheme_output = Path(args.scheme_output).resolve()
@@ -264,6 +301,20 @@ async def main():
         )
 
     if args.prepare_only:
+        out.save_pipeline_summary({
+            "status": "awaiting_confirmation",
+            "target_topic": args.topic,
+            "phase": "planning",
+            "iteration": 0,
+            "is_complete": False,
+            "scheme": scheme,
+            "rendered_video_path": "",
+            "review_result": {},
+            "errors": errors,
+            "logs": run_logs,
+        })
+        from evaluation.run_evaluator import evaluate_run
+        out.save_json("evaluation", "report.json", evaluate_run(out.run_dir))
         logger.info("分镜草案已生成，等待用户确认")
         return
 
@@ -278,8 +329,113 @@ async def main():
         size_mb = Path(result_path).stat().st_size / 1024 / 1024
         logger.info(f"   [OK] 渲染完成: {result_path}")
         logger.info(f"   [OK] 大小: {size_mb:.1f}MB")
+        record_stage("assembler", success=True, output_path=str(result_path))
     else:
         logger.error("   Remotion 渲染失败")
+        errors.append("Remotion 渲染失败")
+        record_stage("assembler", success=False)
+
+    # ===== 6. 方案质量评审与运行评测 =====
+    logger.info("6. Reviewer 方案质量评审")
+    review: dict = {}
+    try:
+        material_list = [
+            f"[{item.get('id', '')}] ({item.get('type', '')}) {item.get('description', '')[:60]}"
+            for item in inventory["items"]
+        ]
+        used_ids = {
+            str(frame.get("material_id") or frame.get("source_material_id"))
+            for frame in scheme_dict.get("storyboard", [])
+            if frame.get("material_id") or frame.get("source_material_id")
+        }
+        coverage = (
+            f"分镜: {len(scheme_dict.get('storyboard', []))}\n"
+            f"素材总数: {len(inventory['items'])}\n"
+            f"已使用素材数: {len(used_ids)}"
+        )
+        transition_summary = "\n".join(
+            f"分镜{frame.get('index', 0)}: {frame.get('transition_in', frame.get('transition', 'cut'))}"
+            for frame in scheme_dict.get("storyboard", [])
+        )
+        reviewer = ReviewerAgent(llm)
+        review = await reviewer._review_scheme(
+            json.dumps(struct, ensure_ascii=False),
+            json.dumps(scheme_dict, ensure_ascii=False),
+            coverage,
+            material_list_desc="\n".join(material_list),
+            transition_summary=transition_summary,
+        )
+        from evaluation.run_evaluator import scheme_fingerprint
+        review["scheme_fingerprint"] = scheme_fingerprint(scheme_dict)
+        out.save_json("reviewer", "review_result.json", review)
+        record_stage(
+            "reviewer",
+            score=review.get("total_score"),
+            passed=bool(review.get("pass")),
+        )
+    except Exception as exc:
+        logger.warning("Reviewer 评审失败: %s", exc)
+        errors.append(f"Reviewer 评审失败: {exc}")
+        record_stage("reviewer", success=False, error=str(exc))
+
+    # ===== 7. 成片证据评测 =====
+    # Keep it separate from the storyboard Reviewer: this stage inspects the
+    # actual MP4 and only treats visual-model findings as diagnostics until
+    # their thresholds have been calibrated with human-labelled videos.
+    if result_path:
+        render_review_started = time.perf_counter()
+        try:
+            from evaluation.run_evaluator import scheme_fingerprint
+            from evaluation.video_review import review_rendered_video
+
+            render_review, render_usage = await review_rendered_video(
+                result_path, scheme_dict, struct, out.stage_dir("render_reviewer"),
+            )
+            render_review["scheme_fingerprint"] = scheme_fingerprint(scheme_dict)
+            out.save_json("render_reviewer", "render_review.json", render_review)
+            render_log = {
+                "stage": "render_reviewer",
+                "success": True,
+                "review_status": render_review.get("status"),
+                "score": (render_review.get("visual_review") or {}).get("total_score"),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+                "llm_usage": render_usage,
+            }
+            run_logs.append(render_log)
+            out.append_log("render_reviewer", render_log)
+        except Exception as exc:
+            logger.warning("成片评测失败: %s", exc)
+            render_log = {
+                "stage": "render_reviewer",
+                "success": True,
+                "review_status": "failed",
+                "error": str(exc),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+            }
+            run_logs.append(render_log)
+            out.save_json("render_reviewer", "render_review.json", {"status": "failed", "reason": str(exc)})
+            out.append_log("render_reviewer", render_log)
+
+    final_state = {
+        "status": "completed" if result_path else "failed",
+        "target_topic": args.topic,
+        "phase": "complete",
+        "iteration": 0,
+        "is_complete": bool(result_path),
+        "scheme": scheme,
+        "rendered_video_path": str(result_path or ""),
+        "review_result": review,
+        "errors": errors,
+        "logs": run_logs,
+    }
+    out.save_pipeline_summary(final_state)
+    try:
+        from evaluation.run_evaluator import evaluate_run
+        evaluation = evaluate_run(out.run_dir)
+        out.save_json("evaluation", "report.json", evaluation)
+        logger.info("   评测得分: %.2f | success=%s", evaluation["score"], evaluation["success"])
+    except Exception as exc:
+        logger.warning("运行评测报告生成失败: %s", exc)
 
     logger.info("=" * 60)
     logger.info("端到端流程完成")

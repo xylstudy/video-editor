@@ -19,11 +19,11 @@ class AssemblerAgent(BaseAgent):
 - render_fallback: 如果 Remotion 不可用，用 FFmpeg 简单拼接
 - done: 任务完成"""
 
-        self.tools = {
+        self.register_tools({
             "render_with_remotion": self._render_with_remotion,
             "render_fallback": self._render_fallback,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         scheme = state.get("scheme")

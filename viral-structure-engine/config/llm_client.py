@@ -27,11 +27,34 @@ class LLMTools:
         self.api_key = api_key or settings.MOONSHOT_API_KEY
         self.base_url = (base_url or settings.MOONSHOT_BASE_URL).rstrip("/")
         self.model = model
+        self._usage = {
+            "requests": 0,
+            "attempts": 0,
+            "responses": 0,
+            "mock_requests": 0,
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
+        self._usage_fields: set[str] = set()
         self.chat_url = (
             self.base_url
             if self.base_url.endswith("/chat/completions")
             else f"{self.base_url}/chat/completions"
         )
+
+    def usage_snapshot(self) -> dict:
+        """Return provider-reported token totals and actual request attempts."""
+        result = dict(self._usage)
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            if key not in self._usage_fields:
+                result[key] = None
+        result["retries"] = max(0, result["attempts"] - result["requests"])
+        result["model"] = self.model
+        return result
+
+    def _record_mock(self) -> None:
+        self._usage["mock_requests"] += 1
 
     def _can_call_without_key(self) -> bool:
         return urlparse(self.chat_url).hostname in {"localhost", "127.0.0.1", "::1"}
@@ -65,6 +88,7 @@ class LLMTools:
         """Send a multi-turn conversation to the configured chat endpoint."""
         if not self.api_key and not self._can_call_without_key():
             logger.warning("No API key configured, returning mock response")
+            self._record_mock()
             return self._mock_response(json.dumps(messages, ensure_ascii=False))
 
         body = {
@@ -91,6 +115,7 @@ class LLMTools:
         """发送视频+音频到多模态模型（如 Qwen3-OMNI-Flash），模型可同时看画面和听声音"""
         if not self.api_key and not self._can_call_without_key():
             logger.warning("No API key configured, returning mock response")
+            self._record_mock()
             return self._mock_response(prompt)
 
         p = Path(video_path)
@@ -137,6 +162,7 @@ class LLMTools:
     ) -> str:
         if not self.api_key and not self._can_call_without_key():
             logger.warning("No API key configured, returning mock response")
+            self._record_mock()
             return self._mock_response(prompt)
 
         content_parts = [{"type": "text", "text": prompt}]
@@ -172,6 +198,7 @@ class LLMTools:
         return await self._post(body)
 
     async def _post(self, body: dict) -> str:
+        self._usage["requests"] += 1
         for attempt in range(10):
             try:
                 # Ignore stale process proxy variables. The web app stores an
@@ -184,6 +211,7 @@ class LLMTools:
                     headers = {"Content-Type": "application/json"}
                     if self.api_key:
                         headers["Authorization"] = f"Bearer {self.api_key}"
+                    self._usage["attempts"] += 1
                     resp = await client.post(self.chat_url, headers=headers, json=body)
                     if resp.status_code == 400 and "response_format" in body:
                         logger.warning("response_format not supported, retrying without it")
@@ -191,6 +219,15 @@ class LLMTools:
                         continue
                     resp.raise_for_status()
                     data = resp.json()
+                    self._usage["responses"] += 1
+                    usage = data.get("usage") or {}
+                    if not isinstance(usage, dict):
+                        usage = {}
+                    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                        value = usage.get(key)
+                        if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+                            self._usage[key] += value
+                            self._usage_fields.add(key)
                     choice = data["choices"][0]
                     message = choice.get("message") or {}
                     content = message.get("content") or ""
@@ -198,7 +235,6 @@ class LLMTools:
                         return content
 
                     finish_reason = choice.get("finish_reason", "unknown")
-                    usage = data.get("usage") or {}
                     completion_details = usage.get("completion_tokens_details") or {}
                     reasoning_tokens = completion_details.get("reasoning_tokens", 0)
                     current_limit = int(body.get("max_tokens") or 4096)

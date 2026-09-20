@@ -103,6 +103,10 @@ export function getTask(taskId) {
   return api.get(`/tasks/${taskId}`)
 }
 
+export function getTaskEvaluation(taskId) {
+  return api.get(`/tasks/${taskId}/evaluation`)
+}
+
 export function getStoryboard(taskId) {
   return api.get(`/tasks/${taskId}/storyboard`)
 }
@@ -215,8 +219,16 @@ export function createChatSession(data = {}) {
   return api.post('/chat/sessions', data)
 }
 
-export function listChatMessages(sessionId) {
-  return api.get(`/chat/sessions/${sessionId}/messages`)
+export function listChatMessages(sessionId, params = {}) {
+  return api.get(`/chat/sessions/${sessionId}/messages`, { params })
+}
+
+export function updateChatContext(sessionId, context) {
+  return api.patch(`/chat/sessions/${sessionId}/context`, { context })
+}
+
+export function clearChatContext(sessionId) {
+  return api.delete(`/chat/sessions/${sessionId}/context`)
 }
 
 export function sendChatMessage(sessionId, content, context = {}) {

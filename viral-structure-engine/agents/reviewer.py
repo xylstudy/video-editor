@@ -32,10 +32,10 @@ class ReviewerAgent(BaseAgent):
 - review_scheme: 对方案做双维度（Fidelity + Quality）评估
 - done: 任务完成"""
 
-        self.tools = {
+        self.register_tools({
             "review_scheme": self._review_scheme,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task = state.get("current_task", {})

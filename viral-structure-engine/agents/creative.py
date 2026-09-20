@@ -32,7 +32,7 @@ Vlog补全核心原则：
 - Ken Burns让静态照片"活"起来
 - 有脸的素材优先保留给hook和高潮"""
 
-        self.tools = {
+        self.register_tools({
             "plan_fill_strategy": self._plan_fill_strategy,
             "crop_material": self._crop_material,
             "apply_ken_burns": self._apply_ken_burns,
@@ -40,7 +40,7 @@ Vlog补全核心原则：
             "apply_speed_change": self._apply_speed_change,
             "generate_subtitle_overlay": self._generate_subtitle_overlay,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task = state.get("current_task", {})

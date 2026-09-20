@@ -26,12 +26,12 @@ class PlannerAgent(BaseAgent):
 - iterate_scheme: 根据审核反馈修改方案
 - done: 任务完成"""
 
-        self.tools = {
+        self.register_tools({
             "extract_skeleton": self._extract_skeleton,
             "generate_scheme": self._generate_scheme,
             "iterate_scheme": self._iterate_scheme,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task = state.get("current_task", {})
