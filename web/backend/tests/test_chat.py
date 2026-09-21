@@ -8,6 +8,7 @@ import chat_service
 from db_models import (
     ChatAction,
     ChatAttachment,
+    ChatMessage,
     ChatSession,
     Material,
     MaterialType,
@@ -92,6 +93,8 @@ def test_chat_starts_owned_task_from_project_context(monkeypatch):
     assert queued == [(task.id, project.id, user.id)]
     assert result["assistant_message"]["metadata"]["task_id"] == task.id
     assert result["action"]["status"] == "queued"
+    assert result["memory"]["current_goal"] == "生成分镜方案"
+    assert any("已启动任务" in item for item in result["memory"]["completed_actions"])
 
 
 def test_chat_upload_video_creates_gene(monkeypatch):
@@ -143,3 +146,87 @@ def test_chat_asks_to_disambiguate_multiple_projects():
     assert "多个项目" in content
     assert "项目 A" in content
     assert "项目 B" in content
+
+
+def test_chat_context_rejects_foreign_project():
+    session, user, _chat = make_session()
+    owned = Project(name="owned", user_id=user.id)
+    other_user = User(username="foreign-context-user", hashed_password="x")
+    session.add_all([owned, other_user])
+    session.commit()
+    foreign = Project(name="foreign", user_id=other_user.id)
+    session.add(foreign)
+    session.commit()
+
+    context = chat_service._authorise_context(
+        session,
+        user,
+        {"route": f"/projects/{foreign.id}", "project_id": foreign.id},
+    )
+
+    assert "project_id" not in context
+    assert context["route"] == f"/projects/{foreign.id}"
+
+
+def test_chat_compacts_only_history_outside_short_term_window():
+    session, _user, chat = make_session()
+    for index in range(chat_service.MAX_HISTORY + 4):
+        session.add(ChatMessage(
+            session_id=chat.id,
+            role="user" if index % 2 == 0 else "assistant",
+            content=f"old turn {index}",
+        ))
+    session.commit()
+
+    chat_service._compact_session_memory(session, chat)
+    first_summary = chat.memory_summary
+    first_cursor = chat.memory_cursor_id
+    chat_service._compact_session_memory(session, chat)
+
+    assert "old turn 0" in first_summary
+    assert "old turn 3" in first_summary
+    assert "old turn 4" not in first_summary
+    assert chat.memory_summary == first_summary
+    assert chat.memory_cursor_id == first_cursor
+
+
+def test_current_request_is_not_duplicated_in_model_history(monkeypatch):
+    session, user, chat = make_session()
+    captured = {}
+
+    async def fake_plan(_user_id, history, _content, _context, _memory_summary="", _workflow_memory=None):
+        captured["history"] = [item.content for item in history]
+        return {"intent": "answer", "arguments": {}, "reply": "ok"}
+
+    monkeypatch.setattr(chat_service, "_model_plan", fake_plan)
+    asyncio.run(chat_service.handle_message(session, user, chat, "tell me something unusual"))
+
+    assert "tell me something unusual" not in captured["history"]
+
+
+def test_chat_merges_bounded_structured_memory(monkeypatch):
+    session, user, chat = make_session()
+
+    async def fake_plan(*_args, **_kwargs):
+        return {
+            "intent": "answer",
+            "arguments": {},
+            "reply": "ok",
+            "memory_update": {
+                "current_goal": "完成一条城市夜游短片",
+                "decisions": ["时长 15 秒"],
+                "constraints": ["保留原始节奏"],
+                "next_step": "等待素材分析完成",
+            },
+        }
+
+    monkeypatch.setattr(chat_service, "_model_plan", fake_plan)
+    result = asyncio.run(chat_service.handle_message(session, user, chat, "请按 15 秒制作"))
+    session.refresh(chat)
+    memory = chat_service._memory_for_client(chat)
+
+    assert memory["current_goal"] == "完成一条城市夜游短片"
+    assert memory["decisions"] == ["时长 15 秒"]
+    assert memory["constraints"] == ["保留原始节奏"]
+    assert memory["next_step"] == "等待素材分析完成"
+    assert result["memory"] == memory

@@ -2,12 +2,14 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlmodel import Session, select
 
 from app_config import STORAGE_ROOT
 from auth import get_current_user
 from chat_service import (
+    _authorise_context,
+    _memory_for_client,
     _message_dict,
     _normalise_context,
     _parse_json,
@@ -17,6 +19,7 @@ from chat_service import (
 from database import get_session
 from db_models import (
     ChatAttachment,
+    ChatContextUpdate,
     ChatMessage,
     ChatMessageCreate,
     ChatSession,
@@ -70,10 +73,17 @@ def _upload_media_type(filename: str, content_type: str | None, kind: str | None
 
 
 def _session_read(chat: ChatSession) -> dict:
+    raw_context = _parse_json(chat.context_json, {})
+    context = {
+        key: raw_context[key]
+        for key in ("route", "project_id", "task_id", "gene_id")
+        if isinstance(raw_context, dict) and key in raw_context
+    }
     return {
         "id": chat.id,
         "title": chat.title,
-        "context": _parse_json(chat.context_json, {}),
+        "context": context,
+        "memory": _memory_for_client(chat),
         "created_at": chat.created_at,
         "updated_at": chat.updated_at,
     }
@@ -101,13 +111,74 @@ def create_chat_session(
 ):
     payload = payload or ChatSessionCreate()
     title = (payload.title or "新对话").strip()[:80] or "新对话"
+    context = _authorise_context(
+        session,
+        current_user,
+        _normalise_context("{}", payload.context),
+    )
     chat = ChatSession(
         user_id=current_user.id,
         title=title,
-        context_json=json.dumps(
-            _normalise_context("{}", payload.context), ensure_ascii=False
-        ),
+        context_json=json.dumps(context, ensure_ascii=False),
     )
+    session.add(chat)
+    session.commit()
+    session.refresh(chat)
+    return _session_read(chat)
+
+
+@router.patch("/sessions/{session_id}/context")
+def update_chat_context(
+    session_id: int,
+    payload: ChatContextUpdate,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Explicitly set a conversation's active project/task/gene context."""
+    try:
+        chat = _session_or_404(session, session_id, current_user.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    context = _authorise_context(
+        session,
+        current_user,
+        _normalise_context(chat.context_json, payload.context),
+    )
+    chat.context_json = json.dumps(context, ensure_ascii=False)
+    memory = _memory_for_client(chat)
+    memory["workspace"] = {
+        key: context[key]
+        for key in ("project_id", "task_id", "gene_id")
+        if context.get(key)
+    }
+    chat.memory_json = json.dumps(memory, ensure_ascii=False)
+    chat.updated_at = datetime.utcnow()
+    session.add(chat)
+    session.commit()
+    session.refresh(chat)
+    return _session_read(chat)
+
+
+@router.delete("/sessions/{session_id}/context")
+def clear_chat_context(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Clear the workspace selection without deleting conversation history."""
+    try:
+        chat = _session_or_404(session, session_id, current_user.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    context = _normalise_context(chat.context_json, {})
+    for key in ("project_id", "task_id", "gene_id", "attachment_ids"):
+        context.pop(key, None)
+    context["route"] = "/assistant"
+    chat.context_json = json.dumps(context, ensure_ascii=False)
+    memory = _memory_for_client(chat)
+    memory["workspace"] = {}
+    chat.memory_json = json.dumps(memory, ensure_ascii=False)
+    chat.updated_at = datetime.utcnow()
     session.add(chat)
     session.commit()
     session.refresh(chat)
@@ -180,6 +251,8 @@ async def upload_chat_attachment(
 @router.get("/sessions/{session_id}/messages")
 def list_chat_messages(
     session_id: int,
+    before_id: int | None = Query(default=None, gt=0),
+    limit: int = Query(default=50, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
@@ -187,12 +260,19 @@ def list_chat_messages(
         chat = _session_or_404(session, session_id, current_user.id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    messages = session.exec(
-        select(ChatMessage)
-        .where(ChatMessage.session_id == chat.id)
-        .order_by(ChatMessage.id)
+    statement = select(ChatMessage).where(ChatMessage.session_id == chat.id)
+    if before_id:
+        statement = statement.where(ChatMessage.id < before_id)
+    rows = session.exec(
+        statement.order_by(ChatMessage.id.desc()).limit(limit + 1)
     ).all()
-    return [_message_dict(message) for message in messages]
+    has_more = len(rows) > limit
+    messages = list(reversed(rows[:limit]))
+    return {
+        "items": [_message_dict(message) for message in messages],
+        "has_more": has_more,
+        "next_before_id": messages[0].id if has_more and messages else None,
+    }
 
 
 @router.post("/sessions/{session_id}/messages")

@@ -3,9 +3,11 @@ import { Bot, ExternalLink, FileVideo, Loader2, MessageSquare, Paperclip, Plus, 
 import { Link, useLocation } from 'react-router-dom'
 import {
   createChatSession,
+  clearChatContext,
   listChatMessages,
   listChatSessions,
   sendChatMessage,
+  updateChatContext,
   uploadChatAttachment,
 } from '../api.js'
 import { Button, Card, InfoBar, SectionHeader } from '../components/ui.jsx'
@@ -32,6 +34,10 @@ function contextFromPath(pathname, search = '') {
     if (value > 0 && !context[key]) context[key] = value
   }
   return context
+}
+
+function hasWorkspaceTarget(context) {
+  return ['project_id', 'task_id', 'gene_id'].some((key) => Number(context[key]) > 0)
 }
 
 function messageTime(value) {
@@ -112,11 +118,73 @@ function ThinkingBubble() {
   )
 }
 
+function WorkspaceContext({ context, onClear, disabled }) {
+  const entries = [
+    context?.project_id && { key: 'project', label: `项目 #${context.project_id}` },
+    context?.task_id && { key: 'task', label: `任务 #${context.task_id}` },
+    context?.gene_id && { key: 'gene', label: `视频基因 #${context.gene_id}` },
+  ].filter(Boolean)
+
+  if (!entries.length) {
+    return (
+      <div className="mb-4 rounded-xl border border-dashed border-[#2a2a42] bg-[#14141f] px-3 py-2 text-xs text-[#6f6f8e]">
+        当前未锁定项目或任务；涉及执行的指令会要求你明确选择对象。
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-[rgba(0,212,255,0.16)] bg-[rgba(0,212,255,0.05)] px-3 py-2">
+      <span className="text-[11px] font-medium text-[#77dced]">当前工作上下文</span>
+      {entries.map((entry) => (
+        <span key={entry.key} className="rounded-md bg-[rgba(0,212,255,0.1)] px-2 py-1 text-[11px] text-[#b8f4ff]">
+          {entry.label}
+        </span>
+      ))}
+      <button
+        type="button"
+        onClick={onClear}
+        disabled={disabled}
+        className="ml-auto text-[11px] text-[#8e8ea9] transition hover:text-[#ff9b9b] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        清除上下文
+      </button>
+    </div>
+  )
+}
+
+function WorkflowMemory({ memory }) {
+  const goal = memory?.current_goal
+  const nextStep = memory?.next_step
+  const decisions = Array.isArray(memory?.decisions) ? memory.decisions.slice(-2) : []
+  const constraints = Array.isArray(memory?.constraints) ? memory.constraints.slice(-2) : []
+  if (!goal && !nextStep && !decisions.length && !constraints.length) return null
+
+  return (
+    <div className="mb-4 rounded-xl border border-[rgba(124,92,252,0.18)] bg-[rgba(124,92,252,0.05)] px-3 py-2.5 text-xs">
+      <div className="mb-1.5 font-medium text-[#bdaeff]">工作记忆</div>
+      {goal && <p className="text-[#c9c7db]">目标：{goal}</p>}
+      {nextStep && <p className="mt-1 text-[#8e8ea9]">下一步：{nextStep}</p>}
+      {(decisions.length > 0 || constraints.length > 0) && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {decisions.map((item) => (
+            <span key={`decision-${item}`} className="rounded-md bg-[rgba(124,92,252,0.12)] px-2 py-1 text-[11px] text-[#c9baff]">决策：{item}</span>
+          ))}
+          {constraints.map((item) => (
+            <span key={`constraint-${item}`} className="rounded-md bg-[rgba(255,159,159,0.1)] px-2 py-1 text-[11px] text-[#ffb3b3]">约束：{item}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Assistant() {
   const location = useLocation()
   const [sessions, setSessions] = useState([])
   const [activeSessionId, setActiveSessionId] = useState(null)
   const [messages, setMessages] = useState([])
+  const [paging, setPaging] = useState({ hasMore: false, nextBeforeId: null, loadingOlder: false })
   const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
@@ -126,14 +194,24 @@ export default function Assistant() {
   const messageEndRef = useRef(null)
   const fileInputRef = useRef(null)
   const initializedRef = useRef(false)
+  const workspaceSyncRef = useRef('')
+  const shouldScrollToEndRef = useRef(true)
 
   const loadMessages = useCallback(async (sessionId) => {
     setActiveSessionId(sessionId)
     setMessages([])
+    setPaging({ hasMore: false, nextBeforeId: null, loadingOlder: false })
     setAttachments([])
     try {
-      const response = await listChatMessages(sessionId)
-      setMessages(response.data)
+      const response = await listChatMessages(sessionId, { limit: 50 })
+      const payload = response.data
+      const items = Array.isArray(payload) ? payload : (payload.items || [])
+      setMessages(items)
+      setPaging({
+        hasMore: Boolean(payload?.has_more),
+        nextBeforeId: payload?.next_before_id || null,
+        loadingOlder: false,
+      })
     } catch (requestError) {
       setError(requestError.response?.data?.detail || '对话记录加载失败')
     }
@@ -168,7 +246,32 @@ export default function Assistant() {
   }, [initialize])
 
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const pageContext = contextFromPath(location.pathname, location.search)
+    if (!activeSessionId || !hasWorkspaceTarget(pageContext)) return
+    const signature = `${location.pathname}?${location.search}`
+    if (workspaceSyncRef.current === signature) return
+    workspaceSyncRef.current = signature
+    let cancelled = false
+    updateChatContext(activeSessionId, pageContext)
+      .then((response) => {
+        if (cancelled) return
+        setSessions((current) => current.map((item) => (
+          item.id === activeSessionId ? response.data : item
+        )))
+      })
+      .catch((requestError) => {
+        if (!cancelled) {
+          setError(requestError.response?.data?.detail || '当前工作上下文同步失败')
+        }
+      })
+    return () => { cancelled = true }
+  }, [activeSessionId, location.pathname, location.search])
+
+  useEffect(() => {
+    if (shouldScrollToEndRef.current) {
+      messageEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+    shouldScrollToEndRef.current = true
   }, [messages, sending])
 
   const handleNewSession = async () => {
@@ -178,9 +281,48 @@ export default function Assistant() {
       setSessions((current) => [response.data, ...current])
       setActiveSessionId(response.data.id)
       setMessages([])
+      setPaging({ hasMore: false, nextBeforeId: null, loadingOlder: false })
       setAttachments([])
     } catch (requestError) {
       setError(requestError.response?.data?.detail || '新建对话失败')
+    }
+  }
+
+  const handleLoadOlderMessages = async () => {
+    if (!activeSessionId || !paging.hasMore || !paging.nextBeforeId || paging.loadingOlder) return
+    shouldScrollToEndRef.current = false
+    setPaging((current) => ({ ...current, loadingOlder: true }))
+    try {
+      const response = await listChatMessages(activeSessionId, {
+        limit: 50,
+        before_id: paging.nextBeforeId,
+      })
+      const payload = response.data
+      const items = Array.isArray(payload) ? payload : (payload.items || [])
+      setMessages((current) => [...items, ...current])
+      setPaging({
+        hasMore: Boolean(payload?.has_more),
+        nextBeforeId: payload?.next_before_id || null,
+        loadingOlder: false,
+      })
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || '更早的对话记录加载失败')
+      shouldScrollToEndRef.current = true
+      setPaging((current) => ({ ...current, loadingOlder: false }))
+    }
+  }
+
+  const handleClearWorkspace = async () => {
+    if (!activeSessionId || sending) return
+    setError('')
+    try {
+      const response = await clearChatContext(activeSessionId)
+      setSessions((current) => current.map((item) => (
+        item.id === activeSessionId ? response.data : item
+      )))
+      workspaceSyncRef.current = `${location.pathname}?${location.search}`
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || '工作上下文清除失败')
     }
   }
 
@@ -240,7 +382,13 @@ export default function Assistant() {
       ])
       setSessions((current) => current.map((item) => (
         item.id === sessionId
-          ? { ...item, title: item.title === '新对话' ? content.slice(0, 36) : item.title, updated_at: new Date().toISOString() }
+          ? {
+              ...item,
+              title: item.title === '新对话' ? content.slice(0, 36) : item.title,
+              context: response.data.context || item.context,
+              memory: response.data.memory || item.memory,
+              updated_at: new Date().toISOString(),
+            }
           : item
       )))
       setAttachments([])
@@ -252,6 +400,8 @@ export default function Assistant() {
       setSending(false)
     }
   }
+
+  const activeSession = sessions.find((item) => item.id === activeSessionId)
 
   return (
     <div>
@@ -278,11 +428,12 @@ export default function Assistant() {
                 key={item.id}
                 type="button"
                 onClick={() => loadMessages(item.id)}
+                disabled={sending}
                 className={`w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors ${
                   item.id === activeSessionId
                     ? 'bg-[rgba(124,92,252,0.14)] text-[#b49aff]'
                     : 'text-[#777795] hover:bg-[#1c1c2b] hover:text-[#d8d8e8]'
-                }`}
+                } disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 {item.title || '新对话'}
               </button>
@@ -300,6 +451,13 @@ export default function Assistant() {
               <p className="mt-0.5 text-xs text-[#777795]">可以查询数据，也可以启动实际的视频工作流</p>
             </div>
           </div>
+
+          <WorkspaceContext
+            context={activeSession?.context}
+            onClear={handleClearWorkspace}
+            disabled={sending || loading}
+          />
+          <WorkflowMemory memory={activeSession?.memory} />
 
           <div className="flex-1 space-y-5 overflow-y-auto pr-1">
             {loading ? (
@@ -325,7 +483,21 @@ export default function Assistant() {
                 </div>
               </div>
             ) : (
-              messages.map((message) => <ChatBubble key={message.id} message={message} />)
+              <>
+                {paging.hasMore && (
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={handleLoadOlderMessages}
+                      disabled={paging.loadingOlder || sending}
+                      className="rounded-full border border-[#2a2a42] px-3 py-1.5 text-[11px] text-[#8e8ea9] transition hover:border-[#4a3f77] hover:text-[#c8baff] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {paging.loadingOlder ? '正在加载…' : '加载更早的消息'}
+                    </button>
+                  </div>
+                )}
+                {messages.map((message) => <ChatBubble key={message.id} message={message} />)}
+              </>
             )}
             {sending && <ThinkingBubble />}
             <div ref={messageEndRef} />
