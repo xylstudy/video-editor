@@ -80,6 +80,7 @@ async def run_pipeline(
         "is_complete": final_state.get("is_complete", False),
         "rendered_video_path": final_state.get("rendered_video_path", ""),
         "review_result": final_state.get("review_result", {}),
+        "skill_trace": final_state.get("skill_trace", {}),
         "error_count": len(final_state.get("errors", [])),
         "errors": final_state.get("errors", []),
         "log_count": len(final_state.get("logs", [])),

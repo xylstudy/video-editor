@@ -8,6 +8,7 @@ from pathlib import Path
 
 from config.output_manager import OutputManager
 from evaluation.run_evaluator import evaluate_run, scheme_fingerprint
+from skills.verifier import attach_skill_outcomes, verify_skill_usage
 
 
 async def finalize_web_run(
@@ -163,6 +164,20 @@ async def finalize_web_run(
         review = {"pass": False, "status": "not_run", "reason": errors[-1] if errors else "review unavailable"}
         out.save_json("reviewer", "review_result.json", review)
 
+    # The user may have edited the draft after planning. Re-run deterministic
+    # compliance checks against the confirmed scheme, while retaining the
+    # original route decisions embedded in the draft's trace.
+    skill_trace = scheme.get("skill_evaluation") if isinstance(scheme, dict) else None
+    if isinstance(skill_trace, dict) and skill_trace.get("route_decisions"):
+        route_plan = {
+            "references": skill_trace.get("selected_skill_refs", []),
+            "decisions": skill_trace.get("route_decisions", []),
+        }
+        skill_trace = verify_skill_usage(scheme, route_plan, inventory)
+        attach_skill_outcomes(skill_trace, reviewer=review, render_review=render_review)
+        scheme["skill_evaluation"] = skill_trace
+        out.save_json("planner", "scheme_final.json", scheme)
+
     out.save_pipeline_summary({
         "status": "completed" if rendered else "failed",
         "target_topic": scheme.get("target_topic", ""),
@@ -177,4 +192,14 @@ async def finalize_web_run(
     })
     report = evaluate_run(out.run_dir)
     out.save_json("evaluation", "report.json", report)
+    if isinstance(skill_trace, dict) and skill_trace.get("route_decisions"):
+        attach_skill_outcomes(
+            skill_trace,
+            reviewer=review,
+            render_review=render_review,
+            run_evaluation=report,
+        )
+        scheme["skill_evaluation"] = skill_trace
+        out.save_json("planner", "scheme_final.json", scheme)
+        out.save_json("evaluation", "skill_evaluation.json", skill_trace)
     return report

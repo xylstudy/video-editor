@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "version": "travel-vlog-v1",
+  "cases": [
+    {
+      "case_id": "travel-hook-motion-001",
+      "description": "有运动风景素材、目标快节奏，验证开场 Hook 策略",
+      "reference_run_id": "replace-with-sanitised-reference-id",
+      "input_manifest": "replace-with-authorised-input-manifest.json",
+      "tags": ["travel_vlog", "hook", "motion", "fast"]
+    },
+    {
+      "case_id": "travel-hook-static-002",
+      "description": "只有静态风景素材，验证 Skill 在受限素材下是否仍稳定",
+      "reference_run_id": "replace-with-sanitised-reference-id",
+      "input_manifest": "replace-with-authorised-input-manifest.json",
+      "tags": ["travel_vlog", "hook", "static", "limited_material"]
+    }
+  ]
+}

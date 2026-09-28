@@ -191,7 +191,14 @@ class PlannerAgent(BaseAgent):
             render_hints=scheme_data.get("render_hints", {}),
             # 结构迁移可溯源
             gene_refs=scheme_data.get("gene_refs", []),
+            selected_skill_refs=scheme_data.get("selected_skill_refs", []),
+            loaded_skill_refs=scheme_data.get("loaded_skill_refs", []),
+            declared_skill_refs=scheme_data.get(
+                "declared_skill_refs", scheme_data.get("skill_refs_used", [])
+            ),
+            verified_skill_refs=scheme_data.get("verified_skill_refs", []),
             skill_refs_used=scheme_data.get("skill_refs_used", []),
+            skill_evaluation=scheme_data.get("skill_evaluation", {}),
             adaptation_log=scheme_data.get("adaptation_log", []),
             # 音频配置
             audio_source_id=scheme_data.get("audio_source_id", ""),

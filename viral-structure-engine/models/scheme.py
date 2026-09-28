@@ -161,7 +161,16 @@ class VideoScheme:
     knowledge_refs: list[str] = field(default_factory=list)
     # ===== 结构迁移可溯源 =====
     gene_refs: list[str] = field(default_factory=list)         # 参考 Gene 的 source_id 列表
-    skill_refs_used: list[str] = field(default_factory=list)   # 本次实际用到的 Skill reference 名
+    # Skill trace has four deliberately different meanings.  Do not collapse
+    # selected (router relevance) into declared/verified (actual compliance).
+    selected_skill_refs: list[str] = field(default_factory=list)
+    loaded_skill_refs: list[str] = field(default_factory=list)
+    declared_skill_refs: list[str] = field(default_factory=list)
+    verified_skill_refs: list[str] = field(default_factory=list)
+    # Backward-compatible alias for model-declared use.  Older artifacts may
+    # only contain this field, so readers should treat it as `declared`.
+    skill_refs_used: list[str] = field(default_factory=list)
+    skill_evaluation: dict = field(default_factory=dict)
     adaptation_log: list[dict] = field(default_factory=list)   # 结构适配决策记录
     color_grade: str = ""
     filter_style: str = ""
@@ -228,7 +237,12 @@ class VideoScheme:
             "emotion_arc": self.emotion_arc,
             "knowledge_refs": self.knowledge_refs,
             "gene_refs": self.gene_refs,
+            "selected_skill_refs": self.selected_skill_refs,
+            "loaded_skill_refs": self.loaded_skill_refs,
+            "declared_skill_refs": self.declared_skill_refs,
+            "verified_skill_refs": self.verified_skill_refs,
             "skill_refs_used": self.skill_refs_used,
+            "skill_evaluation": self.skill_evaluation,
             "adaptation_log": self.adaptation_log,
             "iteration": self.iteration,
             "version": self.version,

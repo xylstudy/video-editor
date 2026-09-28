@@ -50,6 +50,9 @@ web/backend/app.db
 viral-structure-engine/data/runs/
 viral-structure-engine/data/temp/
 viral-structure-engine/data/output/
+viral-structure-engine/data/*.sqlite3
+viral-structure-engine/data/*.sqlite3-wal
+viral-structure-engine/data/*.sqlite3-shm
 
 # 采样/帧分析缓存
 get_video/frames_analysis/

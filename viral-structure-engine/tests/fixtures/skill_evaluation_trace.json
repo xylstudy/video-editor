@@ -1,0 +1,27 @@
+{
+  "selected_skill_refs": ["hook"],
+  "loaded_skill_refs": ["hook"],
+  "declared_skill_refs": ["hook"],
+  "verified_skill_refs": ["hook"],
+  "route_decisions": [
+    {
+      "skill_id": "hook",
+      "skill_version": "1.0.0",
+      "selected": true,
+      "triggers": ["Gene 含 hook 镜头功能"]
+    }
+  ],
+  "verification": [
+    {
+      "skill_id": "hook",
+      "status": "verified",
+      "compliance_score": 1.0
+    }
+  ],
+  "outcomes": {
+    "reviewer": {
+      "passed": true,
+      "total_score": 88
+    }
+  }
+}

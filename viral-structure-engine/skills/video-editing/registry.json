@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "skill": "video-editing",
+  "skills": [
+    {
+      "id": "structure-adaptation",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 100,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning"],
+      "applicable_shot_functions": [],
+      "validation_rules": ["adaptation_trace"],
+      "description": "在素材条件受限时保留 Gene 的镜头功能，并记录可解释的适配决策。"
+    },
+    {
+      "id": "hook",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 90,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning", "opening"],
+      "applicable_shot_functions": ["hook"],
+      "validation_rules": ["hook_first_shot", "hook_fast_opening", "hook_has_visual_or_caption"],
+      "description": "为前 3 秒的抓注意力镜头提供结构化剪辑策略。"
+    },
+    {
+      "id": "material-matching",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 85,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning"],
+      "applicable_shot_functions": ["establishing", "scene_establish"],
+      "validation_rules": ["referenced_material_exists", "functional_adaptation_when_needed"],
+      "description": "按镜头功能而不是原片物体匹配用户素材。"
+    },
+    {
+      "id": "rhythm",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 80,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning"],
+      "applicable_shot_functions": ["hook", "climax", "emotion_peak", "daily_moment"],
+      "validation_rules": ["rhythm_has_variation", "rhythm_climax_present"],
+      "description": "让镜头时长和节奏弧与 Gene 的节奏角色保持一致。"
+    },
+    {
+      "id": "emotion",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 75,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning"],
+      "applicable_shot_functions": ["climax", "emotion_peak", "closing", "persona", "daily_moment"],
+      "validation_rules": ["emotion_labels_present", "emotion_climax_present"],
+      "description": "保持情绪递进、高潮和收束的连贯性。"
+    },
+    {
+      "id": "transition",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 70,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning"],
+      "applicable_shot_functions": ["transition"],
+      "validation_rules": ["transition_values_valid", "transition_not_all_identical"],
+      "description": "按段落节奏和情绪选择合法且不过度重复的转场。"
+    },
+    {
+      "id": "subtitle",
+      "version": "1.0.0",
+      "status": "active",
+      "priority": 65,
+      "routing_weight": 1.0,
+      "applicable_stages": ["planning", "packaging"],
+      "applicable_shot_functions": ["info", "closing"],
+      "validation_rules": ["info_has_text", "subtitle_text_length_valid"],
+      "description": "为信息镜头和叙事包装提供字幕与文字卡策略。"
+    }
+  ]
+}

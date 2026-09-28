@@ -1,9 +1,13 @@
+import asyncio
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from skills.router import SkillRouter, SkillReference
+from skills.analytics import aggregate_skill_evaluations
+from skills.registry import SkillRegistry
+from skills.verifier import verify_skill_usage
 from models.gene import ShotGene, StructureGene
 from prompts.planner_prompts import build_scheme_generate_prompt, _format_skill_context
 from prompts.reviewer_prompts import build_review_prompt
@@ -13,6 +17,19 @@ def _gene_with_functions(*functions):
     return StructureGene(source_id="v1", shot_genes=[
         ShotGene(index=i, function=f) for i, f in enumerate(functions)
     ])
+
+
+class _FakeSemanticLLM:
+    def __init__(self, response="NONE", error=None):
+        self.response = response
+        self.error = error
+        self.prompts = []
+
+    async def chat(self, prompt, **kwargs):
+        self.prompts.append(prompt)
+        if self.error:
+            raise self.error
+        return self.response
 
 
 def test_stage_routing_hook_only():
@@ -62,6 +79,101 @@ def test_skill_meta_priority():
     meta = router.load_skill_meta()
     assert "Gene" in meta.get("priority", "")
     assert "Skill" in meta.get("priority", "")
+
+
+def test_registry_versions_and_route_decisions():
+    registry = SkillRegistry()
+    assert registry.get("hook").version == "1.0.0"
+    assert registry.is_active("hook")
+    plan = SkillRouter().route_for_gene(_gene_with_functions("hook"))
+    decision = next(item for item in plan.to_dict()["decisions"] if item["skill_id"] == "hook")
+    assert decision["skill_version"] == "1.0.0"
+    assert decision["selected_by"] == "deterministic_rule"
+    assert decision["routing_weight"] == 1.0
+    assert any("hook" in trigger for trigger in decision["triggers"])
+
+
+def test_hybrid_route_keeps_rules_and_adds_semantic_skills():
+    llm = _FakeSemanticLLM("hook, transition, subtitle")
+    plan = asyncio.run(SkillRouter().route_hybrid(
+        [_gene_with_functions("hook")],
+        context="用户希望结尾加文字卡，并使用有节奏的段落转场。",
+        llm=llm,
+    ))
+    assert plan.routing_mode == "hybrid"
+    assert plan.semantic_routing_attempted
+    # Deterministic results are mandatory and cannot be removed by the LLM.
+    assert "structure-adaptation" in plan.references
+    assert "hook" in plan.references
+    # Semantic routing may add active references not covered by the Gene rule.
+    assert "transition" in plan.references
+    assert "subtitle" in plan.references
+    hook = next(decision for decision in plan.decisions if decision.skill_id == "hook")
+    transition = next(decision for decision in plan.decisions if decision.skill_id == "transition")
+    assert hook.selected_by == "deterministic_rule+llm_semantic"
+    assert transition.selected_by == "llm_semantic"
+    assert "为前 3 秒" in llm.prompts[0]  # Registry description is exposed, not full Markdown.
+
+
+def test_hybrid_route_degrades_to_deterministic_on_llm_failure():
+    llm = _FakeSemanticLLM(error=RuntimeError("router unavailable"))
+    plan = asyncio.run(SkillRouter().route_hybrid(
+        [_gene_with_functions("climax")],
+        context="旅行视频高潮段落",
+        llm=llm,
+    ))
+    assert plan.routing_mode == "hybrid_fallback_deterministic"
+    assert "RuntimeError" in plan.semantic_routing_error
+    assert "emotion" in plan.references
+    assert "rhythm" in plan.references
+
+
+def test_skill_trace_does_not_confuse_selected_with_declared_or_verified():
+    plan = SkillRouter().route_for_gene(_gene_with_functions("hook"))
+    scheme = {
+        "skill_refs_used": ["hook"],
+        "storyboard": [
+            {
+                "index": 0,
+                "shot_type": "hook",
+                "structure_function": "hook",
+                "duration": 2.0,
+                "material_id": "mat_001",
+                "subtitle_text": "三秒看完杭州",
+                "skill_refs": ["hook"],
+            },
+            {
+                "index": 1,
+                "shot_type": "daily_moment",
+                "duration": 3.5,
+                "material_id": "mat_002",
+            },
+        ],
+    }
+    trace = verify_skill_usage(
+        scheme,
+        plan,
+        {"items": [{"id": "mat_001"}, {"id": "mat_002"}]},
+    )
+    assert "hook" in trace["selected_skill_refs"]
+    assert "hook" in trace["loaded_skill_refs"]
+    assert "hook" in trace["declared_skill_refs"]
+    assert "hook" in trace["verified_skill_refs"]
+    # structure-adaptation is selected by the default route, but the Planner
+    # did not declare it. It must not be falsely reported as used.
+    assert "structure-adaptation" in trace["selected_skill_refs"]
+    assert "structure-adaptation" not in trace["declared_skill_refs"]
+    assert "structure-adaptation" not in trace["verified_skill_refs"]
+
+
+def test_skill_analytics_is_observational_not_auto_routing():
+    path = Path(__file__).resolve().parent / "fixtures" / "skill_evaluation_trace.json"
+    report = aggregate_skill_evaluations([path], min_samples=2)
+    row = report["skill_reports"][0]
+    assert row["selected_count"] == 1
+    assert row["verified_rate"] == 1.0
+    assert row["recommendation"] == "insufficient_samples_keep_deterministic_route"
+    assert "does not prove" in report["interpretation"]
 
 
 def test_skill_cannot_override_gene_in_prompt():
@@ -119,6 +231,11 @@ if __name__ == "__main__":
     test_gene_routing_establishing_material_matching()
     test_reference_content_loaded()
     test_skill_meta_priority()
+    test_registry_versions_and_route_decisions()
+    test_hybrid_route_keeps_rules_and_adds_semantic_skills()
+    test_hybrid_route_degrades_to_deterministic_on_llm_failure()
+    test_skill_trace_does_not_confuse_selected_with_declared_or_verified()
+    test_skill_analytics_is_observational_not_auto_routing()
     test_skill_cannot_override_gene_in_prompt()
     test_format_skill_context()
     test_gene_section_in_prompt()

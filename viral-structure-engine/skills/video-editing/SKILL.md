@@ -25,7 +25,7 @@ Reference Gene 的职责。
 只在 Planner 做具体剪辑决策、且确定性路由命中时加载对应 reference。**不要在任务开始
 时把全部知识注入 prompt。**
 
-## 路由规则（确定性触发，LLM 语义兜底）
+## 路由规则（确定性必选，LLM 语义补充）
 
 | 当前决策 | 加载 reference |
 |---|---|
@@ -38,6 +38,10 @@ Reference Gene 的职责。
 | 字幕 / 包装 / 文字卡 | `subtitle.md` |
 
 对应实现见 `skills/router.py`：`route_for_stage` / `route_for_shot` / `route_for_gene`。
+
+正式规划路径使用 `route_hybrid`：上述 Gene 规则结果不可被 LLM 删除；LLM 只根据用户目标、
+Gene、脱敏素材摘要和 Registry description 补充相关的 active reference。语义调用失败时退回
+规则结果，最终只读取命中的 Markdown。
 
 ## 优先级与覆盖规则（重要）
 
