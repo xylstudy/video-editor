@@ -69,13 +69,67 @@ def _collect_knowledge_refs() -> list[str]:
         return []
 
 
-def _collect_gene_and_skills(state: ViralEngineState) -> tuple[str, list[str], list]:
+def _compact_skill_routing_context(state: ViralEngineState, genes: list) -> str:
+    """Build a bounded, path-free context for semantic Skill routing."""
+    inventory = state.get("material_inventory")
+    if hasattr(inventory, "to_dict"):
+        inventory = inventory.to_dict()
+    inventory = inventory if isinstance(inventory, dict) else {}
+    raw_items = inventory.get("items", inventory.get("materials", []))
+    compact_items = []
+    for item in raw_items[:40] if isinstance(raw_items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        compact_items.append({
+            key: item.get(key)
+            for key in (
+                "id", "type", "description", "scene_type", "shot_scale",
+                "camera_motion", "motion_intensity", "emotion_tags",
+                "semantic_tags", "suitable_functions", "quality_score",
+            )
+            if item.get(key) not in (None, "", [], {})
+        })
+    raw_preferences = state.get("user_preferences", {})
+    raw_preferences = raw_preferences if isinstance(raw_preferences, dict) else {}
+    compact_preferences = {
+        key: raw_preferences.get(key)
+        for key in (
+            "style", "duration", "shot_count_target", "total_duration_guide",
+            "material_usage", "narrative_type", "vlog_style_preference", "note",
+        )
+        if raw_preferences.get(key) not in (None, "", [], {})
+    }
+    compact_genes = []
+    for gene in genes:
+        value = gene.to_dict() if hasattr(gene, "to_dict") else gene
+        if isinstance(value, dict):
+            value = dict(value)
+            value.pop("source_path", None)
+        compact_genes.append(value)
+    payload = {
+        "target_topic": state.get("target_topic", ""),
+        "user_preferences": compact_preferences,
+        "reference_genes": compact_genes,
+        "material_summary": {
+            "item_count": len(raw_items) if isinstance(raw_items, list) else 0,
+            "items": compact_items,
+        },
+    }
+    # Semantic routing needs a summary, not the complete task state.
+    return json.dumps(payload, ensure_ascii=False, default=str)[:12000]
+
+
+async def _collect_gene_and_skills(
+    state: ViralEngineState,
+    llm: LLMTools | None = None,
+) -> tuple[str, list[str], list, dict]:
     """从 state 中取出 Reference Gene，并按需路由加载 Editing Skill。
 
-    返回 (gene_json, skill_refs, skill_context)：
+    返回 (gene_json, skill_refs, skill_context, skill_plan)：
       - gene_json:   Reference Gene 序列化文本（Planner 的核心结构约束）
       - skill_refs:  本次按需加载的 Skill reference 名（渐进式披露）
       - skill_context: [{name, content}]，直接注入 Planner prompt
+      - skill_plan:  每个 Skill 的版本、触发原因与选择方式，供审计/验证使用
     """
     from skills.router import SkillRouter
 
@@ -93,15 +147,22 @@ def _collect_gene_and_skills(state: ViralEngineState) -> tuple[str, list[str], l
     ) if genes else ""
 
     router = SkillRouter()
-    skill_refs: list[str] = []
-    for g in genes:
-        plan = router.route_for_gene(g)
-        for ref in plan.references:
-            if ref not in skill_refs:
-                skill_refs.append(ref)
+    existing_plan = state.get("skill_plan")
+    if isinstance(existing_plan, dict) and existing_plan.get("references"):
+        loaded_references = router.collect(existing_plan.get("references", []))
+        skill_refs = [reference.name for reference in loaded_references]
+        skill_context = [reference.to_dict() for reference in loaded_references]
+        return gene_json, skill_refs, skill_context, existing_plan
 
+    if llm is not None:
+        route_context = _compact_skill_routing_context(state, genes)
+        plan = await router.route_hybrid(genes, route_context, llm)
+    else:
+        plan = router.route_for_genes(genes)
+    skill_refs = list(plan.references)
     skill_context = [r.to_dict() for r in router.collect(skill_refs)] if skill_refs else []
-    return gene_json, skill_refs, skill_context
+    skill_plan = plan.to_dict()
+    return gene_json, skill_refs, skill_context, skill_plan
 
 
 async def supervisor_node(state: ViralEngineState) -> dict:
@@ -413,14 +474,24 @@ async def planner_node(state: ViralEngineState) -> dict:
 
     structures = state.get("source_structures", [])
 
-    # ===== Reference Gene + 按需加载的 Editing Skill（渐进式披露） =====
-    gene_json, skill_refs, skill_context = _collect_gene_and_skills(state)
+    # ===== Reference Gene + 确定性规则/LLM 语义补充的混合 Skill 路由 =====
+    gene_json, skill_refs, skill_context, skill_plan = await _collect_gene_and_skills(state, llm)
 
     logger.info(f"")
     logger.info(f"  ===========================================")
     logger.info(f"    编导策划：{'迭代优化方案' if iteration > 0 else '生成迁移方案'} (第{iteration+1}轮)")
     logger.info(f"  ===========================================")
-    logger.info(f"  [编导] Reference Gene: {len(state.get('source_genes', []))} 条 | 按需加载 Skill: {skill_refs or '无'}")
+    logger.info(
+        "  [编导] Reference Gene: %d 条 | Skill 路由: %s | 按需加载: %s",
+        len(state.get("source_genes", [])),
+        skill_plan.get("routing_mode", "deterministic"),
+        skill_refs or "无",
+    )
+    if skill_plan.get("semantic_routing_error"):
+        logger.warning(
+            "  [编导] Skill 语义路由失败，已降级为确定性结果: %s",
+            skill_plan["semantic_routing_error"],
+        )
 
     try:
         if iteration == 0:
@@ -475,8 +546,15 @@ async def planner_node(state: ViralEngineState) -> dict:
 
         scheme = planner.build_scheme(scheme_data, target_topic, iteration)
         scheme.knowledge_refs = _collect_knowledge_refs()
-        if skill_refs and not scheme.skill_refs_used:
-            scheme.skill_refs_used = list(skill_refs)
+        # A routed reference is not automatically "used".  Persist selection,
+        # prompt loading, model declaration and rule verification separately.
+        from skills.verifier import initialise_skill_trace, verify_skill_usage
+        initialise_skill_trace(scheme, skill_plan)
+        skill_trace = verify_skill_usage(
+            scheme, skill_plan, state.get("material_inventory")
+        )
+        out.save_json("planner", f"skill_routing_v{iteration}.json", skill_plan)
+        out.save_json("evaluation", f"skill_evaluation_v{iteration}.json", skill_trace)
         out.save_json("planner", f"scheme_v{iteration}.json", scheme)
         logger.info(f"  [编导] [OK] 方案生成完成: {len(scheme.storyboard)} 个分镜, 目标时长 {scheme.target_duration}s")
         log_entry = {"stage": "planner", "iteration": iteration, "frames": len(scheme.storyboard)}
@@ -503,6 +581,8 @@ async def planner_node(state: ViralEngineState) -> dict:
             "review_feedback": review_result if iteration > 0 else {},
             "gene": (gene_json[:3000] + "...") if len(gene_json) > 3000 else gene_json,
             "skill_refs": skill_refs,
+            "skill_routing": skill_plan,
+            "skill_trace": skill_trace,
             "knowledge_refs": scheme.knowledge_refs,
             "inventory_summary": inventory_summary,
             "audio_data": audio_data_str if iteration == 0 else "",
@@ -513,7 +593,9 @@ async def planner_node(state: ViralEngineState) -> dict:
 
         return {
             "scheme": scheme,
-            "skill_refs": skill_refs,
+            "skill_refs": list(getattr(scheme, "declared_skill_refs", [])),
+            "skill_plan": skill_plan,
+            "skill_trace": skill_trace,
             "phase": "renderer" if iteration == 0 else "review",
             "errors": errors,
             "logs": logs,
@@ -828,12 +910,13 @@ async def reviewer_node(state: ViralEngineState) -> dict:
     logger.info(f"  ===========================================")
 
     try:
-        gene_json, _, _ = _collect_gene_and_skills(state)
+        gene_json, _, _, _ = await _collect_gene_and_skills(state)
         structure_summaries = "\n\n".join(
             json.dumps(vs.to_dict() if hasattr(vs, "to_dict") else str(vs), ensure_ascii=False)
             for vs in structures
         )
         scheme_json = json.dumps(scheme.to_dict() if hasattr(scheme, "to_dict") else {}, ensure_ascii=False)
+        out.save_json("planner", "scheme_final.json", json.loads(scheme_json))
 
         # ---- 素材覆盖描述 ----
         storyboard = getattr(scheme, "storyboard", [])
@@ -876,9 +959,21 @@ async def reviewer_node(state: ViralEngineState) -> dict:
             transition_summary=transition_summary,
             gene_json=gene_json,
         )
+        from evaluation.run_evaluator import scheme_fingerprint
+        review["scheme_fingerprint"] = scheme_fingerprint(json.loads(scheme_json))
         # 关联本方案参考的知识/手法，供后续统计「知识 → 审核分数」效果
         review["knowledge_refs_applied"] = list(getattr(scheme, "knowledge_refs", []))
-        review["skill_refs_applied"] = list(getattr(scheme, "skill_refs_used", []))
+        review["skill_refs_applied"] = list(getattr(scheme, "declared_skill_refs", []))
+
+        # Reviewer outcome is linked to the trace as observational evidence.
+        # It is intentionally not labelled as a causal Skill-effect score.
+        from skills.verifier import attach_skill_outcomes
+        skill_trace = state.get("skill_trace") or getattr(scheme, "skill_evaluation", {})
+        if isinstance(skill_trace, dict):
+            attach_skill_outcomes(skill_trace, reviewer=review)
+            scheme.skill_evaluation = skill_trace
+            out.save_json("evaluation", "skill_evaluation.json", skill_trace)
+            out.save_json("planner", "scheme_final.json", scheme)
 
         if hasattr(scheme, "review_notes"):
             scheme.review_notes.append(json.dumps(review, ensure_ascii=False))
@@ -916,6 +1011,7 @@ async def reviewer_node(state: ViralEngineState) -> dict:
 
         return {
             "review_result": review,
+            "skill_trace": skill_trace if isinstance(skill_trace, dict) else {},
             "iteration": iteration,
             "is_complete": is_complete,
             "phase": "complete" if is_complete else "planning",
@@ -1004,6 +1100,8 @@ def create_initial_state(
         "scheme": None,
         "knowledge_refs": [],
         "skill_refs": [],
+        "skill_plan": {},
+        "skill_trace": {},
         "gap_report": {},
         "generated_materials": [],
         "rendered_video_path": "",

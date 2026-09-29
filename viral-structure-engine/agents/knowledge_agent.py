@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from agents.base import BaseAgent
+from agents.base import AgentRole, BaseAgent
 from prompts.knowledge_prompts import (
     build_knowledge_extract_prompt,
     build_knowledge_retrieve_prompt,
@@ -15,6 +15,14 @@ logger = logging.getLogger(__name__)
 
 
 class KnowledgeAgent(BaseAgent):
+    def __init__(self, llm=None):
+        super().__init__(llm)
+        self.role = AgentRole.KNOWLEDGE
+        self.register_tools({
+            "extract_knowledge": self.extract_knowledge,
+            "retrieve_knowledge": self.retrieve_knowledge,
+        })
+
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task_desc = state.get("task_description", "提炼视频结构知识")
         return f"任务：{task_desc}\n已执行 {len(history)} 步"

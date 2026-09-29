@@ -1,13 +1,50 @@
 import json
 import logging
+import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Awaitable, Callable, Optional
+
+from pydantic import ConfigDict, ValidationError, create_model
 
 from config.llm_client import LLMTools
 
 logger = logging.getLogger(__name__)
+
+
+TOOL_DESCRIPTIONS = {
+    "get_video_info": "Read a video's duration, resolution and frame rate.",
+    "detect_scenes": "Detect scene changes in a reference video.",
+    "extract_frame": "Extract one frame from a video at the requested time.",
+    "extract_audio": "Extract the audio track from a video.",
+    "transcribe_audio": "Transcribe an audio file into text.",
+    "detect_face": "Detect the primary face and its image region.",
+    "analyze_shot": "Analyse a video shot's visual, audio and structural role.",
+    "analyze_structure": "Summarise a video's overall narrative and rhythm structure.",
+    "analyze_image": "Analyse an image material for Vlog suitability.",
+    "analyze_video_material": "Analyse a video material and identify useful clips.",
+    "analyze_text": "Analyse text material for its message and emotional tone.",
+    "check_gaps": "Find storyboard shots without suitable source material.",
+    "extract_skeleton": "Extract a transferable structure from the reference analysis.",
+    "generate_scheme": "Generate a storyboard from the structure and material inventory.",
+    "iterate_scheme": "Revise a storyboard according to review feedback.",
+    "plan_fill_strategy": "Plan how to fill missing storyboard material.",
+    "crop_material": "Crop an image material to the requested region.",
+    "apply_ken_burns": "Apply a Ken Burns motion effect to an image.",
+    "generate_text_card": "Render a text card clip for a storyboard gap.",
+    "apply_speed_change": "Change the playback speed of a video material.",
+    "generate_subtitle_overlay": "Overlay a subtitle on a video material.",
+    "analyze_scheme": "Choose a rendering approach for each storyboard frame.",
+    "generate_component": "Generate a custom React and Remotion component.",
+    "compile_components": "Compile the generated dynamic rendering components.",
+    "render_with_remotion": "Render the storyboard with Remotion.",
+    "render_fallback": "Render a fallback video by joining clips with FFmpeg.",
+    "review_scheme": "Score storyboard fidelity, pacing and material coverage.",
+    "extract_knowledge": "Extract reusable editing knowledge from a video structure.",
+    "retrieve_knowledge": "Select relevant knowledge entries for a target Vlog.",
+    "done": "Finish the current Agent task and return a short summary.",
+}
 
 
 class AgentRole(str, Enum):
@@ -40,15 +77,95 @@ class AgentResult:
     steps: list[AgentStep] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class ToolDefinition:
+    """A locally executable tool with MCP-compatible public metadata."""
+
+    name: str
+    description: str
+    input_schema: dict[str, Any]
+    handler: Callable[..., Awaitable[Any]] = field(repr=False, compare=False)
+    arguments_model: Any = field(repr=False, compare=False)
+
+    @classmethod
+    def from_handler(
+        cls,
+        name: str,
+        handler: Callable[..., Awaitable[Any]],
+        description: str | None = None,
+    ) -> "ToolDefinition":
+        """Create a strict JSON Schema from a typed tool-handler signature."""
+        signature = inspect.signature(handler)
+        fields: dict[str, tuple[Any, Any]] = {}
+        for parameter in signature.parameters.values():
+            if parameter.kind in (parameter.VAR_POSITIONAL, parameter.VAR_KEYWORD):
+                raise TypeError(f"Tool {name} cannot use variadic parameter {parameter.name}")
+            annotation = parameter.annotation
+            if annotation is inspect.Parameter.empty:
+                annotation = Any
+            default = ... if parameter.default is inspect.Parameter.empty else parameter.default
+            fields[parameter.name] = (annotation, default)
+
+        arguments_model = create_model(
+            f"{''.join(part.title() for part in name.split('_'))}Arguments",
+            __config__=ConfigDict(extra="forbid"),
+            **fields,
+        )
+        input_schema = arguments_model.model_json_schema()
+        input_schema["additionalProperties"] = False
+        return cls(
+            name=name,
+            description=(
+                description
+                or TOOL_DESCRIPTIONS.get(name)
+                or inspect.getdoc(handler)
+                or f"Execute {name.replace('_', ' ')}."
+            ).strip(),
+            input_schema=input_schema,
+            handler=handler,
+            arguments_model=arguments_model,
+        )
+
+    def public_definition(self) -> dict[str, Any]:
+        """Expose the name, description and inputSchema used by MCP tools."""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "inputSchema": self.input_schema,
+        }
+
+    def validate_arguments(self, arguments: Any) -> dict[str, Any]:
+        if not isinstance(arguments, dict):
+            raise ValueError("action_input must be a JSON object")
+        return self.arguments_model.model_validate(arguments).model_dump()
+
+
 class BaseAgent(ABC):
     role: AgentRole
     system_prompt: str = ""
-    tools: dict[str, callable] = {}
+    tools: dict[str, ToolDefinition]
 
     def __init__(self, llm: Optional[LLMTools] = None):
         self.llm = llm or LLMTools()
+        self.tools = {}
         self._step_history: list[AgentStep] = []
         self._tool_results: dict[str, Any] = {}
+
+    def register_tools(
+        self,
+        handlers: dict[str, Callable[..., Awaitable[Any]]],
+        descriptions: dict[str, str] | None = None,
+    ) -> None:
+        """Register this Agent's allow-listed tools with strict JSON schemas."""
+        descriptions = descriptions or {}
+        self.tools = {
+            name: ToolDefinition.from_handler(name, handler, descriptions.get(name))
+            for name, handler in handlers.items()
+        }
+
+    def list_tools(self) -> list[dict[str, Any]]:
+        """Return MCP-shaped name/description/inputSchema definitions."""
+        return [tool.public_definition() for tool in self.tools.values()]
 
     @abstractmethod
     def _build_observe_prompt(self, state: dict, history: list[AgentStep]) -> str:
@@ -61,7 +178,7 @@ class BaseAgent(ABC):
 
         for step_idx in range(max_steps):
             observe_prompt = self._build_observe_prompt(state, self._step_history)
-            tool_list = "\n".join(f"  - {name}: {fn.__doc__ or ''}" for name, fn in self.tools.items())
+            tool_list = json.dumps(self.list_tools(), ensure_ascii=False, indent=2)
 
             decision_prompt = f"""当前任务上下文：
 {observe_prompt}
@@ -122,17 +239,21 @@ class BaseAgent(ABC):
                     steps=self._step_history,
                 )
 
-            tool_fn = self.tools.get(action)
-            if tool_fn is None:
+            tool = self.tools.get(action)
+            if tool is None:
                 step.observation = f"错误：未知工具 '{action}'"
                 self._step_history.append(step)
                 continue
 
             try:
-                result = await tool_fn(**action_input)
+                validated_input = tool.validate_arguments(action_input)
+                result = await tool.handler(**validated_input)
                 summary = str(result)[:500]
                 step.observation = summary
                 self._tool_results[f"step_{step_idx}_{action}"] = result
+            except (ValidationError, ValueError) as e:
+                step.observation = f"工具参数校验失败: {e}"
+                logger.warning(f"Tool {action} argument validation failed: {e}")
             except Exception as e:
                 step.observation = f"工具执行失败: {e}"
                 logger.warning(f"Tool {action} failed: {e}")

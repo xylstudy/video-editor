@@ -47,8 +47,6 @@ async def run_pipeline(
         run_id=run_id,
     )
 
-    app = build_graph()
-
     logger.info("=" * 60)
     logger.info("爆款Vlog结构迁移引擎 — Multi-Agent")
     logger.info(f"主题: {target_topic}")
@@ -56,7 +54,23 @@ async def run_pipeline(
     logger.info(f"输出目录: {out.run_dir}")
     logger.info("=" * 60)
 
-    final_state = await app.ainvoke(initial_state)
+    try:
+        app = build_graph()
+        final_state = await app.ainvoke(initial_state)
+    except Exception as exc:
+        out.save_pipeline_summary({
+            "status": "failed",
+            "target_topic": target_topic,
+            "phase": "execution_failed",
+            "is_complete": False,
+            "errors": [str(exc)],
+        })
+        try:
+            from evaluation.run_evaluator import evaluate_run
+            out.save_json("evaluation", "report.json", evaluate_run(out.run_dir))
+        except Exception:
+            logger.exception("Pipeline 失败评测报告生成失败")
+        raise
 
     result = {
         "status": "completed",
@@ -66,6 +80,7 @@ async def run_pipeline(
         "is_complete": final_state.get("is_complete", False),
         "rendered_video_path": final_state.get("rendered_video_path", ""),
         "review_result": final_state.get("review_result", {}),
+        "skill_trace": final_state.get("skill_trace", {}),
         "error_count": len(final_state.get("errors", [])),
         "errors": final_state.get("errors", []),
         "log_count": len(final_state.get("logs", [])),
@@ -75,6 +90,16 @@ async def run_pipeline(
     }
 
     out.save_pipeline_summary(final_state)
+
+    # The report is deterministic and reads only this run's saved artifacts;
+    # failures in evaluation must not hide a completed generation result.
+    try:
+        from evaluation.run_evaluator import evaluate_run
+        evaluation = evaluate_run(out.run_dir)
+        out.save_json("evaluation", "report.json", evaluation)
+        result["evaluation"] = evaluation
+    except Exception as exc:
+        logger.warning("运行评测报告生成失败: %s", exc)
 
     logger.info(f"Pipeline 结果已保存至: {out.run_dir}")
     return result

@@ -144,10 +144,29 @@ def _migrate_task_storyboard_columns():
         conn.commit()
 
 
+def _migrate_chat_memory_columns():
+    """Add bounded conversation-memory fields to databases created before chat memory."""
+    with engine.connect() as conn:
+        cols = {row[1] for row in conn.execute(text("PRAGMA table_info(chatsession)"))}
+        if not cols:
+            return
+        if "memory_summary" not in cols:
+            conn.execute(text("ALTER TABLE chatsession ADD COLUMN memory_summary TEXT DEFAULT ''"))
+        if "memory_cursor_id" not in cols:
+            conn.execute(text("ALTER TABLE chatsession ADD COLUMN memory_cursor_id INTEGER DEFAULT 0"))
+        if "memory_json" not in cols:
+            conn.execute(text("ALTER TABLE chatsession ADD COLUMN memory_json TEXT DEFAULT '{}'"))
+        conn.execute(text("UPDATE chatsession SET memory_summary = '' WHERE memory_summary IS NULL"))
+        conn.execute(text("UPDATE chatsession SET memory_cursor_id = 0 WHERE memory_cursor_id IS NULL"))
+        conn.execute(text("UPDATE chatsession SET memory_json = '{}' WHERE memory_json IS NULL"))
+        conn.commit()
+
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
     _migrate_project_gene_column()
     _migrate_task_storyboard_columns()
+    _migrate_chat_memory_columns()
     _migrate_gene_progress_columns()
     _migrate_knowledge_ownership()
     _migrate_api_keys_to_models()

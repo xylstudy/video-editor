@@ -191,6 +191,13 @@ class ChatSession(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", index=True)
     title: str = Field(default="新对话")
     context_json: str = Field(default="{}", sa_column=Column(Text))
+    # A bounded, compact record of turns that have rolled out of the model's
+    # short-term history window. It is data for the planner, never instructions.
+    memory_summary: str = Field(default="", sa_column=Column(Text))
+    memory_cursor_id: int = Field(default=0)
+    # Structured workflow memory is kept separately from the archived text so
+    # the assistant can retain goals and verified workflow state across turns.
+    memory_json: str = Field(default="{}", sa_column=Column(Text))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -206,6 +213,12 @@ class ChatSessionRead(SQLModel):
     context: dict
     created_at: datetime
     updated_at: datetime
+
+
+class ChatContextUpdate(SQLModel):
+    """Explicitly switch the workspace a conversation is operating in."""
+
+    context: dict = Field(default_factory=dict)
 
 
 class ChatAttachment(SQLModel, table=True):

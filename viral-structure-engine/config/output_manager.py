@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 import shutil
@@ -50,6 +52,10 @@ class OutputManager:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         logger.info(f"  [{stage}] 已保存: {filename}")
+        # Refresh once final evaluation evidence changes.  This hook is best
+        # effort: experience learning must never fail the generation task.
+        if stage == "evaluation" and filename in {"report.json", "skill_evaluation.json"}:
+            self._refresh_skill_experience()
         return path
 
     def save_text(self, stage: str, filename: str, content: str) -> Path:
@@ -82,7 +88,7 @@ class OutputManager:
         scheme = state.get("scheme")
         review = state.get("review_result", {})
         summary = {
-            "status": "completed",
+            "status": state.get("status", "completed"),
             "target_topic": state.get("target_topic", ""),
             "phase": state.get("phase", ""),
             "iteration": state.get("iteration", 0),
@@ -94,7 +100,22 @@ class OutputManager:
             "errors": state.get("errors", []),
             "log_count": len(state.get("logs", [])),
         }
-        return self.save_json("", "pipeline_summary.json", summary)
+        path = self.save_json("", "pipeline_summary.json", summary)
+        self._refresh_skill_experience()
+        return path
+
+    def _refresh_skill_experience(self) -> None:
+        """Keep Run/Decision Experience in sync with the latest artifacts."""
+        try:
+            from skills.experience import safe_capture_run_experiences
+
+            safe_capture_run_experiences(
+                self.run_dir,
+                db_path=settings.DATA_DIR / "skill_experiences.sqlite3",
+            )
+        except Exception:
+            # Import/path errors are also non-fatal for the primary pipeline.
+            logger.exception("Skill experience refresh failed for run %s", self.run_id)
 
     def append_log(self, stage: str, log_entry: dict) -> None:
         """追加一条 Agent 日志到 logs/agent_logs.jsonl"""

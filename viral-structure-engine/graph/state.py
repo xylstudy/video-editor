@@ -23,7 +23,9 @@ class ViralEngineState(TypedDict):
     material_inventory: Any
     scheme: Any
     knowledge_refs: list
-    skill_refs: list          # 本次实际用到的 Editing Skill reference 名
+    skill_refs: list          # 当前方案中由 Planner 声明使用的 Editing Skill reference 名
+    skill_plan: dict          # 首轮混合路由决策；后续 Reviewer 回环复用，避免语义结果漂移
+    skill_trace: dict         # selected/loaded/declared/verified + outcome trace
     gap_report: dict
     generated_materials: list
     rendered_video_path: str

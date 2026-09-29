@@ -26,6 +26,7 @@ from db_models import (
 )
 from routers import projects, tasks
 from routers import insights, stats
+from config import settings as vse_settings
 
 
 def make_session():
@@ -523,3 +524,111 @@ def test_queue_pauses_for_confirmation_then_completes_render(tmp_path, monkeypat
         assert rendered.status == TaskStatus.SUCCESS
         assert rendered.result_path == str(video_path)
         assert rendered.progress == 100
+
+
+def test_agent_render_uses_same_run_and_model_for_final_review(tmp_path, monkeypatch):
+    context = pipeline_runner.TaskRunContext.create(tmp_path / "task")
+    context.scheme.write_text('{"storyboard":[{"material_id":"a"}]}', encoding="utf-8")
+    context.material_inventory.write_text('{"items":[{"id":"a"}]}', encoding="utf-8")
+    reference = tmp_path / "reference.mp4"
+    reference.write_bytes(b"reference")
+    video = Material(
+        project_id=1, type=MaterialType.VIDEO,
+        filename=reference.name, storage_path=str(reference),
+    )
+    captured = {}
+    engine_dir = tmp_path / "engine"
+    monkeypatch.setattr(pipeline_runner, "VSE_DIR", engine_dir)
+
+    async def fake_run_command(cmd, **kwargs):
+        captured["cmd"] = cmd
+        captured["env"] = kwargs["env_overrides"]
+        context.final_video.write_bytes(b"rendered")
+        report_path = engine_dir / "data" / "runs" / "web_task_42" / "evaluation" / "report.json"
+        report_path.parent.mkdir(parents=True)
+        report_path.write_text('{"phase":"completed"}', encoding="utf-8")
+
+    monkeypatch.setattr(pipeline_runner, "run_command", fake_run_command)
+    result = asyncio.run(pipeline_runner._run_storyboard_render(
+        video, context.scheme, context, "python", lambda *args: None,
+        evaluation_run_id="web_task_42",
+        model_env={"TEXT_API_KEY": "test-key"},
+    ))
+    assert result == str(context.final_video)
+    assert captured["cmd"][captured["cmd"].index("--run-id") + 1] == "web_task_42"
+    assert str(context.video_structure) in captured["cmd"]
+    assert captured["env"]["TEXT_API_KEY"] == "test-key"
+
+
+def test_agent_prepare_failure_still_writes_evaluation(tmp_path, monkeypatch):
+    monkeypatch.setattr(vse_settings, "RUNS_DIR", tmp_path / "runs")
+    context = pipeline_runner.TaskRunContext.create(tmp_path / "task")
+    project = Project(name="failed-plan", topic="旅行", user_id=1, pipeline_mode=PipelineMode.AGENT_PIPELINE)
+
+    with pytest.raises(RuntimeError, match="视频结构分析结果未生成"):
+        asyncio.run(pipeline_runner._run_agent_pipeline(
+            42, project, context, "python", lambda *args: None, {},
+        ))
+
+    report = json.loads((tmp_path / "runs" / "web_task_42" / "evaluation" / "report.json").read_text(encoding="utf-8"))
+    assert report["phase"] == "failed"
+    assert report["success"] is False
+    assert report["execution"]["error_count"] == 1
+
+
+def test_agent_task_failing_before_planning_writes_report(tmp_path, monkeypatch):
+    session, user = make_session()
+    project = Project(name="early-failure", user_id=user.id, pipeline_mode=PipelineMode.AGENT_PIPELINE)
+    session.add(project)
+    session.commit()
+    session.refresh(project)
+    task = Task(project_id=project.id, type=TaskType.END_TO_END)
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+
+    async def failed_pipeline(**kwargs):
+        raise RuntimeError("material analysis failed")
+
+    async def fake_broadcast(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(vse_settings, "RUNS_DIR", tmp_path / "runs")
+    monkeypatch.setattr(queue_manager, "engine", session.get_bind())
+    monkeypatch.setattr(queue_manager, "run_pipeline", failed_pipeline)
+    monkeypatch.setattr(queue_manager.ws_manager, "broadcast", fake_broadcast)
+    worker = queue_manager.TaskQueue()
+    asyncio.run(worker._execute_item(queue_manager.QueueItem(
+        task_id=task.id, project_id=project.id, user_id=user.id,
+    )))
+
+    report = json.loads((tmp_path / "runs" / f"web_task_{task.id}" / "evaluation" / "report.json").read_text(encoding="utf-8"))
+    assert report["phase"] == "failed"
+    assert report["success"] is False
+    assert report["execution"]["error_count"] == 1
+
+
+def test_evaluation_report_is_scoped_to_task_owner(tmp_path, monkeypatch):
+    session, user = make_session()
+    project = Project(name="agent-report", user_id=user.id, pipeline_mode=PipelineMode.AGENT_PIPELINE)
+    session.add(project)
+    session.commit()
+    session.refresh(project)
+    task = Task(project_id=project.id, type=TaskType.END_TO_END)
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+
+    monkeypatch.setattr(tasks, "VSE_DIR", tmp_path)
+    report_path = tmp_path / "data" / "runs" / f"web_task_{task.id}" / "evaluation" / "report.json"
+    report_path.parent.mkdir(parents=True)
+    report_path.write_text('{"phase":"completed","score":91}', encoding="utf-8")
+
+    assert tasks.get_task_evaluation(task.id, current_user=user, session=session)["score"] == 91
+    with pytest.raises(HTTPException) as exc:
+        tasks.get_task_evaluation(
+            task.id,
+            current_user=User(id=user.id + 1, username="other", hashed_password="x"),
+            session=session,
+        )
+    assert exc.value.status_code == 404

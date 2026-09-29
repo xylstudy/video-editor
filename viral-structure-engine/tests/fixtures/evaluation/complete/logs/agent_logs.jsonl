@@ -1,0 +1,6 @@
+{"stage":"analyst","timestamp":"2026-01-01T00:00:00"}
+{"stage":"material","timestamp":"2026-01-01T00:00:01"}
+{"stage":"planner","timestamp":"2026-01-01T00:00:02"}
+{"stage":"renderer","timestamp":"2026-01-01T00:00:03"}
+{"stage":"assembler","timestamp":"2026-01-01T00:00:04"}
+{"stage":"reviewer","timestamp":"2026-01-01T00:00:05"}

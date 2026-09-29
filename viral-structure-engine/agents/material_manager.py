@@ -37,13 +37,13 @@ class MaterialManagerAgent(BaseAgent):
 - check_gaps: 检查方案中哪些分镜缺少合适的素材
 - done: 任务完成"""
 
-        self.tools = {
+        self.register_tools({
             "analyze_image": self._analyze_image,
             "analyze_video_material": self._analyze_video_material,
             "analyze_text": self._analyze_text,
             "check_gaps": self._check_gaps,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task = state.get("current_task", {})

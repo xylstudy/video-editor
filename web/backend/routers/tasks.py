@@ -14,6 +14,7 @@ from database import engine, get_session
 from db_models import MaterialType, Project, Task, TaskCreate, TaskRead, TaskStatus, TaskType, User
 from media import get_current_user_media, range_file_response
 from queue_manager import queue
+from pipeline_runner import VSE_DIR
 from storage import delete_file
 from websocket_manager import ws_manager
 
@@ -185,6 +186,19 @@ def get_task(
     if not project or project.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@router.get("/{task_id}/evaluation")
+def get_task_evaluation(
+    task_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    task, project = _owned_task(task_id, current_user.id, session)
+    if task.type != TaskType.END_TO_END or project.pipeline_mode.value != "agent_pipeline":
+        raise HTTPException(status_code=404, detail="该任务没有 Agent 评测报告")
+    report_path = VSE_DIR / "data" / "runs" / f"web_task_{task_id}" / "evaluation" / "report.json"
+    return _load_json_file(report_path, "Agent 评测报告")
 
 
 @router.get("/{task_id}/storyboard")

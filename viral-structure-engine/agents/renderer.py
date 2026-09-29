@@ -53,12 +53,12 @@ class RendererAgent(BaseAgent):
 - compile_components: 编译所有动态组件
 - done: 任务完成"""
 
-        self.tools = {
+        self.register_tools({
             "analyze_scheme": self._analyze_scheme,
             "generate_component": self._generate_component,
             "compile_components": self._compile_components,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         scheme = state.get("scheme")

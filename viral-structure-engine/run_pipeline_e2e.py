@@ -5,6 +5,7 @@ import json
 import logging
 import re
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -16,7 +17,15 @@ from config.llm_client import LLMTools
 from config import settings
 from config.output_manager import OutputManager
 from agents.planner import PlannerAgent
+from agents.reviewer import ReviewerAgent
 from knowledge.techniques_loader import get_summary
+from models.gene import build_gene
+from skills.router import SkillRouter
+from skills.verifier import (
+    attach_skill_outcomes,
+    initialise_skill_trace,
+    verify_skill_usage,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -123,18 +132,111 @@ def build_preferences(topic: str, target_duration: float = 45.0) -> dict:
     }
 
 
+async def build_skill_context(
+    struct: dict,
+    struct_analysis: dict,
+    *,
+    llm=None,
+    target_topic: str = "",
+    inventory: dict | None = None,
+    preferences: dict | None = None,
+) -> tuple[str, dict, list]:
+    """Build the same hybrid Skill plan used by the LangGraph path.
+
+    The Web path receives a precomputed reference report instead of a
+    ``StructureGene`` object.  Rebuild the compact Gene locally so web planning
+    can keep deterministic Gene routing and add bounded semantic routing.
+    """
+    shot_analyses = struct.get("raw_shot_analyses", struct.get("shots", []))
+    if not isinstance(shot_analyses, list):
+        shot_analyses = []
+    if not isinstance(struct_analysis, dict):
+        struct_analysis = {}
+    gene = build_gene(
+        shot_analyses=shot_analyses,
+        structure_analysis=struct_analysis,
+        source_id=str(struct.get("source_fingerprint") or struct.get("source_video") or "reference"),
+        source_path=str(struct.get("source_path") or struct.get("source_video") or ""),
+        duration=float(struct.get("duration", 0) or 0),
+    )
+    router = SkillRouter()
+    raw_items = (inventory or {}).get("items", (inventory or {}).get("materials", []))
+    compact_items = []
+    for item in raw_items[:40] if isinstance(raw_items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        compact_items.append({
+            key: item.get(key)
+            for key in (
+                "id", "type", "description", "scene_type", "shot_scale",
+                "camera_motion", "motion_intensity", "emotion_tags",
+                "semantic_tags", "suitable_functions", "quality_score",
+            )
+            if item.get(key) not in (None, "", [], {})
+        })
+    raw_preferences = preferences or {}
+    compact_preferences = {
+        key: raw_preferences.get(key)
+        for key in (
+            "style", "duration", "shot_count_target", "total_duration_guide",
+            "material_usage", "narrative_type", "vlog_style_preference", "note",
+        )
+        if raw_preferences.get(key) not in (None, "", [], {})
+    }
+    gene_for_routing = dict(gene.to_dict())
+    gene_for_routing.pop("source_path", None)
+    routing_context = json.dumps({
+        "target_topic": target_topic,
+        "user_preferences": compact_preferences,
+        "reference_gene": gene_for_routing,
+        "material_summary": {
+            "item_count": len(raw_items) if isinstance(raw_items, list) else 0,
+            "items": compact_items,
+        },
+    }, ensure_ascii=False, default=str)[:12000]
+    plan = (
+        await router.route_hybrid([gene], routing_context, llm)
+        if llm is not None
+        else router.route_for_gene(gene)
+    )
+    skill_context = [reference.to_dict() for reference in router.collect(plan.references)]
+    return json.dumps(gene.to_dict(), ensure_ascii=False), plan.to_dict(), skill_context
+
+
 async def main():
     args = parse_args()
 
     run_id = args.run_id
     out = OutputManager(run_id=run_id)
     logger.info(f"输出目录: {out.run_dir}")
+    run_logs: list[dict] = []
+    errors: list[str] = []
+    stage_started = time.perf_counter()
+    previous_usage: dict = {}
+
+    def record_stage(stage: str, **details) -> None:
+        nonlocal stage_started, previous_usage
+        now = time.perf_counter()
+        entry = {"stage": stage, "duration_seconds": round(now - stage_started, 3), **details}
+        stage_started = now
+        if stage in {"planner", "renderer", "reviewer"}:
+            current_usage = llm.usage_snapshot()
+            entry["llm_usage"] = {
+                key: (current_usage[key] - (previous_usage.get(key) or 0) if isinstance(current_usage.get(key), int) else None)
+                for key in ("requests", "attempts", "responses", "mock_requests", "prompt_tokens", "completion_tokens", "total_tokens")
+            }
+            entry["llm_usage"]["model"] = current_usage["model"]
+            previous_usage = current_usage
+        run_logs.append(entry)
+        out.append_log(stage, entry)
 
     # ===== 1. 加载现有视频结构分析 =====
     logger.info("=" * 60)
     logger.info("1. 加载视频结构分析")
     struct_path = Path(args.struct)
     struct = json.loads(struct_path.read_text(encoding="utf-8"))
+    out.save_json("analyst", "reference_structure.json", struct)
+    record_stage("analyst", reused=True, shot_count=len(struct.get("shots", [])))
     target_duration = infer_target_duration(args.topic, float(struct.get("duration", 0) or 0))
     logger.info(f"   视频: {struct.get('source_video', '?')}")
     logger.info(f"   时长: {struct.get('duration', 0):.1f}s, 镜头: {len(struct.get('shots', []))}")
@@ -162,14 +264,23 @@ async def main():
     else:
         raise ValueError("必须传入 --inventory 或 --photo-dir")
     inventory["materials"] = inventory["items"]
+    out.save_run_info(
+        target_topic=args.topic,
+        sample_videos=[],  # Web flow receives a precomputed structure artifact.
+        user_materials_count=len(inventory["items"]),
+        execution_mode="plan_render",
+        expected_stages=["analyst", "material", "planner", "renderer", "assembler", "reviewer", "render_reviewer"],
+    )
+    out.save_json("material", "inventory.json", inventory)
+    record_stage("material", item_count=len(inventory["items"]))
     logger.info(f"   共 {len(inventory['items'])} 张照片")
 
-    # ===== 3. 注入剪辑手法学识，生成方案 =====
+    # ===== 3. 按 Gene 注入 Editing Skill，生成方案 =====
     logger.info("=" * 60)
-    logger.info("3. 编导生成方案 (DeepSeek + 剪辑手法学识)")
+    logger.info("3. 编导生成方案 (DeepSeek + 按需 Editing Skill)")
 
     techniques = get_summary()
-    logger.info(f"   注入 {len(techniques)} 行学识")
+    logger.info(f"   可用剪辑手法摘要 {len(techniques)} 行")
     # 打印部分学识预览
     for line in techniques.split("\n")[:6]:
         logger.info(f"   {line}")
@@ -212,6 +323,25 @@ async def main():
                     for entry in personal_entries[-20:]
                 ]
                 logger.info("   注入当前用户个人知识 %d 条", len(preferences_data["personal_knowledge"]))
+    gene_json, skill_plan, skill_context = await build_skill_context(
+        struct,
+        struct_analysis,
+        llm=llm,
+        target_topic=args.topic,
+        inventory=inventory,
+        preferences=preferences_data,
+    )
+    out.save_json("planner", "skill_routing.json", skill_plan)
+    logger.info(
+        "   Skill 路由模式: %s；按需加载: %s",
+        skill_plan.get("routing_mode", "deterministic"),
+        skill_plan.get("references") or "无",
+    )
+    if skill_plan.get("semantic_routing_error"):
+        logger.warning(
+            "   Skill 语义路由失败，已降级为确定性结果: %s",
+            skill_plan["semantic_routing_error"],
+        )
     preferences = json.dumps(preferences_data, ensure_ascii=False)
 
     # manually inject techniques into the generate call
@@ -219,12 +349,21 @@ async def main():
         json.dumps(skeleton, ensure_ascii=False), inv_json,
         args.topic, "", preferences,
         material_type_hint="全部为静态照片素材，需要做 Ken Burns 运镜。建议每镜用不同照片。",
+        gene_json=gene_json,
+        skill_context=skill_context,
     )
     normalize_storyboard_duration(scheme_data, target_duration)
     out.save_json("planner", "scheme_raw.json", scheme_data)
 
     scheme = planner.build_scheme(scheme_data, args.topic, iteration=0)
+    # Router selection is not usage evidence. Preserve selected/loaded/
+    # declared/verified separately before a user can edit the storyboard.
+    initialise_skill_trace(scheme, skill_plan)
+    skill_trace = verify_skill_usage(scheme, skill_plan, inventory)
+    out.save_json("evaluation", "skill_evaluation.json", skill_trace)
     out.save_json("planner", "scheme.json", scheme)
+    out.save_json("planner", "scheme_v0.json", scheme)
+    record_stage("planner", frame_count=len(scheme.storyboard))
     logger.info(f"   方案: {scheme.title}, {len(scheme.storyboard)} 个分镜, {scheme.target_duration}s")
 
     for f in scheme.storyboard:
@@ -240,6 +379,7 @@ async def main():
     scheme_json = json.dumps(scheme.to_dict() if hasattr(scheme, "to_dict") else scheme_data, ensure_ascii=False)
     decisions = await renderer._analyze_scheme(scheme_json, f"{len(inventory['items'])} 个素材")
     out.save_json("renderer", "render_decisions.json", decisions)
+    record_stage("renderer", decision_count=len(decisions.get("frame_decisions", [])))
 
     frame_decisions = decisions.get("frame_decisions", [])
     for d in frame_decisions:
@@ -255,6 +395,7 @@ async def main():
     for frame in scheme_dict.get("storyboard", []):
         d = decisions_map.get(frame.get("index", -1), {})
         frame["render_component"] = d.get("render_component", "auto")
+    out.save_json("planner", "scheme_final.json", scheme_dict)
 
     if args.scheme_output:
         scheme_output = Path(args.scheme_output).resolve()
@@ -264,6 +405,20 @@ async def main():
         )
 
     if args.prepare_only:
+        out.save_pipeline_summary({
+            "status": "awaiting_confirmation",
+            "target_topic": args.topic,
+            "phase": "planning",
+            "iteration": 0,
+            "is_complete": False,
+            "scheme": scheme,
+            "rendered_video_path": "",
+            "review_result": {},
+            "errors": errors,
+            "logs": run_logs,
+        })
+        from evaluation.run_evaluator import evaluate_run
+        out.save_json("evaluation", "report.json", evaluate_run(out.run_dir))
         logger.info("分镜草案已生成，等待用户确认")
         return
 
@@ -274,12 +429,132 @@ async def main():
     output = str(output_path)
     result_path = render_with_remotion(scheme_dict, inventory["items"], output, timeout=600)
 
+    render_review: dict = {}
     if result_path:
         size_mb = Path(result_path).stat().st_size / 1024 / 1024
         logger.info(f"   [OK] 渲染完成: {result_path}")
         logger.info(f"   [OK] 大小: {size_mb:.1f}MB")
+        record_stage("assembler", success=True, output_path=str(result_path))
     else:
         logger.error("   Remotion 渲染失败")
+        errors.append("Remotion 渲染失败")
+        record_stage("assembler", success=False)
+
+    # ===== 6. 方案质量评审与运行评测 =====
+    logger.info("6. Reviewer 方案质量评审")
+    review: dict = {}
+    try:
+        material_list = [
+            f"[{item.get('id', '')}] ({item.get('type', '')}) {item.get('description', '')[:60]}"
+            for item in inventory["items"]
+        ]
+        used_ids = {
+            str(frame.get("material_id") or frame.get("source_material_id"))
+            for frame in scheme_dict.get("storyboard", [])
+            if frame.get("material_id") or frame.get("source_material_id")
+        }
+        coverage = (
+            f"分镜: {len(scheme_dict.get('storyboard', []))}\n"
+            f"素材总数: {len(inventory['items'])}\n"
+            f"已使用素材数: {len(used_ids)}"
+        )
+        transition_summary = "\n".join(
+            f"分镜{frame.get('index', 0)}: {frame.get('transition_in', frame.get('transition', 'cut'))}"
+            for frame in scheme_dict.get("storyboard", [])
+        )
+        reviewer = ReviewerAgent(llm)
+        review = await reviewer._review_scheme(
+            json.dumps(struct, ensure_ascii=False),
+            json.dumps(scheme_dict, ensure_ascii=False),
+            coverage,
+            material_list_desc="\n".join(material_list),
+            transition_summary=transition_summary,
+        )
+        from evaluation.run_evaluator import scheme_fingerprint
+        review["scheme_fingerprint"] = scheme_fingerprint(scheme_dict)
+        attach_skill_outcomes(skill_trace, reviewer=review)
+        scheme.skill_evaluation = skill_trace
+        out.save_json("evaluation", "skill_evaluation.json", skill_trace)
+        out.save_json("planner", "scheme_final.json", scheme)
+        out.save_json("reviewer", "review_result.json", review)
+        record_stage(
+            "reviewer",
+            score=review.get("total_score"),
+            passed=bool(review.get("pass")),
+        )
+    except Exception as exc:
+        logger.warning("Reviewer 评审失败: %s", exc)
+        errors.append(f"Reviewer 评审失败: {exc}")
+        record_stage("reviewer", success=False, error=str(exc))
+
+    # ===== 7. 成片证据评测 =====
+    # Keep it separate from the storyboard Reviewer: this stage inspects the
+    # actual MP4 and only treats visual-model findings as diagnostics until
+    # their thresholds have been calibrated with human-labelled videos.
+    if result_path:
+        render_review_started = time.perf_counter()
+        try:
+            from evaluation.run_evaluator import scheme_fingerprint
+            from evaluation.video_review import review_rendered_video
+
+            render_review, render_usage = await review_rendered_video(
+                result_path, scheme_dict, struct, out.stage_dir("render_reviewer"),
+            )
+            render_review["scheme_fingerprint"] = scheme_fingerprint(scheme_dict)
+            out.save_json("render_reviewer", "render_review.json", render_review)
+            render_log = {
+                "stage": "render_reviewer",
+                "success": True,
+                "review_status": render_review.get("status"),
+                "score": (render_review.get("visual_review") or {}).get("total_score"),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+                "llm_usage": render_usage,
+            }
+            run_logs.append(render_log)
+            out.append_log("render_reviewer", render_log)
+        except Exception as exc:
+            logger.warning("成片评测失败: %s", exc)
+            render_review = {"status": "failed", "reason": str(exc)}
+            render_log = {
+                "stage": "render_reviewer",
+                "success": True,
+                "review_status": "failed",
+                "error": str(exc),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+            }
+            run_logs.append(render_log)
+            out.save_json("render_reviewer", "render_review.json", {"status": "failed", "reason": str(exc)})
+            out.append_log("render_reviewer", render_log)
+
+    final_state = {
+        "status": "completed" if result_path else "failed",
+        "target_topic": args.topic,
+        "phase": "complete",
+        "iteration": 0,
+        "is_complete": bool(result_path),
+        "scheme": scheme,
+        "rendered_video_path": str(result_path or ""),
+        "review_result": review,
+        "errors": errors,
+        "logs": run_logs,
+    }
+    out.save_pipeline_summary(final_state)
+    try:
+        from evaluation.run_evaluator import evaluate_run
+        evaluation = evaluate_run(out.run_dir)
+        out.save_json("evaluation", "report.json", evaluation)
+        attach_skill_outcomes(
+            skill_trace,
+            reviewer=review,
+            render_review=render_review,
+            run_evaluation=evaluation,
+        )
+        scheme.skill_evaluation = skill_trace
+        out.save_json("planner", "scheme_final.json", scheme)
+        out.save_json("evaluation", "skill_evaluation.json", skill_trace)
+        logger.info("   评测得分: %.2f | success=%s", evaluation["score"], evaluation["success"])
+    except Exception as exc:
+        logger.warning("运行评测报告生成失败: %s", exc)
 
     logger.info("=" * 60)
     logger.info("端到端流程完成")

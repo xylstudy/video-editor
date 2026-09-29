@@ -39,7 +39,7 @@ class AnalystAgent(BaseAgent):
 - analyze_structure: 用LLM做全局结构分析（需要先完成analyze_frame）
 - done: 任务完成，返回分析结果"""
 
-        self.tools = {
+        self.register_tools({
             "get_video_info": self._get_video_info,
             "detect_scenes": self._detect_scenes,
             "extract_frame": self._extract_frame,
@@ -49,7 +49,7 @@ class AnalystAgent(BaseAgent):
             "analyze_shot": self._analyze_shot,
             "analyze_structure": self._analyze_structure,
             "done": self._done,
-        }
+        })
 
     def _build_observe_prompt(self, state: dict, history: list) -> str:
         task = state.get("current_task", {})
