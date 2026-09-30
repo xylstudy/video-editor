@@ -9,6 +9,8 @@ from pathlib import Path
 
 from tools.remotion_renderer import render_with_remotion
 from tools.video_tools import _find_ffmpeg
+from tools.render_components import resolve_render_component
+from config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -74,6 +76,13 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         scheme = json.loads(scheme_path.read_text(encoding="utf-8"))
+        if not settings.ENABLE_DYNAMIC_COMPONENTS:
+            for frame in scheme.get("storyboard", []):
+                frame["render_component"], _ = resolve_render_component(
+                    frame.get("render_component", "auto"),
+                    frame.get("custom_render_config", {}),
+                    dynamic_enabled=False,
+                )
         materials = load_inventory(args.materials)
         if not materials:
             raise RuntimeError("素材库存为空，无法渲染")

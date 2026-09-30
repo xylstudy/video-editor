@@ -1,0 +1,15 @@
+{
+  "case_id": "case_16",
+  "target_topic": "人物素材稀缺的情绪迁移",
+  "reference_id": "ref_03",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_16\\materials.json",
+  "material_ids": [
+    "mat_08",
+    "mat_22",
+    "mat_02"
+  ],
+  "material_count": 3,
+  "target_duration": 30,
+  "status": "ready"
+}

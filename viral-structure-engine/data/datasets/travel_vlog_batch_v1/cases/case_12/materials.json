@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mat_01",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_01.mp4",
+    "description": "Atbara (city)",
+    "tags": [
+      "hotel",
+      "interior"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Sudan.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_03",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_03.mp4",
+    "description": "Hotel in Afghanistan",
+    "tags": [
+      "hotel",
+      "room"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan-2.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_04",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_04.mp4",
+    "description": "Hotel in Syria",
+    "tags": [
+      "hotel",
+      "room"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Quadruple_Room_in_Damascus.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_06",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_06.mp4",
+    "description": "Hotel in Afghanistan",
+    "tags": [
+      "hotel",
+      "travel"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan.webm",
+    "license": "CC BY-SA 4.0"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "case_id": "case_02",
+  "target_topic": "自然素材不足的结构迁移",
+  "reference_id": "ref_01",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_02\\materials.json",
+  "material_ids": [
+    "mat_02",
+    "mat_19",
+    "mat_01"
+  ],
+  "material_count": 3,
+  "target_duration": 30,
+  "status": "ready"
+}

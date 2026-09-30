@@ -10,8 +10,10 @@ var FadeOutGlow = ({
   fadeDuration = 2
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const fadeOutStartFrame = Math.max(0, durationInFrames - Math.floor(fadeDuration * 30));
+  const { durationInFrames, fps } = useVideoConfig();
+  const fadeFrames = Math.max(1, Math.min(durationInFrames, fadeDuration * fps));
+  const fadeOutStartFrame = Math.max(0, durationInFrames - fadeFrames);
+  const glowPeakFrame = fadeOutStartFrame + fadeFrames * 0.6;
   const opacity = interpolate(
     frame,
     [fadeOutStartFrame, durationInFrames],
@@ -24,7 +26,7 @@ var FadeOutGlow = ({
   );
   const glowIntensityProgress = interpolate(
     frame,
-    [fadeOutStartFrame, fadeOutStartFrame + Math.floor(fadeDuration * 30 * 0.6), durationInFrames],
+    [fadeOutStartFrame, glowPeakFrame, durationInFrames],
     [0, glowIntensity * 1.2, 0],
     {
       extrapolateLeft: "clamp",
@@ -42,16 +44,17 @@ var FadeOutGlow = ({
       easing: Easing.out(Easing.ease)
     }
   );
-  const subtitleOpacity = interpolate(
+  const subtitleStartFrame = Math.max(0, fadeOutStartFrame - fps);
+  const subtitleOpacity = fadeOutStartFrame > subtitleStartFrame ? interpolate(
     frame,
-    [fadeOutStartFrame - 30, fadeOutStartFrame],
+    [subtitleStartFrame, fadeOutStartFrame],
     [0, 1],
     {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
       easing: Easing.out(Easing.ease)
     }
-  );
+  ) : 1;
   return /* @__PURE__ */ jsxs(AbsoluteFill, { style: {
     backgroundColor: "black"
   }, children: [
@@ -79,7 +82,7 @@ var FadeOutGlow = ({
       opacity: glowIntensityProgress * 0.4,
       mixBlendMode: "overlay"
     } }),
-    /* @__PURE__ */ jsx(Sequence, { from: Math.max(0, fadeOutStartFrame - 30), children: /* @__PURE__ */ jsx(AbsoluteFill, { style: {
+    /* @__PURE__ */ jsx(Sequence, { from: subtitleStartFrame, children: /* @__PURE__ */ jsx(AbsoluteFill, { style: {
       justifyContent: "flex-end",
       alignItems: "center",
       paddingBottom: 100

@@ -1,0 +1,16 @@
+{
+  "case_id": "case_13",
+  "target_topic": "地标与当地文化",
+  "reference_id": "ref_04",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_13\\materials.json",
+  "material_ids": [
+    "mat_05",
+    "mat_10",
+    "mat_24",
+    "mat_25"
+  ],
+  "material_count": 4,
+  "target_duration": 30,
+  "status": "ready"
+}

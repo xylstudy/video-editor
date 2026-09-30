@@ -1,0 +1,19 @@
+{
+  "case_id": "case_17",
+  "target_topic": "纯运动镜头节奏测试",
+  "reference_id": "ref_01",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_17\\materials.json",
+  "material_ids": [
+    "mat_11",
+    "mat_13",
+    "mat_14",
+    "mat_15",
+    "mat_16",
+    "mat_17",
+    "mat_19"
+  ],
+  "material_count": 7,
+  "target_duration": 30,
+  "status": "ready"
+}

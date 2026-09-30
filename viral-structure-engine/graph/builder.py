@@ -22,12 +22,14 @@ from models.trace import (
     make_shot_trace, make_analysis_trace,
 )
 from config.llm_client import LLMTools
+from config.analysis_cache import load_analysis, save_analysis
 from config.output_manager import OutputManager
 from config import settings
 from tools.video_tools import VideoTools
 from tools.face_tools import FaceTools
 from tools.audio_tools import AudioTools
 from tools.remotion_renderer import render_with_remotion
+from tools.render_components import resolve_render_component
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +178,12 @@ async def supervisor_node(state: ViralEngineState) -> dict:
 
     logger.info(f"Supervisor 决策: → {next_expert} | {task_desc}")
     logs = list(state.get("logs", []))
-    log_entry = {"stage": "supervisor", "decision": next_expert, "reason": decision.get("reasoning", "")}
+    log_entry = {
+        "stage": "supervisor",
+        "decision": next_expert,
+        "reason": decision.get("reasoning", ""),
+        "llm_usage": llm.usage_snapshot(),
+    }
     logs.append(log_entry)
 
     out = _get_out(state)
@@ -221,6 +228,72 @@ async def analyst_node(state: ViralEngineState) -> dict:
     logger.info(f"  ===========================================")
 
     try:
+        cache_version = (
+            f"{ANALYST_PROMPT_VERSION}+{STRUCTURE_PROMPT_VERSION}"
+            f"+scene-{settings.SCENE_CHANGE_THRESHOLD}"
+        )
+        cached, media_sha256 = load_analysis(
+            "reference_video",
+            video_path,
+            model=getattr(llm, "model", ""),
+            prompt_version=cache_version,
+        )
+        if cached:
+            info = cached.get("video_info", {})
+            scenes = cached.get("scenes", [])
+            shot_analyses = cached.get("shot_analyses", [])
+            structure = cached.get("structure_analysis", {})
+            transcript = cached.get("transcript", "")
+            audio_data = cached.get("audio_analysis", {})
+            video_structure = analyst.build_video_structure(
+                video_path,
+                info.get("duration", 0),
+                info.get("width", 0),
+                info.get("height", 0),
+                shot_analyses,
+                structure,
+                transcript,
+            )
+            if audio_data:
+                video_structure.audio_analysis = audio_data
+            structures.append(video_structure)
+            if video_structure.gene is not None:
+                genes.append(video_structure.gene)
+
+            out.save_json("analyst", "video_info.json", info)
+            out.save_json("analyst", "scenes.json", scenes)
+            out.save_json("analyst", "shot_analyses.json", shot_analyses)
+            out.save_json("analyst", "structure_analysis.json", structure)
+            out.save_json("analyst", "video_structure.json", video_structure)
+            if video_structure.gene is not None:
+                out.save_json("analyst", "gene.json", video_structure.gene)
+            out.save_json("analyst", "analysis_trace.json", {
+                "cache_hit": True,
+                "media_sha256": media_sha256,
+                "model": getattr(llm, "model", ""),
+                "prompt_version": cache_version,
+                "shot_count": len(shot_analyses),
+            })
+            logger.info("  [分析师] [CACHE] 复用参考视频分析: %s 个镜头", len(shot_analyses))
+            log_entry = {
+                "stage": "analyst",
+                "video": video_path,
+                "shots": len(shot_analyses),
+                "cache_hit": True,
+                "media_sha256": media_sha256,
+                "llm_usage": llm.usage_snapshot(),
+            }
+            logs.append(log_entry)
+            out.append_log("analyst", log_entry)
+            return {
+                "source_structures": structures,
+                "source_genes": genes,
+                "phase": "analyst" if video_index + 1 < len(sample_videos) else "materials",
+                "errors": errors,
+                "logs": logs,
+                "current_task": {},
+            }
+
         info = video_tools.get_video_info(video_path)
         scenes = video_tools.detect_scene_changes(video_path)
         out.save_json("analyst", "video_info.json", info)
@@ -287,6 +360,7 @@ async def analyst_node(state: ViralEngineState) -> dict:
                     video_path=video_path,
                     motion_intensity=motion,
                     color_stats=color,
+                    frame_paths=frames_map.get(i, []),
                 )
             except Exception as e:
                 logger.warning(f"  镜头 {i+1} 分析失败: {e}，跳过")
@@ -369,15 +443,41 @@ async def analyst_node(state: ViralEngineState) -> dict:
                         f"{len(video_structure.gene.shot_genes)} 个镜头功能, "
                         f"硬约束 {len(video_structure.gene.hard_constraints)} 条")
 
+        save_analysis(
+            "reference_video",
+            video_path,
+            {
+                "video_info": info,
+                "scenes": scenes,
+                "shot_analyses": shot_analyses,
+                "structure_analysis": structure,
+                "transcript": transcript,
+                "audio_analysis": audio_data,
+            },
+            model=getattr(llm, "model", ""),
+            prompt_version=cache_version,
+            media_sha256=media_sha256,
+        )
+
         logger.info(f"  [分析师] [OK] 分析完成: {len(shot_analyses)} 个镜头, "
                      f"结构类型: {structure.get('structure_type', {}).get('category', '?')}")
-        log_entry = {"stage": "analyst", "video": video_path, "shots": len(shot_analyses)}
+        log_entry = {
+            "stage": "analyst",
+            "video": video_path,
+            "shots": len(shot_analyses),
+            "llm_usage": llm.usage_snapshot(),
+        }
         logs.append(log_entry)
         out.append_log("analyst", log_entry)
 
     except Exception as e:
         logger.exception(f"分析失败: {e}")
         errors.append(str(e))
+        # Reference analysis is a required contract for downstream planning.
+        # Continuing without a structure/Gene would turn an infrastructure
+        # failure into a misleading low-quality result, so fail this run
+        # explicitly and let the batch runner retry the whole case.
+        raise RuntimeError(f"reference video analysis failed: {e}") from e
 
     return {
         "source_structures": structures,
@@ -407,6 +507,7 @@ async def material_node(state: ViralEngineState) -> dict:
     logger.info(f"  ===========================================")
 
     items = []
+    cache_hits = 0
     total_mats = len(user_materials)
     for idx, mat in enumerate(user_materials):
         mat_id = mat.get("id", "")
@@ -428,7 +529,29 @@ async def material_node(state: ViralEngineState) -> dict:
                 analysis = await manager._analyze_image(mat_id, mat_path, target_topic, topic_desc)
                 item = manager.build_material_item(mat_id, mtype, mat_path, analysis)
             elif mtype == MaterialType.VIDEO:
-                analysis = await manager._analyze_video_material(mat_id, mat_path, target_topic)
+                from prompts.material_prompts import MATERIAL_VIDEO_PROMPT_VERSION
+
+                cached, media_sha256 = load_analysis(
+                    "material_video",
+                    mat_path,
+                    model=getattr(llm, "model", ""),
+                    prompt_version=MATERIAL_VIDEO_PROMPT_VERSION,
+                )
+                if cached and isinstance(cached.get("analysis"), dict):
+                    analysis = dict(cached["analysis"])
+                    analysis["material_id"] = mat_id
+                    cache_hits += 1
+                    logger.info("  [素材]   [CACHE] 复用内容基因")
+                else:
+                    analysis = await manager._analyze_video_material(mat_id, mat_path, target_topic)
+                    save_analysis(
+                        "material_video",
+                        mat_path,
+                        {"analysis": analysis},
+                        model=getattr(llm, "model", ""),
+                        prompt_version=MATERIAL_VIDEO_PROMPT_VERSION,
+                        media_sha256=media_sha256,
+                    )
                 item = manager.build_material_item(mat_id, mtype, mat_path, analysis)
             elif mtype == MaterialType.TEXT:
                 text_content = mat.get("content", "")
@@ -445,7 +568,12 @@ async def material_node(state: ViralEngineState) -> dict:
     out.save_json("material", "inventory.json", inventory)
     face_items = len(inventory.get_face_items()) if hasattr(inventory, "get_face_items") else 0
     logger.info(f"  [素材] [OK] 入库完成: {len(items)} 个素材 (含人脸: {face_items})")
-    log_entry = {"stage": "material", "items": len(items)}
+    log_entry = {
+        "stage": "material",
+        "items": len(items),
+        "cache_hits": cache_hits,
+        "llm_usage": llm.usage_snapshot(),
+    }
     logs.append(log_entry)
     out.append_log("material", log_entry)
 
@@ -531,13 +659,33 @@ async def planner_node(state: ViralEngineState) -> dict:
             )
         else:
             scheme = state.get("scheme")
-            scheme_json = json.dumps(scheme.to_dict() if hasattr(scheme, "to_dict") else {}, ensure_ascii=False)
-            review_json = json.dumps(review_result, ensure_ascii=False)
+            scheme_payload = scheme.to_dict() if hasattr(scheme, "to_dict") else {}
+            scheme_payload = dict(scheme_payload) if isinstance(scheme_payload, dict) else {}
+            for metadata_key in ("knowledge_refs", "skill_evaluation", "review_notes"):
+                scheme_payload.pop(metadata_key, None)
+            scheme_json = json.dumps(scheme_payload, ensure_ascii=False)
+            compact_review = {
+                key: review_result.get(key)
+                for key in (
+                    "scores", "total_score", "feedback_type", "top_3_issues",
+                    "suggestions", "one_line_verdict",
+                )
+                if review_result.get(key) not in (None, "", [], {})
+            }
+            review_json = json.dumps(compact_review, ensure_ascii=False)
             inventory = state.get("material_inventory")
-            inv_json = json.dumps(
-                inventory.to_dict() if hasattr(inventory, "to_dict") else {},
-                ensure_ascii=False,
-            )
+            raw_inventory = inventory.to_dict() if hasattr(inventory, "to_dict") else {}
+            compact_items = []
+            for item in raw_inventory.get("items", []) if isinstance(raw_inventory, dict) else []:
+                compact_items.append({
+                    key: item.get(key)
+                    for key in (
+                        "id", "type", "description", "tags", "duration",
+                        "emotion_label", "highlight_clips",
+                    )
+                    if item.get(key) not in (None, "", [], {})
+                })
+            inv_json = json.dumps({"items": compact_items}, ensure_ascii=False)
             logger.info(f"  [编导] 根据审核结果迭代优化...")
             scheme_data = await planner._iterate_scheme(
                 scheme_json, review_json, inv_json,
@@ -557,7 +705,12 @@ async def planner_node(state: ViralEngineState) -> dict:
         out.save_json("evaluation", f"skill_evaluation_v{iteration}.json", skill_trace)
         out.save_json("planner", f"scheme_v{iteration}.json", scheme)
         logger.info(f"  [编导] [OK] 方案生成完成: {len(scheme.storyboard)} 个分镜, 目标时长 {scheme.target_duration}s")
-        log_entry = {"stage": "planner", "iteration": iteration, "frames": len(scheme.storyboard)}
+        log_entry = {
+            "stage": "planner",
+            "iteration": iteration,
+            "frames": len(scheme.storyboard),
+            "llm_usage": llm.usage_snapshot(),
+        }
         logs.append(log_entry)
         out.append_log("planner", log_entry)
 
@@ -596,7 +749,9 @@ async def planner_node(state: ViralEngineState) -> dict:
             "skill_refs": list(getattr(scheme, "declared_skill_refs", [])),
             "skill_plan": skill_plan,
             "skill_trace": skill_trace,
-            "phase": "renderer" if iteration == 0 else "review",
+            # Every revised plan must be rendered again before it is reviewed;
+            # otherwise the final scheme and final MP4 describe different runs.
+            "phase": "renderer",
             "errors": errors,
             "logs": logs,
             "current_task": {},
@@ -605,6 +760,13 @@ async def planner_node(state: ViralEngineState) -> dict:
     except Exception as e:
         logger.exception(f"方案生成失败: {e}")
         errors.append(str(e))
+        # The first planning pass is a required stage contract.  Without a
+        # scheme there is nothing valid to render or review, so surface the
+        # error to the CLI and let the batch runner retry the case.  During a
+        # re-plan, however, the previous rendered/reviewed attempt remains a
+        # useful rejected artifact and can be closed with its recorded error.
+        if iteration == 0 or state.get("scheme") is None:
+            raise RuntimeError(f"initial planning failed: {e}") from e
         return {
             "errors": errors,
             "logs": logs,
@@ -665,7 +827,11 @@ async def creative_node(state: ViralEngineState) -> dict:
         out.save_json("creative", "fill_strategy.json", fill_plan)
         plans_count = len(fill_plan.get("fill_plans", []))
         logger.info(f"  [补全] [OK] 已规划 {plans_count} 个补全策略")
-        log_entry = {"stage": "creative", "plans": plans_count}
+        log_entry = {
+            "stage": "creative",
+            "plans": plans_count,
+            "llm_usage": llm.usage_snapshot(),
+        }
         logs.append(log_entry)
         out.append_log("creative", log_entry)
 
@@ -719,15 +885,21 @@ async def renderer_node(state: ViralEngineState) -> dict:
         storyboard = list(getattr(scheme, "storyboard", []))
         decisions_map = {d["index"]: d for d in frame_decisions}
         custom_needed = []
+        fallback_count = 0
 
         for frame in storyboard:
             d = decisions_map.get(frame.index, {})
-            rc = d.get("render_component", "auto")
-            object.__setattr__(frame, "render_component", rc)
             config = d.get("custom_render_config", {})
+            rc, fell_back = resolve_render_component(
+                d.get("render_component", "auto"),
+                config,
+                dynamic_enabled=settings.ENABLE_DYNAMIC_COMPONENTS,
+            )
+            fallback_count += int(fell_back)
+            object.__setattr__(frame, "render_component", rc)
             if config:
                 object.__setattr__(frame, "custom_render_config", config)
-            if d.get("need_new_component"):
+            if d.get("need_new_component") and settings.ENABLE_DYNAMIC_COMPONENTS:
                 custom_needed.append({
                     "index": frame.index,
                     "name": rc.replace("custom:", "") if rc.startswith("custom:") else f"frame_{frame.index}",
@@ -736,24 +908,39 @@ async def renderer_node(state: ViralEngineState) -> dict:
                 })
 
         generated = 0
-        for item in custom_needed:
-            result = await renderer._generate_component(
-                component_name=item["name"],
-                spec_json=json.dumps(item["spec"], ensure_ascii=False),
-                frame_json=json.dumps(item["frame_data"], ensure_ascii=False),
-            )
-            if result.get("file_path"):
-                generated += 1
-                logger.info(f"生成自定义组件: {item['name']}")
+        component_errors = []
+        if settings.ENABLE_DYNAMIC_COMPONENTS:
+            for item in custom_needed:
+                try:
+                    result = await renderer._generate_component(
+                        component_name=item["name"],
+                        spec_json=json.dumps(item["spec"], ensure_ascii=False),
+                        frame_json=json.dumps(item["frame_data"], ensure_ascii=False),
+                    )
+                    if result.get("file_path"):
+                        generated += 1
+                        logger.info(f"生成自定义组件: {item['name']}")
+                except (json.JSONDecodeError, ValueError, RuntimeError) as exc:
+                    component_errors.append(f"{item['name']}: {exc}")
+                    frame = next((f for f in storyboard if f.index == item["index"]), None)
+                    if frame is not None:
+                        object.__setattr__(frame, "render_component", "auto")
+                    logger.warning("动态组件 %s 生成失败，已回退内置组件: %s", item["name"], exc)
 
-        compile_result = await renderer._compile_components()
-        logger.info(f"动态组件编译: {compile_result.get('message', '')}")
+        if settings.ENABLE_DYNAMIC_COMPONENTS:
+            compile_result = await renderer._compile_components()
+            logger.info(f"动态组件编译: {compile_result.get('message', '')}")
+        else:
+            logger.info("动态组件已关闭，%d 个自定义决策回退到内置组件", fallback_count)
+            compile_result = {"compiled_count": 0, "message": "disabled"}
 
         log_entry = {
             "stage": "renderer",
             "decisions": len(frame_decisions),
             "custom_components": generated,
+            "component_fallbacks": len(component_errors) + fallback_count,
             "compiled": compile_result.get("compiled_count", 0),
+            "llm_usage": llm.usage_snapshot(),
         }
         logs.append(log_entry)
         out.append_log("renderer", log_entry)
@@ -994,7 +1181,7 @@ async def reviewer_node(state: ViralEngineState) -> dict:
         quality_overall = review.get("quality", {}).get("overall", "?")
         feedback_type = review.get("feedback_type", "?")
         logger.info(f"  [审核] [OK] 评分: {score}/100")
-        logger.info(f"  [审核]   Fidelity={fidelity_overall}/10 Quality={quality_overall}/10 | feedback_type={feedback_type}")
+        logger.info(f"  [审核]   Fidelity={fidelity_overall}/100 Quality={quality_overall}/100 | feedback_type={feedback_type}")
         logger.info(f"  [审核]   维度: {score_line}")
 
         is_complete = passed or iteration >= max_iter or hook_score < 4
@@ -1005,7 +1192,13 @@ async def reviewer_node(state: ViralEngineState) -> dict:
             logger.info(f"  [审核] 审核未通过 (总分{score})，进入迭代 {iteration}/{max_iter}")
 
         out.save_json("reviewer", "review_result.json", review)
-        log_entry = {"stage": "reviewer", "score": score, "passed": passed, "iteration": iteration}
+        log_entry = {
+            "stage": "reviewer",
+            "score": score,
+            "passed": passed,
+            "iteration": iteration,
+            "llm_usage": llm.usage_snapshot(),
+        }
         logs.append(log_entry)
         out.append_log("reviewer", log_entry)
 

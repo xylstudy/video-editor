@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
+import { AbsoluteFill, Img, OffthreadVideo, interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
 
 interface KenBurnsProps {
   imagePath: string;
@@ -81,15 +81,28 @@ export const KenBurns: React.FC<KenBurnsProps> = ({
 
   return (
     <AbsoluteFill>
-      <Img
-        src={imagePath}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)`,
-        }}
-      />
+      {/\.(mp4|mov|webm|mkv|avi|m4v)(?:[?#].*)?$/i.test(imagePath) ? (
+        <OffthreadVideo
+          src={imagePath}
+          muted
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)`,
+          }}
+        />
+      ) : (
+        <Img
+          src={imagePath}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${zoom}) translate(${translateX}px, ${translateY}px)`,
+          }}
+        />
+      )}
     </AbsoluteFill>
   );
 };

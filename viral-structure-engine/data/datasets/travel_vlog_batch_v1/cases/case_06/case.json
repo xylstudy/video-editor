@@ -1,0 +1,17 @@
+{
+  "case_id": "case_06",
+  "target_topic": "无人城市交通素材",
+  "reference_id": "ref_03",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_06\\materials.json",
+  "material_ids": [
+    "mat_12",
+    "mat_13",
+    "mat_15",
+    "mat_17",
+    "mat_21"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

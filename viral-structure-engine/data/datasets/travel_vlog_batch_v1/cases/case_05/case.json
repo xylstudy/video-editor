@@ -1,0 +1,17 @@
+{
+  "case_id": "case_05",
+  "target_topic": "日本城市人物旅行",
+  "reference_id": "ref_03",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_05\\materials.json",
+  "material_ids": [
+    "mat_08",
+    "mat_09",
+    "mat_12",
+    "mat_22",
+    "mat_24"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

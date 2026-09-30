@@ -9,6 +9,19 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewerAgent(BaseAgent):
+    SCORE_WEIGHTS = {
+        "structure_fidelity": 1.0,
+        "hook_appeal": 1.5,
+        "content_adaptation": 1.0,
+        "rhythm": 1.0,
+        "emotion_coherence": 1.2,
+        "gap_filling_quality": 1.0,
+        "packaging_consistency": 0.8,
+        "completeness": 0.5,
+        "subtitle_quality": 0.8,
+        "material_coverage": 1.2,
+    }
+
     def __init__(self, llm):
         super().__init__(llm)
         self.role = AgentRole.REVIEWER
@@ -58,8 +71,70 @@ class ReviewerAgent(BaseAgent):
             transition_summary=transition_summary,
             gene_json=gene_json,
         )
-        response = await self.llm.chat(prompt, response_format="json")
-        return self.llm.parse_json(response)
+        for attempt in range(2):
+            retry_instruction = ""
+            if attempt:
+                retry_instruction = """
+
+上一次回答不是完整合法 JSON。请重新输出紧凑 JSON：不得使用 Markdown；
+每个 reason 不超过 40 个汉字；issues/highlights 各最多 2 条；suggestions 最多 3 条；
+必须闭合所有括号，并将总输出控制在 4000 tokens 内。
+"""
+            response = await self.llm.chat(
+                prompt + retry_instruction,
+                response_format="json",
+                max_tokens=4096,
+            )
+            try:
+                return self._normalise_review(self.llm.parse_json(response))
+            except (json.JSONDecodeError, ValueError) as exc:
+                logger.warning("Reviewer JSON 解析失败 (%d/2): %s", attempt + 1, exc)
+                if attempt:
+                    raise
+        raise RuntimeError("Reviewer JSON 解析失败")
+
+    @classmethod
+    def _normalise_review(cls, review: dict) -> dict:
+        """Make the 10-point dimensions and 100-point totals deterministic."""
+        scores = review.get("scores") if isinstance(review.get("scores"), dict) else {}
+        weighted_sum = 0.0
+        weight_sum = 0.0
+        for name, expected_weight in cls.SCORE_WEIGHTS.items():
+            item = scores.get(name)
+            if not isinstance(item, dict):
+                continue
+            raw_score = item.get("score")
+            if not isinstance(raw_score, (int, float)) or isinstance(raw_score, bool):
+                continue
+            score = max(0.0, min(10.0, float(raw_score)))
+            item["score"] = int(score) if score.is_integer() else round(score, 2)
+            item["weight"] = expected_weight
+            weighted_sum += score * expected_weight
+            weight_sum += expected_weight
+
+        if weight_sum:
+            total_score = round(weighted_sum / weight_sum * 10, 1)
+        else:
+            raw_total = review.get("total_score", 0)
+            total_score = float(raw_total) if isinstance(raw_total, (int, float)) else 0.0
+            if 0 <= total_score <= 10:
+                total_score *= 10
+            total_score = round(max(0.0, min(100.0, total_score)), 1)
+        review["total_score"] = total_score
+
+        for section_name in ("fidelity", "quality"):
+            section = review.get(section_name)
+            if not isinstance(section, dict):
+                continue
+            value = section.get("overall")
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                value = float(value)
+                if 0 <= value <= 10:
+                    value *= 10
+                section["overall"] = round(max(0.0, min(100.0, value)), 1)
+
+        review["pass"] = bool(total_score >= 75 and not review.get("force_iterate", False))
+        return review
 
     async def _done(self, summary: str) -> dict:
         return {"status": "done", "summary": summary}

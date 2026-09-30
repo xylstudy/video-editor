@@ -1,0 +1,18 @@
+{
+  "case_id": "case_19",
+  "target_topic": "跨地域结构泛化",
+  "reference_id": "ref_05",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_19\\materials.json",
+  "material_ids": [
+    "mat_02",
+    "mat_05",
+    "mat_09",
+    "mat_17",
+    "mat_23",
+    "mat_24"
+  ],
+  "material_count": 6,
+  "target_duration": 30,
+  "status": "ready"
+}

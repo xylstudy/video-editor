@@ -6,8 +6,9 @@ def build_shot_analysis_prompt(
     prev_frame_desc: str = "",
     motion_intensity: float = 0.0,
     color_stats: dict | None = None,
+    visual_samples_only: bool = False,
 ) -> str:
-    """镜头分析 prompt — Qwen3-OMNI-Flash 同时接收视频画面+音频"""
+    """Build a shot prompt for either native video or representative frames."""
     prev_context = f"前一镜头内容：{prev_frame_desc}" if prev_frame_desc else "这是视频的第一个镜头。"
 
     color_block = ""
@@ -17,7 +18,14 @@ def build_shot_analysis_prompt(
         color_block = f"""- 色调均值: {color_stats.get('hue_mean', 0):.0f}° | 饱和度: {color_stats.get('saturation_mean', 0):.2f} | 明度: {color_stats.get('value_mean', 0):.2f}
 - 主色调: {dom_str}"""
 
-    return f"""你是一位有8年经验的**爆款短视频**内容分析师，专门研究抖音和小红书上百万播放的Vlog。你收到了一段**视频片段（含音频）**，需要同时从画面和声音两个维度分析。
+    media_note = (
+        "你收到的是按时间顺序抽取的多帧画面，不包含可直接收听的音频。"
+        "请根据多帧差异判断运镜，不要臆测语音、BGM或环境音；音频字段使用未知/无音频。"
+        if visual_samples_only
+        else "你收到了一段视频片段（含音频），需要同时从画面和声音两个维度分析。"
+    )
+
+    return f"""你是一位有8年经验的**爆款短视频**内容分析师，专门研究抖音和小红书上百万播放的Vlog。{media_note}
 
 【输入信息】
 这是Vlog的第{shot_index + 1}个镜头。
@@ -38,7 +46,7 @@ def build_shot_analysis_prompt(
 - 色调光影：暖还是冷？自然光还是人工光？光影质量（柔和/强烈/逆光/阴天/黄昏/夜景）？
 - 画面中有无文字信息？
 
-=== 第二步：音频内容识别（听） ===
+=== 第二步：音频内容识别（仅在输入确实包含音频时判断） ===
 - **语音/旁白**：有人在说话吗？语速如何（快/中/慢）？语气语调是？（兴奋/平静/温柔/激动/幽默/严肃）？说话内容大概是什么？
 - **背景音乐**：有BGM吗？风格（流行/电子/钢琴/吉他/鼓点/节奏感强/舒缓/无）？情绪匹配（和画面一致还是反差）？
 - **环境音**：有什么环境音效（城市噪音/自然声/人群/交通/风声/水声/点击声/其他）？

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "mat_02",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_02.mp4",
+    "description": "Водоспад Лоцій",
+    "tags": [
+      "waterfall",
+      "landscape",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BE%D0%B4%D0%BE%D1%81%D0%BF%D0%B0%D0%B4_%D0%9B%D0%BE%D1%86%D1%96%D0%B9.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_05",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_05.mp4",
+    "description": "Acropolis",
+    "tags": [
+      "acropolis",
+      "architecture",
+      "landmark"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Acropolis.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_09",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_09.mp4",
+    "description": "Overnight in the lobby of a student dormitory (Kyoto, Japan) Backup copy: https://www.youtube.com/watch?v=-pJPaOtAhoo",
+    "tags": [
+      "kyoto",
+      "people",
+      "indoor"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%BE%D1%87%D0%BB%D0%B5%D0%B3_%D0%B2_%D1%85%D0%BE%D0%BB%D0%BB%D0%B5_%D1%81%D1%82%D1%83%D0%B4%D0%B5%D0%BD%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B3%D0%BE_%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D1%8F_(%D0%9A%D0%B8%D0%BE%D1%82%D0%BE).webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_17",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_17.mp4",
+    "description": "Video of a Highway in Nepal on the way to Bhairahawa",
+    "tags": [
+      "bus",
+      "highway",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:View_From_Bus_Of_Nepali_Highway_To_Bhairahawa.ogv",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_23",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_23.mp4",
+    "description": "Dieses Video soll Euch eine City Tour (per Sightseeing Bus sowie auch zu Fuss) durch die Inselhauptstadt Funchal, der Blumeninsel Madeira.Die Insel Madeira ...",
+    "tags": [
+      "funchal",
+      "city",
+      "street"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Funchal%2C_Madeira%2C_Portugal_-_City_Tour_-_Impressionen_2017.webm",
+    "license": "CC BY 3.0"
+  },
+  {
+    "id": "mat_24",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_24.mp4",
+    "description": "Danco en Po Nagar. Nha Trang, Vjetnamio.",
+    "tags": [
+      "dance",
+      "people",
+      "culture"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Danco_en_Po_Nagar.webm",
+    "license": "CC BY-SA 4.0"
+  }
+]

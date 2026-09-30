@@ -60,7 +60,20 @@ def _resolve_video_path(value: Any, run_dir: Path) -> Path | None:
 
 
 def scheme_fingerprint(scheme: dict[str, Any]) -> str:
-    encoded = json.dumps(scheme, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    # The fingerprint identifies the executable editorial plan.  Review notes
+    # and Skill outcome traces are appended after review and must not make the
+    # already-reviewed plan look stale.
+    executable_scheme = {
+        key: value
+        for key, value in scheme.items()
+        if key not in {"review_notes", "skill_evaluation"}
+    }
+    encoded = json.dumps(
+        executable_scheme,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
@@ -74,11 +87,26 @@ def _coverage(scheme: dict[str, Any] | None, inventory: dict[str, Any] | None) -
     material_ids = {str(item.get("id")) for item in materials if isinstance(item, dict) and item.get("id")}
     if not material_ids:
         return None, "no user materials to cover"
-    used_ids = {
-        str(frame.get("material_id") or frame.get("source_material_id"))
-        for frame in storyboard
-        if isinstance(frame, dict) and (frame.get("material_id") or frame.get("source_material_id"))
-    }
+    used_ids: set[str] = set()
+    for frame in storyboard:
+        if not isinstance(frame, dict):
+            continue
+        for key in ("material_id", "source_material_id", "fg_source_id", "bg_source_id"):
+            if frame.get(key):
+                used_ids.add(str(frame[key]))
+        # Auto mode ignores auxiliary source IDs, while registered custom
+        # components receive them as actual media inputs.
+        if str(frame.get("render_component", "")).startswith("custom:"):
+            config = frame.get("custom_render_config", {})
+            if isinstance(config, dict):
+                for key in ("source_material_ids", "material_ids"):
+                    values = config.get(key, [])
+                    if isinstance(values, list):
+                        used_ids.update(str(value) for value in values if value)
+        layers = frame.get("layers", [])
+        for layer in layers if isinstance(layers, list) else []:
+            if isinstance(layer, dict) and layer.get("material_id"):
+                used_ids.add(str(layer["material_id"]))
     used = material_ids & used_ids
     return len(used) / len(material_ids), f"{len(used)}/{len(material_ids)} user materials used"
 
@@ -200,7 +228,14 @@ def evaluate_run(run_dir: str | Path) -> dict[str, Any]:
     llm_usage["models"] = sorted({usage["model"] for usage in usage_entries if isinstance(usage.get("model"), str)})
     review_pass = bool(review and review.get("pass") is True)
     reviewed_fingerprint = review.get("scheme_fingerprint") if review else None
-    review_current = bool(review_pass and (not reviewed_fingerprint or (scheme and reviewed_fingerprint == scheme_fingerprint(scheme))))
+    review_current = bool(
+        review
+        and (
+            not reviewed_fingerprint
+            or (scheme and reviewed_fingerprint == scheme_fingerprint(scheme))
+        )
+    )
+    review_accepted = review_pass and review_current
     raw_score = review.get("total_score") if review else None
     review_score = float(raw_score) if isinstance(raw_score, (int, float)) and not isinstance(raw_score, bool) else None
     items = inventory.get("items", inventory.get("materials")) if inventory else None
@@ -242,7 +277,7 @@ def evaluate_run(run_dir: str | Path) -> dict[str, Any]:
     if not prepared:
         checks.extend([
             _check("review_artifact", review_artifact_ok, 5, review_error or ("review loaded" if review_artifact_ok else "review score or pass flag missing")),
-            _check("review_pass", review_current, 15, f"review score: {review_score if review_score is not None else 'N/A'}; current scheme: {review_current}"),
+            _check("review_pass", review_accepted, 15, f"review score: {review_score if review_score is not None else 'N/A'}; passed: {review_pass}; current scheme: {review_current}"),
             _check("media_output", bool(media["valid"]), 10, media["detail"]),
             _check("video_duration", duration_ok, 5, f"expected {target_duration}, rendered {media['duration_seconds']} seconds"),
         ])
@@ -295,6 +330,7 @@ def evaluate_run(run_dir: str | Path) -> dict[str, Any]:
             "review_score": review_score,
             "review_pass": review_pass,
             "review_current": review_current,
+            "review_accepted": review_accepted,
             "material_coverage": coverage_ratio,
             "render_review_status": render_status,
             "render_review_score": render_score,

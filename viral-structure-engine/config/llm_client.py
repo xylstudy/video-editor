@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import base64
 import json
@@ -11,6 +13,11 @@ import httpx
 from config import settings
 
 logger = logging.getLogger(__name__)
+
+# Some OpenAI-compatible providers reject response_format even though their
+# endpoint shape is otherwise compatible. Remember that capability per
+# process so every new Agent client does not repeat the same failing request.
+_RESPONSE_FORMAT_UNSUPPORTED: set[str] = set()
 
 
 class LLMEmptyResponseError(RuntimeError):
@@ -199,7 +206,11 @@ class LLMTools:
 
     async def _post(self, body: dict) -> str:
         self._usage["requests"] += 1
-        for attempt in range(10):
+        if self.chat_url in _RESPONSE_FORMAT_UNSUPPORTED:
+            body.pop("response_format", None)
+        last_error: Exception | None = None
+        max_attempts = 10
+        for attempt in range(max_attempts):
             try:
                 # Ignore stale process proxy variables. The web app stores an
                 # explicit model endpoint, and routing it through an unrelated
@@ -215,6 +226,7 @@ class LLMTools:
                     resp = await client.post(self.chat_url, headers=headers, json=body)
                     if resp.status_code == 400 and "response_format" in body:
                         logger.warning("response_format not supported, retrying without it")
+                        _RESPONSE_FORMAT_UNSUPPORTED.add(self.chat_url)
                         del body["response_format"]
                         continue
                     resp.raise_for_status()
@@ -231,22 +243,28 @@ class LLMTools:
                     choice = data["choices"][0]
                     message = choice.get("message") or {}
                     content = message.get("content") or ""
-                    if content.strip():
-                        return content
-
                     finish_reason = choice.get("finish_reason", "unknown")
                     completion_details = usage.get("completion_tokens_details") or {}
                     reasoning_tokens = completion_details.get("reasoning_tokens", 0)
                     current_limit = int(body.get("max_tokens") or 4096)
-                    if finish_reason == "length" and current_limit < 16384:
-                        next_limit = min(16384, current_limit * 2)
-                        logger.warning(
-                            "LLM 正文因长度上限为空，max_tokens %s -> %s 后重试",
-                            current_limit,
-                            next_limit,
+                    # A non-empty answer can still be a truncated JSON object.
+                    # Never pass it to an Agent when the provider explicitly
+                    # reports a length stop; retry atomically with more room.
+                    if finish_reason == "length":
+                        if current_limit < 16384:
+                            next_limit = min(16384, current_limit * 2)
+                            logger.warning(
+                                "LLM 正文因长度上限被截断，max_tokens %s -> %s 后重试",
+                                current_limit,
+                                next_limit,
+                            )
+                            body["max_tokens"] = next_limit
+                            continue
+                        raise LLMEmptyResponseError(
+                            "模型输出在 max_tokens=16384 时仍被截断，拒绝下传不完整结果"
                         )
-                        body["max_tokens"] = next_limit
-                        continue
+                    if content.strip():
+                        return content
                     raise LLMEmptyResponseError(
                         "模型返回空正文"
                         f" (finish_reason={finish_reason}, "
@@ -255,8 +273,17 @@ class LLMTools:
             except LLMEmptyResponseError:
                 raise
             except httpx.HTTPStatusError as e:
+                last_error = e
                 if e.response.status_code == 429:
-                    wait = min(30, (attempt + 1) * 5)
+                    if attempt >= max_attempts - 1:
+                        raise
+                    retry_after = e.response.headers.get("Retry-After", "").strip()
+                    try:
+                        wait = max(1.0, min(300.0, float(retry_after)))
+                    except ValueError:
+                        # Exponential backoff sends fewer doomed requests and
+                        # covers providers with minute-level cooldown windows.
+                        wait = min(60.0, 5.0 * (2 ** attempt))
                     logger.warning(f"Rate limited (429), waiting {wait}s before retry")
                     await asyncio.sleep(wait)
                     continue
@@ -264,14 +291,19 @@ class LLMTools:
                 if attempt >= 5:
                     raise
             except (httpx.TimeoutException, httpx.ConnectError) as e:
+                last_error = e
                 logger.warning(f"LLM call attempt {attempt + 1} failed (network): {e}")
                 await asyncio.sleep(3)
                 if attempt >= 5:
                     raise
             except Exception as e:
+                last_error = e
                 logger.warning(f"LLM call attempt {attempt + 1} failed: {e}")
                 if attempt >= 5:
                     raise
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("LLM request exhausted retries without a response")
 
     def parse_json(self, text: str) -> dict:
         import re

@@ -2,9 +2,9 @@
 import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, interpolate, Easing, spring } from "remotion";
 import { jsx, jsxs } from "react/jsx-runtime";
 var comp_fg_overlay_animation = ({
-  backgroundSourceId = "beijing_c0a47dc3",
-  foregroundSourceId = "beijing_0280b0f2",
-  subtitleText = "\u8FD9\u4E00\u523B\uFF0C\u5C5E\u4E8E\u5317\u4EAC",
+  backgroundSourceId = "",
+  foregroundSourceId = "",
+  subtitleText = "",
   subtitleColor = "#ffd700",
   foregroundEffect = "glow_fade_in",
   foregroundDuration = 4
@@ -38,8 +38,8 @@ var comp_fg_overlay_animation = ({
     easing: Easing.out(Easing.back())
   });
   const subtitleOpacity = interpolate(frame, [20, 40], [0, 1]);
-  const bgSrc = `/${backgroundSourceId}.png`;
-  const fgSrc = `/${foregroundSourceId}.png`;
+  const bgSrc = backgroundSourceId;
+  const fgSrc = foregroundSourceId || backgroundSourceId;
   return /* @__PURE__ */ jsxs(AbsoluteFill, { style: {
     backgroundColor: "#000",
     width: 1080,
@@ -47,7 +47,7 @@ var comp_fg_overlay_animation = ({
   }, children: [
     /* @__PURE__ */ jsx(AbsoluteFill, { style: {
       transform: `scale(${bgScale})`
-    }, children: /* @__PURE__ */ jsx(
+    }, children: bgSrc && /* @__PURE__ */ jsx(
       Img,
       {
         src: bgSrc,
@@ -70,7 +70,7 @@ var comp_fg_overlay_animation = ({
           drop-shadow(0 0 ${glowSize}px rgba(255, 215, 0, ${glowOpacity}))
         `,
       transition: "transform 0.1s ease-out"
-    }, children: /* @__PURE__ */ jsx(
+    }, children: fgSrc && /* @__PURE__ */ jsx(
       Img,
       {
         src: fgSrc,

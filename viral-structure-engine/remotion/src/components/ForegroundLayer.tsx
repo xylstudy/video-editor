@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import {
-  AbsoluteFill, Img, interpolate, spring, useCurrentFrame,
+  AbsoluteFill, Img, OffthreadVideo, interpolate, spring, useCurrentFrame,
   useVideoConfig, Easing,
 } from "remotion";
 
@@ -10,6 +10,15 @@ interface ForegroundLayerProps {
   compositeMode: "fg_overlay" | "fg_reveal" | "pip";
   durationInFrames: number;
 }
+
+const isVideoSource = (src: string) => /\.(mp4|mov|webm|mkv|avi)(?:[?#].*)?$/i.test(src);
+
+const MediaLayer: React.FC<{
+  src: string;
+  style: React.CSSProperties;
+}> = ({ src, style }) => isVideoSource(src)
+  ? <OffthreadVideo src={src} muted style={style} />
+  : <Img src={src} style={style} />;
 
 /**
  * 前景/背景合成组件。
@@ -58,7 +67,7 @@ export const ForegroundLayer: React.FC<ForegroundLayerProps> = ({
     <AbsoluteFill>
       {/* 背景 */}
       <AbsoluteFill>
-        <Img
+        <MediaLayer
           src={bgImage}
           style={{
             width: "100%",
@@ -89,11 +98,12 @@ export const ForegroundLayer: React.FC<ForegroundLayerProps> = ({
             transform: `translateY(${revealTranslateY}px)`,
           }}
         >
-          <Img
+          <MediaLayer
             src={fgImage}
             style={{
               width: "100%",
-              height: "auto",
+              height: compositeMode === "pip" ? "auto" : "100%",
+              objectFit: "cover",
               display: "block",
             }}
           />

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "mat_05",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_05.mp4",
+    "description": "Acropolis",
+    "tags": [
+      "acropolis",
+      "architecture",
+      "landmark"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Acropolis.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_10",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_10.mp4",
+    "description": "Cimitirul Vesel de la Sapanta, jud. Maramures",
+    "tags": [
+      "culture",
+      "landmark",
+      "outdoor"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Cimitirul_Vesel_de_la_Sapanta.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_24",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_24.mp4",
+    "description": "Danco en Po Nagar. Nha Trang, Vjetnamio.",
+    "tags": [
+      "dance",
+      "people",
+      "culture"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Danco_en_Po_Nagar.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_25",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_25.mp4",
+    "description": "Un día en la Muralla China! A una hora al norte de Beijing. En la zona de Mutianyu, esta vez no hubo hiking simplemente subimos por cable car y bajamos por tobogán! por lo que el recorrido total lo hicimos en 4 horas",
+    "tags": [
+      "great_wall",
+      "landmark",
+      "people"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Visita_la_Muralla_China_en_4_horas.webm",
+    "license": "CC BY 3.0"
+  }
+]

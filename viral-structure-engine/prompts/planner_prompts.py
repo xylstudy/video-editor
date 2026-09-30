@@ -315,7 +315,8 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 
 【字幕完整配置（每镜独立控制）】
 
-每个分镜的 subtitle_config 支持以下字段，**相邻分镜的字幕配置必须做出差异化**（不能全程同样的字号/位置/颜色）：
+每个分镜的 subtitle_config 支持以下字段。全片应保持字体、主色与安全区统一，
+只有 Hook 或高潮需要强调时才改变字号或动画：
 
 | 字段           | 类型     | 默认值        | 可选值
 | fontSize      | number  | 42           | 24~80（大字号适合高潮/金句，小字号适合叙述）
@@ -351,7 +352,7 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 
 ---
 
-总结：请充分利用以上全部系统能力，为每个分镜精心选择转场、字幕配置、渲染组件和合成模式，使整个视频每个镜头都富有变化和设计感。
+总结：系统能力是可选工具箱，不是效果清单。只使用服务于 Reference Gene、素材内容和叙事目的的能力，优先保证结构保真、节奏自然、包装一致和渲染稳定。
 """
 
     advanced_motion_section = build_motion_catalog_prompt()
@@ -392,6 +393,8 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 【关键设计要求】
 
 === 0. 素材使用要求 ===
+分镜总数必须控制在 5~10 个。当 Reference Gene 超过 10 个镜头时，按相邻镜头的结构功能、情绪和节奏合并，不要逐镜头机械展开。
+输出必须简洁：visual_description、voiceover_text 和 adaptation.reason 各不超过 40 个中文字；未使用的可选数组/对象使用空值，不要输出解释性长文。
 可用素材列表中的 **每一个素材都必须被用到** —— 这是硬性要求，审核会逐一核对。
 - 具体怎么用（一镜一图、多图拼贴、前景叠层、画中画），由你根据素材特点和爆款结构 **自行创意决定**
 - 可以通过 `layers` 字段在一镜中叠加多张素材，也可以通过 `composite_mode` 做合成
@@ -411,27 +414,20 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 
 创意提示：把人物/建筑从一张照片抠到另一张照片的背景上，创造"穿越"感。利用 `layers` 做多图拼贴来覆盖更多素材。
 
-=== 2. 字幕配置必须多样化（Critical）===
-每个分镜的 subtitle_config **必须与其他分镜不同** —— 相邻分镜不得使用完全相同的字号、位置和颜色。
+=== 2. 字幕配置应保持统一（Critical）===
+全片使用统一的字体、主色和安全区，最多设置 1 种强调样式。只有 Hook 或高潮需要强调时才改变字号或动画。
 - 入场动画: "fade_in"（淡入）/ "scale_up"（缩放进入）/ "none"（无动画）
 - 可开启逐词高亮 wordHighlight: true（当前词变绿色，TikTok 风格）
 - 可根据段落情绪切换垂直位置: 叙述段用 bottom，情绪段用 center，文艺段用 top
 - 高潮段落使用大号（56~72）+ 金色/亮色 + scale_up 动画
 - 平静叙述用小号（32~38）+ bottom + 淡入
-- 参考上方“系统能力手册”中的字幕完整配置表，确保每个镜头的字幕配置都不一样
+- 字幕以可读性和包装一致性优先，不为展示能力而堆叠效果
 
-=== 3. 转场必须多样化（Critical）===
-每个分镜的 transition_in 字段**不能全都用 cut**，至少使用 6 种不同类型的转场，相邻分镜的转场不得相同。
-- 整体方案中 cut 的使用比例不得超过 50%（36个分镜中最多 18 个用 cut）
-- hook 开头用 zoom_heavy / whip / flash_white 制造冲击感
-- 日常段落用 slide / zoom_in / dissolve 自然过渡
-- 情绪高潮用 zoom_flash / spin / zoom_heavy 强化
-- 转场镜头用 whip / slide / glitch 制造节奏变化
-- 收尾用 fade / blur_in / flash_black 平息
-- 参考上方"系统能力手册"中的镜头类型到转场推荐表和 23 种转场完整列表
+=== 3. 转场服从 Reference 节奏（Critical）===
+优先使用 cut / fade / dissolve，整片通常控制在 1-3 种转场。只有 Gene 明确存在冲击点时才使用一次强调转场；不得为了多样化堆叠 whip、spin、zoom_flash 等效果。
 
-=== 4. 渲染组件必须多样化（Critical）===
-"auto" 的分镜不得超过总分镜数的 50%。**至少 3 个分镜必须使用自定义组件**（custom: 前缀）。整个方案至少使用 3 种不同的 render_component 类型。
+=== 4. 渲染组件以稳定和必要性为先（Critical）===
+默认使用 auto；只有内置组件无法表达 Gene 功能时才使用 custom: 组件，且必须说明必要性。
 - 纯文字表达/金句 → "text_card"（配合 typewriter/slide_in/fade_in 三种动画变体）
 - 多图展示 → "custom:photo_collage" / "custom:collage"
 - 快节奏堆叠 → "custom:montage" / "custom:fast_montage"
@@ -448,7 +444,7 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 - 分镜时长和情绪序列必须适配音频的能量曲线
 - 高潮分镜对齐音频的高潮点
 
-请生成完整的视频方案。每个分镜都需要包含上述合成决策，且**字幕配置、转场类型、渲染组件在分镜之间必须做出差异化**。
+请生成完整的视频方案。每个分镜都需要包含上述合成决策，但不要为了差异化牺牲 Reference 结构保真、节奏自然度和包装一致性。
 
 重要：只输出 JSON，不要包含任何解释文字，不要使用 markdown 代码块，直接输出纯 JSON。
 
@@ -537,10 +533,26 @@ def build_scheme_iterate_prompt(
     gene_json: str = "",
     skill_context=None,
 ) -> str:
+    try:
+        original_payload = json.loads(original_scheme_json)
+        original_storyboard_count = len(original_payload.get("storyboard") or [])
+    except (TypeError, json.JSONDecodeError):
+        original_storyboard_count = 0
+    count_constraint = (
+        f"当前方案有 {original_storyboard_count} 个分镜。迭代后必须保持在 "
+        f"{max(3, original_storyboard_count - 2)}~{min(10, original_storyboard_count + 2)} 个；"
+        "不得把整个方案压缩为 1~2 个长镜头。"
+        if original_storyboard_count else "迭代后保持 5~10 个可执行分镜。"
+    )
     gene_section = f"\n【参考视频结构基因（迭代中仍必须保持的硬约束）】\n{gene_json}\n" if gene_json else ""
-    skill_section = _format_skill_context(skill_context)
-    if skill_section:
-        skill_section = f"\n【按需加载的剪辑 Skill】\n{skill_section}\n"
+    skill_names = []
+    for item in skill_context or []:
+        if isinstance(item, dict) and item.get("name"):
+            skill_names.append(str(item["name"]))
+    skill_section = (
+        f"\n【本轮继续遵守的剪辑 Skill】\n{', '.join(skill_names)}\n"
+        if skill_names else ""
+    )
 
     return f"""你是一位Vlog编导，正在根据审核反馈迭代优化Vlog方案。参考以下系统能力做优化。
 {gene_section}
@@ -554,9 +566,7 @@ def build_scheme_iterate_prompt(
 {inventory_json}
 {skill_section}
 【系统能力参考】
-此系统支持基础转场、12 种稳定高级镜头配方、3 种高级转场、4 种前景合成模式和灵活字幕配置。
-{build_motion_catalog_prompt()}
-请充分利用这些能力，在迭代中增加多样性。
+系统支持基础转场、稳定镜头配方、前景合成和字幕配置。本轮只修复审核指出的问题，不要为展示能力增加无关效果。
 
 【决策优先级】用户显式要求 > Reference Gene > Editing Skill > 模型自由发挥。
 审核反馈会区分两类问题：
@@ -564,14 +574,40 @@ def build_scheme_iterate_prompt(
 - quality（像 Reference 但剪得不好）：素材匹配/转场/情绪连贯/字幕包装问题 → 在不破坏 Gene 结构的前提下优化。
 
 请根据审核反馈优化方案。保持结构骨架（Gene 硬约束）不变，但必须检查并修正以下方面：
+0. **镜头数量保护**：{count_constraint}
 1. **素材覆盖率**：检查哪些素材还未被使用，创造性地安排进合适的镜头里。必须覆盖所有素材
-2. **字幕配置多样化**：相邻分镜不得使用完全相同的字号、位置和颜色，至少使用 3 种不同的字号和 2 种垂直位置
-3. **转场多样化**：至少使用 4 种不同类型的转场，cut 比例不得超过 60%
-4. **渲染组件多样化**：至少 2 个分镜使用自定义组件（custom: 前缀），至少使用 3 种不同的 render_component
-5. **前景/背景合成**：至少有 2-3 个分镜使用 fg_overlay / fg_reveal / pip 合成
+2. **字幕包装一致性**：统一字体、主色与位置，仅在 Hook/高潮做必要强调
+3. **转场自然度**：优先 cut/fade/dissolve，通常控制在 1-3 种，服从 Reference 节奏
+4. **渲染稳定性**：默认使用 auto，自定义组件仅在不可替代时使用
+5. **前景/背景合成**：只有内容关系需要时才使用，不设置数量指标
 6. 节奏微调（镜头时长、顺序）
 7. 包装优化（字幕、转场、调色）
 8. 每个分镜补全 structure_function / gene_shot_index / skill_refs / adaptation 溯源字段
 
-输出格式不变，结构不变，只修改优化部分。
+不要重写完整方案，只输出有变化的增量补丁。代码会在本地把补丁合并回当前方案。
+只输出紧凑 JSON，不要输出 Markdown 或解释性文字；每个文本字段不超过 40 个中文字。
+未需要的修改数组输出空数组。输出格式：
+{{
+  "top_level_changes": {{
+    "title": "仅在需要修改时出现",
+    "packaging": {{}}
+  }},
+  "storyboard_updates": [
+    {{
+      "index": 0,
+      "changes": {{
+        "duration": 3.0,
+        "structure_function": "hook",
+        "source_material_id": "material_id",
+        "transition_in": "cut",
+        "subtitle_text": "简短字幕"
+      }}
+    }}
+  ],
+  "storyboard_insertions": [
+    {{"after_index": 0, "frame": {{"duration": 3.0, "source_material_id": "material_id", "structure_function": "daily_moment"}}}}
+  ],
+  "storyboard_removals": [],
+  "change_summary": ["修复的审核问题"]
+}}
 """

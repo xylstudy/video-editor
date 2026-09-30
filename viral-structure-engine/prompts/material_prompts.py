@@ -1,3 +1,6 @@
+MATERIAL_VIDEO_PROMPT_VERSION = "2.0.0"
+
+
 def build_image_analysis_prompt(
     material_id: str,
     target_topic: str,
@@ -68,8 +71,11 @@ def build_video_analysis_prompt(
 ) -> str:
     return f"""你是一位短视频素材管理专家，擅长从一段原始视频素材中快速提取Vlog可用的高光片段。
 
-【背景信息】
-Vlog主题：{target_topic}
+【分析边界】
+只提取素材本身可观察到的内容、质量、情绪、运动和可用时间段，不要根据目标主题猜测画面内容。
+具体主题匹配由后续 Planner 单独完成，因此这份素材基因应能被不同任务复用。
+
+【素材信息】
 素材ID：{material_id}
 视频时长：{duration:.1f}秒
 

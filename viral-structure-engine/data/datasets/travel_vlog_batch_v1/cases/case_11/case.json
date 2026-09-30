@@ -1,0 +1,17 @@
+{
+  "case_id": "case_11",
+  "target_topic": "住宿探店叙事",
+  "reference_id": "ref_03",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_11\\materials.json",
+  "material_ids": [
+    "mat_01",
+    "mat_03",
+    "mat_04",
+    "mat_06",
+    "mat_22"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

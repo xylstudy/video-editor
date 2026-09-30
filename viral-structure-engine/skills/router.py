@@ -352,7 +352,10 @@ class SkillRouter:
         )
         self._last_semantic_error = ""
         try:
-            resp = await llm.chat(prompt, temperature=0.0, max_tokens=128)
+            # Reasoning-capable providers may spend their token budget before
+            # emitting the tiny final ID list. Starting at 128 caused several
+            # duplicate requests through the client's length retry ladder.
+            resp = await llm.chat(prompt, temperature=0.0, max_tokens=4096)
             if not isinstance(resp, str) or resp.strip().upper() == "NONE":
                 return []
             # Providers occasionally wrap the requested IDs in JSON, bullets,

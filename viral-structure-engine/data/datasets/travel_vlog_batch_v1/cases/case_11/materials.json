@@ -1,0 +1,63 @@
+[
+  {
+    "id": "mat_01",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_01.mp4",
+    "description": "Atbara (city)",
+    "tags": [
+      "hotel",
+      "interior"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Sudan.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_03",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_03.mp4",
+    "description": "Hotel in Afghanistan",
+    "tags": [
+      "hotel",
+      "room"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan-2.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_04",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_04.mp4",
+    "description": "Hotel in Syria",
+    "tags": [
+      "hotel",
+      "room"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Quadruple_Room_in_Damascus.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_06",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_06.mp4",
+    "description": "Hotel in Afghanistan",
+    "tags": [
+      "hotel",
+      "travel"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_22",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_22.mp4",
+    "description": "This nice cafe owner in Santa Catarina park in Funchal, Madeira is clear: His BEST travel tip is to walk the Levadas. (The Levadas are channels of water originally created to transport the water of the north of the Island, with a humid climate and more precipitation, to the south where the climate is drier.) Forget the travel gurus. It's the locals that know their area best. On this channel, you get top travel tips from... you guessed it; The locals. Local know-how to: What to do, what to see, where to sleep, what to eat. And how to get there. What would you recommend from your city? Please write in the comments below. TerjeNordkvelle TopTravelTipsFromLocals",
+    "tags": [
+      "cafe",
+      "local",
+      "people"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:CAFE_OWNER%2C_FUNCHAL-_%22The_Levadas_is_THE_-1_Attraction_On_Madeira%22_--_Top_Travel_Tips_From_Locals.webm",
+    "license": "CC BY 3.0"
+  }
+]

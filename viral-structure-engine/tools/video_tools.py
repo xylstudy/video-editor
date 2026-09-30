@@ -25,6 +25,17 @@ def _imwrite(image_path: str, image) -> None:
     encoded.tofile(str(target))
 
 
+def _imread(image_path: str):
+    """Read an image through NumPy so Windows Unicode paths work reliably."""
+    try:
+        encoded = np.fromfile(str(Path(image_path)), dtype=np.uint8)
+    except OSError:
+        return None
+    if encoded.size == 0:
+        return None
+    return cv2.imdecode(encoded, cv2.IMREAD_COLOR)
+
+
 def _find_ffmpeg() -> str:
     global _FFMPEG_PATH
     if _FFMPEG_PATH:
@@ -80,7 +91,11 @@ class VideoTools:
                 gray = cv2.resize(gray, (160, 90))
 
                 if prev_frame is not None:
-                    diff = cv2.absdiff(gray, prev_frame).mean()
+                    # absdiff.mean() is in [0, 255], while the configured
+                    # threshold is a normalized ratio in [0, 1]. Comparing
+                    # the raw value to 0.3 incorrectly marks almost every
+                    # one-second sample as a new scene.
+                    diff = cv2.absdiff(gray, prev_frame).mean() / 255.0
                     if diff > threshold:
                         scene_end = frame_idx / fps
                         scenes.append({"start": scene_start, "end": scene_end, "duration": scene_end - scene_start})
@@ -192,7 +207,7 @@ class VideoTools:
         all_pixels = []
 
         for img_path in image_paths:
-            img = cv2.imread(img_path)
+            img = _imread(img_path)
             if img is None:
                 continue
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -413,7 +428,7 @@ class VideoTools:
         return output_path
 
     def crop_image(self, image_path: str, region: tuple[int, int, int, int]) -> str:
-        img = cv2.imread(image_path)
+        img = _imread(image_path)
         if img is None:
             raise ValueError(f"Cannot read image: {image_path}")
         x, y, w, h = region

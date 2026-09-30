@@ -52,3 +52,16 @@ DEFAULT_VLOG_DURATION = 60
 MAX_ITERATIONS = 3
 
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
+
+# Dynamic TSX generation is useful for experiments but expensive and less
+# deterministic than the built-in Remotion component library. Batch runners
+# may disable it per child process without changing interactive defaults.
+ENABLE_DYNAMIC_COMPONENTS = os.getenv("ENABLE_DYNAMIC_COMPONENTS", "true").strip().lower() in {
+    "1", "true", "yes", "on",
+}
+
+# Reuse expensive media understanding by content hash. Cache records contain
+# structured genes/analysis only; original media and absolute paths are not copied.
+ENABLE_ANALYSIS_CACHE = os.getenv("ENABLE_ANALYSIS_CACHE", "true").strip().lower() in {
+    "1", "true", "yes", "on",
+}

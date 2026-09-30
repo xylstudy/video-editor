@@ -82,25 +82,42 @@ class AnalystAgent(BaseAgent):
                              total_duration: float, prev_frame_desc: str = "",
                              video_path: str = "",
                              motion_intensity: float = 0.0,
-                             color_stats: dict | None = None) -> dict:
-        """用 Qwen3-OMNI-Flash 分析镜头 clip（画面+音频），替代原来的单帧图片分析"""
-        # 切出镜头 clip（含音频）
-        clip_path = self.video.extract_shot_clip(video_path, start_time, end_time, shot_index)
-        # 提取一帧用于人脸检测（保留兼容）
-        frame_path = self.video.extract_frame(video_path, (start_time + end_time) / 2)
-        has_face = self.face.has_face(frame_path)
+                             color_stats: dict | None = None,
+                             frame_paths: list[str] | None = None) -> dict:
+        """Analyse ordered representative frames from one shot.
+
+        OpenAI-compatible vision endpoints commonly accept ``image_url`` but
+        not inline ``video_url`` payloads.  Multiple ordered frames preserve
+        motion/context cues while remaining portable across providers.
+        """
+        frames = [str(path) for path in (frame_paths or []) if Path(path).is_file()]
+        if not frames:
+            shot_duration = max(0.0, end_time - start_time)
+            sample_times = [
+                min(max(total_duration - 0.05, 0.0), start_time + shot_duration * ratio)
+                for ratio in (0.1, 0.5, 0.9)
+            ]
+            for sample_time in sample_times:
+                try:
+                    frames.append(str(self.video.extract_frame(video_path, sample_time)))
+                except Exception:
+                    continue
+        if not frames:
+            raise RuntimeError(f"shot {shot_index} has no representative frames")
+        has_face = any(self.face.has_face(frame_path) for frame_path in frames)
 
         prompt = build_shot_analysis_prompt(
             shot_index, start_time, end_time,
             total_duration, prev_frame_desc,
             motion_intensity=motion_intensity,
             color_stats=color_stats,
+            visual_samples_only=True,
         )
 
         # 重试 2 次：先用 json 格式，失败后降级为普通格式
         for attempt in range(2):
             fmt = "json" if attempt == 0 else ""
-            response = await self.llm.chat_with_video(prompt, clip_path, response_format=fmt)
+            response = await self.llm.chat_with_images(prompt, frames, response_format=fmt)
             try:
                 result = self.llm.parse_json(response)
                 result["has_face"] = has_face

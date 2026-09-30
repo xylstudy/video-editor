@@ -1,5 +1,6 @@
 import json
 import logging
+from copy import deepcopy
 from typing import Optional
 
 from agents.base import BaseAgent, AgentRole, AgentResult
@@ -12,6 +13,65 @@ from models.scheme import VideoScheme, StoryboardFrame
 from models.video_structure import ShotType, TransitionType
 
 logger = logging.getLogger(__name__)
+
+
+def apply_scheme_patch(original: dict, patch: dict) -> dict:
+    """Apply a compact re-plan patch while preserving the full scheme contract."""
+    if not isinstance(original, dict) or not isinstance(patch, dict):
+        raise ValueError("scheme and patch must be JSON objects")
+    # Backward compatibility for providers that still return a full scheme.
+    if isinstance(patch.get("storyboard"), list):
+        return patch
+
+    result = deepcopy(original)
+    allowed_top_level = {
+        "title", "target_duration", "structure_type", "render_hints",
+        "audio_source_id", "audio_config", "packaging", "total_duration",
+        "gene_refs", "skill_refs_used", "adaptation_log",
+    }
+    for key, value in (patch.get("top_level_changes") or {}).items():
+        if key in allowed_top_level:
+            result[key] = value
+
+    storyboard = deepcopy(result.get("storyboard") or [])
+    if not isinstance(storyboard, list):
+        raise ValueError("original storyboard must be a list")
+
+    def find_position(frame_index: int) -> int | None:
+        for position, frame in enumerate(storyboard):
+            if isinstance(frame, dict) and frame.get("index") == frame_index:
+                return position
+        return None
+
+    for item in patch.get("storyboard_updates") or []:
+        if not isinstance(item, dict) or not isinstance(item.get("changes"), dict):
+            continue
+        position = find_position(item.get("index"))
+        if position is not None and isinstance(storyboard[position], dict):
+            storyboard[position].update(item["changes"])
+
+    removal_indices = {
+        value for value in (patch.get("storyboard_removals") or [])
+        if isinstance(value, int) and not isinstance(value, bool)
+    }
+    storyboard = [
+        frame for frame in storyboard
+        if not isinstance(frame, dict) or frame.get("index") not in removal_indices
+    ]
+
+    for item in patch.get("storyboard_insertions") or []:
+        if not isinstance(item, dict) or not isinstance(item.get("frame"), dict):
+            continue
+        after_index = item.get("after_index")
+        position = find_position(after_index) if isinstance(after_index, int) else None
+        insert_at = len(storyboard) if position is None else position + 1
+        storyboard.insert(insert_at, deepcopy(item["frame"]))
+
+    for index, frame in enumerate(storyboard):
+        if isinstance(frame, dict):
+            frame["index"] = index
+    result["storyboard"] = storyboard
+    return result
 
 
 class PlannerAgent(BaseAgent):
@@ -101,7 +161,19 @@ class PlannerAgent(BaseAgent):
         for attempt in range(3):
             try:
                 response = await self.llm.chat(prompt, response_format="json", max_tokens=16384)
-                return self.llm.parse_json(response)
+                patch = self.llm.parse_json(response)
+                original = json.loads(scheme_json)
+                revised = apply_scheme_patch(original, patch)
+                original_count = len(original.get("storyboard") or [])
+                revised_count = len(revised.get("storyboard") or [])
+                if original_count:
+                    minimum = max(3, original_count - 2)
+                    maximum = min(10, original_count + 2)
+                    if not minimum <= revised_count <= maximum:
+                        raise ValueError(
+                            f"re-plan storyboard count {revised_count} outside {minimum}..{maximum}"
+                        )
+                return revised
             except (json.JSONDecodeError, ValueError) as e:
                 logger.warning(f"方案迭代解析失败 (尝试 {attempt+1}/3): {e}")
                 if attempt == 2:
@@ -185,6 +257,7 @@ class PlannerAgent(BaseAgent):
             structure_type=scheme_data.get("structure_type", ""),
             storyboard=frames,
             version=iteration + 1,
+            iteration=iteration,
             status="draft" if iteration == 0 else "revised",
             canvas_width=scheme_data.get("canvas_width", 1080),
             canvas_height=scheme_data.get("canvas_height", 1920),

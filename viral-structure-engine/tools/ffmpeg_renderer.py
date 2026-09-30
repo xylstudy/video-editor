@@ -59,8 +59,10 @@ class FFMpegRenderer:
         "wipe_down": "wipedown",
         "whip": "fade",
         "glitch": "fade",
-        "zoom_in": "zoompan",
-        "zoom_out": "zoomin",
+        # xfade has no "zoompan" transition. Use a widely supported fade;
+        # zoom motion itself is already rendered inside each segment.
+        "zoom_in": "fade",
+        "zoom_out": "fade",
         "flash_white": "fadewhite",
         "flash_black": "fadeblack",
         "blur_in": "fade",
@@ -78,6 +80,7 @@ class FFMpegRenderer:
     }
 
     FONT_NAME = "simhei.ttf"
+    VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v"}
 
     def __init__(self, work_dir: Optional[str] = None):
         self.work_dir = Path(work_dir or settings.TEMP_DIR)
@@ -128,10 +131,12 @@ class FFMpegRenderer:
         # Step 1: 渲染每个分镜
         logger.info(f"  [FFmpeg] 渲染 {len(scheme.storyboard)} 个分镜...")
         segments = []
+        rendered_frames = []
         for i, frame in enumerate(scheme.storyboard):
             seg = self._render_segment(frame, material_map, i)
             if seg:
                 segments.append(seg)
+                rendered_frames.append(frame)
             else:
                 logger.warning(f"  [FFmpeg] 分镜 {i} 渲染失败，跳过")
 
@@ -141,7 +146,28 @@ class FFMpegRenderer:
 
         # Step 2: 带转场拼接
         logger.info(f"  [FFmpeg] 拼接 {len(segments)} 个片段（含转场）...")
-        concat_path = self._concat_segments(segments, scheme.storyboard)
+        concat_path = self._concat_segments(segments, rendered_frames)
+        if not concat_path:
+            logger.warning("  [FFmpeg] 转场拼接失败，降级为无转场顺序拼接")
+            concat_path = self._concat_simple(segments)
+        elif len(segments) > 1:
+            expected_duration = self._expected_concat_duration(rendered_frames)
+            actual_duration = self._probe_duration(concat_path)
+            if (
+                expected_duration > 0
+                and actual_duration > 0
+                and actual_duration < expected_duration * 0.9
+            ):
+                logger.warning(
+                    "  [FFmpeg] 转场拼接时长异常: %.2fs < %.2fs，降级为顺序拼接",
+                    actual_duration,
+                    expected_duration,
+                )
+                concat_path = self._concat_simple(segments)
+        if not concat_path:
+            logger.error("  [FFmpeg] 分镜拼接失败")
+            self._cleanup(segments, None)
+            return None
 
         # Step 3: 叠加音频
         import re
@@ -175,6 +201,16 @@ class FFMpegRenderer:
         if not material_id:
             return None
         return material_map.get(material_id)
+
+    def _is_video(self, media_path: str) -> bool:
+        return Path(media_path).suffix.lower() in self.VIDEO_EXTENSIONS
+
+    def _media_input_args(self, media_path: str) -> list[str]:
+        if self._is_video(media_path):
+            # Loop short clips when a storyboard frame is longer than the
+            # source. Unlike image inputs, video inputs do not support -loop.
+            return ["-stream_loop", "-1", "-i", media_path]
+        return ["-loop", "1", "-i", media_path]
 
     # ======================== 单分镜渲染 ========================
 
@@ -215,12 +251,20 @@ class FFMpegRenderer:
             )
 
     def _render_single(
-        self, image_path: str, frame: StoryboardFrame,
+        self, media_path: str, frame: StoryboardFrame,
         output: str, duration: float, width: int, height: int,
         fps: int, total_frames: int,
     ) -> Optional[str]:
-        """单图 + Ken Burns + 字幕 + 文字层"""
-        filters = [self._build_zoompan(frame, width, height, total_frames)]
+        """Render one image or video with deterministic framing and text."""
+        if self._is_video(media_path):
+            filters = [
+                f"scale={width}:{height}:force_original_aspect_ratio=increase",
+                f"crop={width}:{height}",
+                "setsar=1",
+                f"fps={fps}",
+            ]
+        else:
+            filters = [self._build_zoompan(frame, width, height, total_frames)]
 
         color_f = self._get_color_filter(frame)
         if color_f:
@@ -235,8 +279,7 @@ class FFMpegRenderer:
 
         return self._run_ffmpeg([
             self.ffmpeg, "-y",
-            "-loop", "1",
-            "-i", image_path,
+            *self._media_input_args(media_path),
             "-vf", ",".join(filters),
             "-t", str(duration),
             "-c:v", "libx264", "-pix_fmt", "yuv420p",
@@ -250,11 +293,11 @@ class FFMpegRenderer:
         fps: int, total_frames: int,
     ) -> Optional[str]:
         """背景 + 前景叠加 + 字幕"""
-        zoom_rate = self._get_zoom_rate(frame, total_frames)
-
-        # 背景 zoompan
+        # Overlay inputs may independently be images or videos. Normalize both
+        # through scale/crop; input looping is selected by media type below.
         bg_zp = (
-            f"[0]zoompan=z=zoom+{zoom_rate:.5f}:d={total_frames}:s={width}x{height}[bg]"
+            f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,"
+            f"crop={width}:{height},setsar=1,fps={fps}[bg]"
         )
 
         # 前景处理
@@ -283,8 +326,8 @@ class FFMpegRenderer:
 
         return self._run_ffmpeg([
             self.ffmpeg, "-y",
-            "-loop", "1", "-i", bg_path,
-            "-loop", "1", "-i", fg_path,
+            *self._media_input_args(bg_path),
+            *self._media_input_args(fg_path),
             "-filter_complex", f"{bg_zp};{fg_part}",
             "-t", str(duration),
             "-c:v", "libx264", "-pix_fmt", "yuv420p",
@@ -294,11 +337,14 @@ class FFMpegRenderer:
 
     # ======================== 拼接 + 转场 ========================
 
-    def _concat_segments(self, segments: list[str], storyboard: list) -> str:
+    def _concat_segments(self, segments: list[str], storyboard: list) -> Optional[str]:
         if len(segments) == 1:
             return segments[0]
 
-        td = 0.4  # 转场时长
+        # Keep fallback duration close to the storyboard target. Every xfade
+        # overlaps adjacent clips, so long transitions accumulate a large
+        # duration loss on multi-shot videos.
+        td = 0.2
         filter_parts = []
         prev_label = "0"
         # xfade 吃掉了 duration 秒的重叠，实际时长 = 原始和 - 每次转场的 transition_duration
@@ -342,6 +388,36 @@ class FFMpegRenderer:
             output,
         ]
         return self._run_ffmpeg(cmd, output)
+
+    def _expected_concat_duration(self, storyboard: list) -> float:
+        """Return expected xfade output duration for already-rendered frames."""
+        if not storyboard:
+            return 0.0
+        duration = float(getattr(storyboard[0], "duration", 0.0) or 0.0)
+        for index, frame in enumerate(storyboard[1:], start=1):
+            overlap = 0.04 if self._get_transition(storyboard, index) is None else 0.2
+            duration += float(getattr(frame, "duration", 0.0) or 0.0) - overlap
+        return max(duration, 0.0)
+
+    def _probe_duration(self, media_path: str) -> float:
+        """Probe duration without depending on a separately installed ffprobe."""
+        try:
+            completed = subprocess.run(
+                [self.ffmpeg, "-i", media_path],
+                capture_output=True,
+                timeout=15,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return 0.0
+        stderr = completed.stderr.decode("utf-8", errors="replace")
+        match = __import__("re").search(
+            r"Duration: (\d+):(\d+):(\d+(?:\.\d+)?)",
+            stderr,
+        )
+        if not match:
+            return 0.0
+        hours, minutes, seconds = match.groups()
+        return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
 
     def _concat_simple(self, segments: list[str]) -> str:
         output = str(self.segments_dir / "concat.mp4")
@@ -631,7 +707,7 @@ class FFMpegRenderer:
             logger.warning(f"  FFmpeg 异常: {e}")
             return None
 
-    def _cleanup(self, segments: list, concat_path: str):
+    def _cleanup(self, segments: list, concat_path: Optional[str]):
         import os
         for seg in segments:
             try:

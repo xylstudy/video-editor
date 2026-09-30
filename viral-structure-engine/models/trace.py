@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 # ===== Prompt 版本号 =====
-ANALYST_PROMPT_VERSION = "analyst_prompts_v1"
+ANALYST_PROMPT_VERSION = "analyst_prompts_v2_multiframe"
 STRUCTURE_PROMPT_VERSION = "structure_analysis_prompts_v1"
 KNOWLEDGE_EXTRACT_PROMPT_VERSION = "knowledge_extract_v1"
 

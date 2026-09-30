@@ -20,6 +20,62 @@ import main as engine_main
 FIXTURES = Path(__file__).parent / "fixtures" / "evaluation"
 
 
+def test_scheme_fingerprint_ignores_post_review_metadata():
+    base = {"title": "demo", "storyboard": [{"index": 0, "duration": 2.0}]}
+    enriched = {
+        **base,
+        "review_notes": ["reviewed"],
+        "skill_evaluation": {"outcomes": {"reviewer": {"passed": True}}},
+    }
+
+    assert run_evaluator.scheme_fingerprint(base) == run_evaluator.scheme_fingerprint(enriched)
+
+
+def test_reviewer_normalises_ten_point_output_to_percentage():
+    from agents.reviewer import ReviewerAgent
+
+    scores = {
+        name: {"score": 6, "weight": 99, "reason": "ok"}
+        for name in ReviewerAgent.SCORE_WEIGHTS
+    }
+    result = ReviewerAgent._normalise_review({
+        "scores": scores,
+        "fidelity": {"overall": 4},
+        "quality": {"overall": 7},
+        "total_score": 6.4,
+        "pass": True,
+        "force_iterate": False,
+    })
+
+    assert result["total_score"] == 60.0
+    assert result["fidelity"]["overall"] == 40.0
+    assert result["quality"]["overall"] == 70.0
+    assert result["pass"] is False
+    assert all(
+        result["scores"][name]["weight"] == weight
+        for name, weight in ReviewerAgent.SCORE_WEIGHTS.items()
+    )
+
+
+def test_material_coverage_counts_rendered_composite_and_custom_sources():
+    scheme = {
+        "storyboard": [
+            {
+                "source_material_id": "a",
+                "fg_source_id": "b",
+                "render_component": "custom:beat_montage",
+                "custom_render_config": {"source_material_ids": ["a", "c"]},
+            }
+        ]
+    }
+    inventory = {"items": [{"id": value} for value in ("a", "b", "c")]}
+
+    ratio, detail = run_evaluator._coverage(scheme, inventory)
+
+    assert ratio == 1.0
+    assert detail == "3/3 user materials used"
+
+
 def _real_video(path: Path) -> None:
     ffmpeg = shutil.which("ffmpeg")
     if not ffmpeg:
@@ -86,6 +142,7 @@ def test_evaluator_does_not_treat_completion_as_success():
     report = evaluate_run(FIXTURES / "completed_without_quality")
     assert report["success"] is False
     assert report["quality"]["review_pass"] is False
+    assert report["quality"]["review_accepted"] is False
     assert report["execution"]["video_valid"] is False
 
 

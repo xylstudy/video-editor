@@ -1,0 +1,14 @@
+{
+  "case_id": "case_20",
+  "target_topic": "极少素材降级策略",
+  "reference_id": "ref_02",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_20\\materials.json",
+  "material_ids": [
+    "mat_12",
+    "mat_02"
+  ],
+  "material_count": 2,
+  "target_duration": 30,
+  "status": "ready"
+}
