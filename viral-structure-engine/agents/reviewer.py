@@ -136,5 +136,41 @@ class ReviewerAgent(BaseAgent):
         review["pass"] = bool(total_score >= 75 and not review.get("force_iterate", False))
         return review
 
+    @staticmethod
+    def apply_contract_gates(review: dict, scheme: dict) -> dict:
+        """Apply rule-based gates after the qualitative LLM review."""
+        hints = scheme.get("render_hints", {}) if isinstance(scheme, dict) else {}
+        effect = hints.get("effect_contract", {}) if isinstance(hints, dict) else {}
+        material = hints.get("material_diversity", {}) if isinstance(hints, dict) else {}
+        effect_coverage = float(effect.get("coverage", 1.0) or 0.0)
+        unresolved = list(effect.get("unresolved", []) or [])
+        material_pass = bool(material.get("pass", True))
+        gates = {
+            "effect_event_coverage": {
+                "passed": effect_coverage >= 0.9 and not unresolved,
+                "coverage": effect_coverage,
+                "unresolved": unresolved,
+            },
+            "material_diversity": {
+                "passed": material_pass,
+                "assigned_shot_count": material.get("assigned_shot_count", 0),
+                "unique_used": material.get("unique_used", 0),
+                "recommended_unique": material.get("recommended_unique", 0),
+                "available_shortfall": material.get("available_shortfall", 0),
+                "overused": material.get("overused", {}),
+                "longest_consecutive_run": material.get("longest_consecutive_run", 0),
+            },
+        }
+        failed = [name for name, value in gates.items() if not value["passed"]]
+        review["quality_gates"] = gates
+        if failed:
+            review["pass"] = False
+            review["force_iterate"] = True
+            review["workflow_status"] = "needs_revision"
+            review["contract_failures"] = failed
+        else:
+            review["workflow_status"] = "approved" if review.get("pass") else "needs_revision"
+        return review
+
     async def _done(self, summary: str) -> dict:
         return {"status": "done", "summary": summary}

@@ -7,41 +7,44 @@ import {
   Clapperboard,
   Dna,
   FolderOpen,
+  Layers3,
+  Play,
   PlaySquare,
   Sparkles,
   Upload,
+  WandSparkles,
 } from 'lucide-react'
 import { getStats } from '../api.js'
-import { Button, Card, SectionHeader, StatusPill } from '../components/ui.jsx'
+import { Button, Card, StatusPill } from '../components/ui.jsx'
 
 const STAT_CARDS = [
-  { key: 'projects', label: '我的项目', icon: FolderOpen, to: '/projects', color: 'text-[#b49aff]', bg: 'bg-[rgba(124,92,252,0.12)]' },
-  { key: 'genes', label: '视频基因', icon: Dna, to: '/genes', color: 'text-[#66e0ff]', bg: 'bg-[rgba(0,212,255,0.12)]' },
-  { key: 'knowledge', label: '我的知识', icon: BookOpen, to: '/knowledge', color: 'text-[#6ee7b7]', bg: 'bg-[rgba(52,211,153,0.12)]' },
-  { key: 'works', label: '生成成片', icon: PlaySquare, to: '/works', color: 'text-[#fcd34d]', bg: 'bg-[rgba(251,191,36,0.12)]' },
+  { key: 'projects', label: '创作项目', detail: '结构迁移工作区', icon: FolderOpen, to: '/projects', tone: 'violet' },
+  { key: 'genes', label: '视频基因', detail: '已提取结构资产', icon: Dna, to: '/genes', tone: 'coral' },
+  { key: 'knowledge', label: '知识条目', detail: '可调用剪辑经验', icon: BookOpen, to: '/knowledge', tone: 'cyan' },
+  { key: 'works', label: '生成成片', detail: '已交付作品', icon: PlaySquare, to: '/works', tone: 'green' },
 ]
 
 const GUIDE_STEPS = [
   {
     icon: Dna,
-    title: '① 提取爆款基因',
-    desc: '上传一条爆款 Vlog，引擎自动拆解它的 Hook、节奏、段落和剪辑技法',
+    step: '01',
+    title: '解析参考视频',
+    desc: '提取 Hook、镜头节奏、转场、文字与声音设计，形成可复用视频基因。',
     to: '/genes',
-    action: '去提取',
   },
   {
-    icon: Clapperboard,
-    title: '② 创建项目',
-    desc: '选用基因库里的参考视频，上传你的照片素材，一键复刻结构',
+    icon: Layers3,
+    step: '02',
+    title: '编排你的素材',
+    desc: '建立项目并上传素材，Planner 会按照内容语义匹配镜头且避免重复使用。',
     to: '/projects',
-    action: '去创建',
   },
   {
-    icon: PlaySquare,
-    title: '③ 收获成片',
-    desc: '实时查看生成进度，成片自动收入作品集，随时播放下载',
+    icon: WandSparkles,
+    step: '03',
+    title: '审查并生成',
+    desc: '确认分镜后进入渲染，最终在作品集中并排检查参考片与生成片。',
     to: '/works',
-    action: '去看看',
   },
 ]
 
@@ -56,113 +59,93 @@ export default function Dashboard() {
   }, [])
 
   if (!stats) {
-    return <div className="py-16 text-center text-sm text-[#5a5a7a]">加载中...</div>
+    return <div className="py-16 text-center text-sm text-[#8b8495]">正在加载创作空间…</div>
   }
 
-  const isEmpty = stats.projects === 0 && stats.genes === 0 && stats.works === 0
-
   return (
-    <div>
-      <SectionHeader
-        title="工作台"
-        description="拆解爆款结构，复刻到你的素材上 —— 从基因提取到成片产出的完整流水线"
-        actions={
-          <>
-            <Button variant="secondary" icon={Upload} onClick={() => navigate('/genes')}>
-              提取视频基因
-            </Button>
-            <Button icon={Sparkles} onClick={() => navigate('/projects')}>
-              新建项目
-            </Button>
-          </>
-        }
-      />
+    <div className="vc-dashboard vc-fade-in">
+      <section className="vc-dashboard-hero">
+        <i className="vc-hero-orb vc-hero-orb-one" />
+        <i className="vc-hero-orb vc-hero-orb-two" />
+        <div className="vc-hero-copy">
+          <span className="vc-hero-kicker"><Sparkles size={13} /> AI VIDEO WORKFLOW</span>
+          <h2>让参考视频的<br />爆款结构真正落地</h2>
+          <p>从视觉分析、视频基因、素材规划到成片复审，把一次生成变成可检查、可迭代的完整流程。</p>
+          <div className="vc-hero-actions">
+            <Button icon={Clapperboard} size="lg" onClick={() => navigate('/projects')}>开始新项目</Button>
+            <button type="button" onClick={() => navigate('/genes')}><Upload size={15} /> 提取参考视频</button>
+          </div>
+        </div>
+        <div className="vc-hero-preview" aria-hidden="true">
+          <div className="vc-preview-window">
+            <div className="vc-preview-bar"><i /><i /><i /><span>structure-map.vc</span></div>
+            <div className="vc-preview-stage">
+              <div className="vc-preview-play"><Play size={18} fill="currentColor" /></div>
+              <span className="vc-preview-shot one" />
+              <span className="vc-preview-shot two" />
+              <span className="vc-preview-shot three" />
+              <span className="vc-preview-timeline" />
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* 统计卡片 */}
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {STAT_CARDS.map(({ key, label, icon: Icon, to, color, bg }) => (
-          <Link key={key} to={to}>
-            <Card hover className="flex items-center gap-4 p-5">
-              <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}>
-                <Icon size={20} className={color} />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-white">{stats[key]}</div>
-                <div className="text-xs text-[#8888a8]">{label}</div>
-              </div>
-            </Card>
+      <section className="vc-metric-grid" aria-label="项目统计">
+        {STAT_CARDS.map(({ key, label, detail, icon: Icon, to, tone }) => (
+          <Link key={key} to={to} className="vc-metric-card">
+            <span className={`vc-metric-icon tone-${tone}`}><Icon size={19} /></span>
+            <span>
+              <small>{label}</small>
+              <strong>{stats[key]}</strong>
+              <em>{detail}</em>
+            </span>
+            <ChevronRight size={15} />
           </Link>
         ))}
-      </div>
+      </section>
 
-      {/* 新手引导（空状态时展示） */}
-      {isEmpty && (
-        <Card className="mb-6 p-6 vc-fade-in">
-          <h2 className="mb-1 text-sm font-semibold text-white">三步生成你的第一条 Vlog</h2>
-          <p className="mb-5 text-sm text-[#5a5a7a]">
-            引擎已经把 50+ 条爆款剪辑技法沉淀在知识库里，你只需要提供参考视频和素材
-          </p>
-          <div className="grid gap-4 md:grid-cols-3">
-            {GUIDE_STEPS.map(({ icon: Icon, title, desc, to, action }) => (
-              <div
-                key={title}
-                className="rounded-xl border border-[#2a2a42] bg-[#1c1c2b] p-4"
-              >
-                <Icon size={20} className="text-[#b49aff]" />
-                <h3 className="mt-3 text-sm font-medium text-[#e8e8f0]">{title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-[#8888a8]">{desc}</p>
-                <button
-                  onClick={() => navigate(to)}
-                  className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[#66e0ff] hover:text-[#00d4ff]"
-                >
-                  {action}
-                  <ArrowRight size={12} />
+      <div className="vc-dashboard-grid">
+        <Card className="vc-recent-panel">
+          <div className="vc-panel-heading">
+            <div><span>RECENT ACTIVITY</span><h2>最近任务</h2></div>
+            <Link to="/projects">全部项目 <ArrowRight size={13} /></Link>
+          </div>
+          {stats.recent_tasks.length === 0 ? (
+            <div className="vc-recent-empty">
+              <span><Clapperboard size={21} /></span>
+              <div><strong>还没有任务记录</strong><p>创建项目、添加参考视频和素材后，从这里跟踪生成过程。</p></div>
+              <Button size="sm" onClick={() => navigate('/projects')}>创建项目</Button>
+            </div>
+          ) : (
+            <div className="vc-task-list">
+              {stats.recent_tasks.map((task) => (
+                <button key={task.id} type="button" onClick={() => navigate(`/tasks/${task.id}`)}>
+                  <span className="vc-task-number">#{task.id}</span>
+                  <span className="vc-task-copy"><strong>{task.project_name}</strong><small>生成进度 {task.progress}%</small></span>
+                  <span className="vc-task-track"><i style={{ width: `${task.progress}%` }} /></span>
+                  <StatusPill status={task.status} />
+                  <ChevronRight size={15} />
                 </button>
-              </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <Card className="vc-flow-panel">
+          <div className="vc-panel-heading">
+            <div><span>WORKFLOW</span><h2>三步完成迁移</h2></div>
+          </div>
+          <div className="vc-flow-list">
+            {GUIDE_STEPS.map(({ icon: Icon, step, title, desc, to }) => (
+              <button key={step} type="button" onClick={() => navigate(to)}>
+                <span className="vc-flow-icon"><Icon size={17} /></span>
+                <span><small>{step}</small><strong>{title}</strong><p>{desc}</p></span>
+                <ChevronRight size={15} />
+              </button>
             ))}
           </div>
         </Card>
-      )}
-
-      {/* 最近任务 */}
-      <Card className="p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">最近任务</h2>
-          <Link
-            to="/projects"
-            className="flex items-center gap-1 text-xs text-[#8888a8] hover:text-[#b49aff]"
-          >
-            全部项目
-            <ChevronRight size={13} />
-          </Link>
-        </div>
-        {stats.recent_tasks.length === 0 ? (
-          <p className="py-8 text-center text-sm text-[#5a5a7a]">
-            还没有任务记录，从上方任意一步开始吧
-          </p>
-        ) : (
-          <ul className="divide-y divide-[#2a2a42]">
-            {stats.recent_tasks.map((t) => (
-              <li key={t.id}>
-                <button
-                  onClick={() => navigate(`/tasks/${t.id}`)}
-                  className="flex w-full items-center justify-between gap-3 py-3 text-left transition-colors hover:bg-[rgba(255,255,255,0.02)]"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="text-sm font-medium text-[#e8e8f0]">#{t.id}</span>
-                    <span className="truncate text-sm text-[#8888a8]">{t.project_name}</span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className="text-xs text-[#5a5a7a]">{t.progress}%</span>
-                    <StatusPill status={t.status} />
-                    <ChevronRight size={14} className="text-[#5a5a7a]" />
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+      </div>
     </div>
   )
 }

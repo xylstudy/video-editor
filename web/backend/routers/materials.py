@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+import mimetypes
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request, status
 from sqlmodel import Session, select
 
 from auth import get_current_user
 from database import get_session
 from db_models import Material, MaterialType, Project, User, MaterialRead
+from media import get_current_user_media, range_file_response
 from storage import delete_file, save_upload
 
 router = APIRouter(prefix="/api/materials", tags=["materials"])
@@ -26,6 +30,7 @@ def _guess_material_type(filename: str, form_type: str | None) -> MaterialType:
 def upload_material(
     project_id: int = Form(...),
     type: str | None = Form(default=None),
+    role: str | None = Form(default=None),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
@@ -43,6 +48,8 @@ def upload_material(
         filename=file.filename or "unnamed",
         storage_path=str(saved_path),
     )
+    if role in {"reference", "target"}:
+        material.set_metadata({"role": role})
     session.add(material)
     session.commit()
     session.refresh(material)
@@ -79,6 +86,27 @@ def list_project_materials(
         )
         for m in materials
     ]
+
+
+@router.get("/{material_id}/media")
+def get_material_media(
+    material_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user_media),
+    session: Session = Depends(get_session),
+):
+    """Stream an owned project material with HTTP Range support for video seeking."""
+    material = session.get(Material, material_id)
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    project = session.get(Project, material.project_id)
+    if not project or project.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Material not found")
+    path = Path(material.storage_path)
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Material file not found")
+    media_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+    return range_file_response(request, path, media_type=media_type)
 
 
 @router.delete("/{material_id}", status_code=status.HTTP_204_NO_CONTENT)

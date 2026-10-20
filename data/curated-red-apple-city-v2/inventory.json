@@ -1,0 +1,1499 @@
+{
+  "items": [
+    {
+      "id": "red_city_01",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\01-fresh-red-apples.mp4",
+      "description": "低角度微距特写：两颗带水珠的红苹果占据画面主体，背景是绿色仿真草皮（人造草坪），水珠在苹果表面反射高光，镜头极缓慢推进/抖动极小。；镜头轻微后拉/横移，画面中苹果数量增多（前景、中景、右侧各一颗或多颗），构图从两颗扩展到整组，水珠细节依然清晰。；横向平移展示一整排红苹果排列在绿色草皮上，前景有虚化苹果形成层次，背景虚化，主体（中景苹果）清晰。",
+      "main_subject": "",
+      "tags": [
+        "红苹果",
+        "水果静物",
+        "水珠特写",
+        "红色",
+        "绿色草皮",
+        "微距",
+        "慢速横移",
+        "美食广告质感",
+        "无人物",
+        "空镜素材"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 17.475791666666666,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "清新、饱满、静谧治愈的静物质感氛围",
+      "scene_type": "",
+      "vlog_value": "medium",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 4.37,
+          "duration": 4.37,
+          "description": "两颗红苹果微距特写，表面水珠颗颗分明，高光闪烁，绿色草皮提供对比背景。",
+          "why_valuable": "画面细节丰富、色彩饱和度高（红绿对比强），水珠质感突出，首帧即可抓住注意力，且无人物、无场景限制，作为通用视觉素材复用性强。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.88
+        },
+        {
+          "start": 8.74,
+          "end": 13.11,
+          "duration": 4.37,
+          "description": "一整排红苹果沿绿色草皮横向排列，前景虚化、中景清晰，形成有纵深的排列构图。",
+          "why_valuable": "有空间纵深与数量感，可交代“一组物品/一批新鲜货品”的环境或场景氛围，兼具静物陈列感与美食广告质感。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.82
+        },
+        {
+          "start": 13.11,
+          "end": 17.13,
+          "duration": 4.02,
+          "description": "贴近苹果表面的慢速移动，水珠与表皮纹理细节被放大，光线呈现暖色调反光。",
+          "why_valuable": "细节张力强、节奏舒缓，适合做情绪停顿、质感强调或收尾定格；水珠微距视觉冲击力可作情绪峰值使用。",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.78
+        },
+        {
+          "start": 4.37,
+          "end": 8.0,
+          "duration": 3.63,
+          "description": "镜头小幅横移，捕捉一颗苹果缓慢进入画面，与主体形成前后呼应。",
+          "why_valuable": "运动幅度小而稳定，可作为段落之间的自然过渡镜头（衔接特写与全景），也可做慢节奏日常氛围镜头。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.68
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 4.37,
+          "description": "低角度微距特写：两颗带水珠的红苹果占据画面主体，背景是绿色仿真草皮（人造草坪），水珠在苹果表面反射高光，镜头极缓慢推进/抖动极小。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 1,
+          "start": 4.37,
+          "end": 8.74,
+          "description": "镜头轻微后拉/横移，画面中苹果数量增多（前景、中景、右侧各一颗或多颗），构图从两颗扩展到整组，水珠细节依然清晰。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 2,
+          "start": 8.74,
+          "end": 13.11,
+          "description": "横向平移展示一整排红苹果排列在绿色草皮上，前景有虚化苹果形成层次，背景虚化，主体（中景苹果）清晰。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 3,
+          "start": 13.11,
+          "end": 17.48,
+          "description": "镜头继续贴近平移，前景苹果占据左侧大半画面且明显失焦虚化，右侧中景苹果带密集水珠仍清晰，画面整体向暗部/暖光过渡。",
+          "stability": "stable",
+          "density": "low"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_02",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\02-slicing-red-apple.mp4",
+      "description": "固定近景：木质砧板上，一只手按住半颗红苹果，另一只手用刀切下薄片和楔形块，画面中还有另一半苹果立着，人物穿粉色拉链外套，背景浅色虚化；刀锋贴着苹果切面推进，已切好的薄片在砧板上呈扇形展开，手部动作持续、节奏均匀；刀刃下压完成一次切片，苹果片被推出、叠在先前切好的薄片上，果肉纹理与红色果皮清晰可见",
+      "main_subject": "",
+      "tags": [
+        "特写",
+        "切苹果",
+        "手工备餐",
+        "木质砧板",
+        "红色水果",
+        "粉色外套",
+        "浅景深",
+        "居家日常",
+        "慢节奏",
+        "手部动作"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 8.341666666666667,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "平静、专注、生活化温馨",
+      "scene_type": "",
+      "vlog_value": "medium",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.4,
+          "end": 2.2,
+          "duration": 1.8,
+          "description": "刀切入苹果、第一片薄片成型的过程，手部与刀刃关系清楚",
+          "why_valuable": "动作起点完整清晰，画面浅景深突出果肉质感，可直接用来说明“开始准备食物”这一动作的开端",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.78
+        },
+        {
+          "start": 4.2,
+          "end": 6.3,
+          "duration": 2.1,
+          "description": "连续下刀切片，苹果薄片层层叠起，最能体现手工切片的节奏感",
+          "why_valuable": "动作密度最高、刀工呈现最完整，切片堆叠带来视觉满足感，是这段素材最核心的可用画面",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.86
+        },
+        {
+          "start": 6.3,
+          "end": 8.2,
+          "duration": 1.9,
+          "description": "最后一片落下、刀抬起的收尾动作，薄片散开，画面干净",
+          "why_valuable": "有明确的动作结束点，适合作为一个生活流程片段的自然收束，也可做细节特写的过渡",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.72
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 2.09,
+          "description": "固定近景：木质砧板上，一只手按住半颗红苹果，另一只手用刀切下薄片和楔形块，画面中还有另一半苹果立着，人物穿粉色拉链外套，背景浅色虚化",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 1,
+          "start": 2.09,
+          "end": 4.17,
+          "description": "刀锋贴着苹果切面推进，已切好的薄片在砧板上呈扇形展开，手部动作持续、节奏均匀",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 2,
+          "start": 4.17,
+          "end": 6.26,
+          "description": "刀刃下压完成一次切片，苹果片被推出、叠在先前切好的薄片上，果肉纹理与红色果皮清晰可见",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 3,
+          "start": 6.26,
+          "end": 8.34,
+          "description": "最后一片被切下，刀身抬起离开果肉，薄片自然散落，动作收尾，画面主体与景深保持稳定",
+          "stability": "stable",
+          "density": "medium"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_03",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\03-rinsing-fruit.mp4",
+      "description": "双手捧着草莓、青提和桃子置于流水下，水花四溅，水果表面的水珠清晰可见。；持续冲洗鲜果，手指微微调整位置，水珠沿指缝和果面滑落。；流水继续冲刷，水果颜色饱和，水花反光明显，画面保持特写。",
+      "main_subject": "",
+      "tags": [
+        "水果清洗",
+        "特写",
+        "流水",
+        "水珠",
+        "ASMR",
+        "清新",
+        "治愈",
+        "美食素材",
+        "生活细节",
+        "高饱和"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 13.013,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "清新治愈",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 3.25,
+          "duration": 3.25,
+          "description": "开场特写双手捧鲜果接流水，水花四溅。",
+          "why_valuable": "色彩饱和、水花动态和手部捧果动作能形成强视觉钩子。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.9
+        },
+        {
+          "start": 3.25,
+          "end": 6.51,
+          "duration": 3.26,
+          "description": "流水冲洗草莓和青提表面，水滴细节突出。",
+          "why_valuable": "水果质感和水滴细节丰富，适合展示新鲜、干净和治愈的生活质感。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.85
+        },
+        {
+          "start": 6.51,
+          "end": 9.76,
+          "duration": 3.25,
+          "description": "手指轻托水果，水珠沿指缝滴落。",
+          "why_valuable": "生活化动作自然，配合流水视觉可增强日常氛围和沉浸感。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.8
+        },
+        {
+          "start": 9.76,
+          "end": 12.75,
+          "duration": 2.99,
+          "description": "水流和水果表面反光形成稳定收尾画面。",
+          "why_valuable": "画面稳定、色彩明亮，适合做结尾定格或转场衔接。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.78
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 4.0,
+          "description": "双手捧着草莓、青提和桃子置于流水下，水花四溅，水果表面的水珠清晰可见。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 4.0,
+          "end": 8.5,
+          "description": "持续冲洗鲜果，手指微微调整位置，水珠沿指缝和果面滑落。",
+          "stability": "slight_shake",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 8.5,
+          "end": 13.013,
+          "description": "流水继续冲刷，水果颜色饱和，水花反光明显，画面保持特写。",
+          "stability": "stable",
+          "density": "medium"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_04",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\04-red-drink-pour.mp4",
+      "description": "手拿深色瓶子向装满冰块的玻璃杯倾倒深色液体，液体开始接触冰块。；持续倾倒，杯内液面上升，液体在冰块间流动并产生气泡。；杯内液体接近满杯，表面出现细密泡沫，倒液动作接近结束。",
+      "main_subject": "",
+      "tags": [
+        "特写",
+        "倒饮料",
+        "冰块",
+        "红色背景",
+        "浅景深",
+        "液体流动",
+        "微距"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 15.0,
+      "width": 720,
+      "height": 1280,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "浓郁、清凉、诱人",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.8,
+          "end": 4.8,
+          "duration": 4.0,
+          "description": "深色液体从瓶口注入冰块顶部，液体与冰块接触的瞬间。",
+          "why_valuable": "动作起点清晰，液体流动和冰块高光形成强视觉焦点，适合在前几秒抓眼。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.9
+        },
+        {
+          "start": 4.8,
+          "end": 10.2,
+          "duration": 5.4,
+          "description": "液体持续穿过冰块，杯内液面上升，气泡和折射纹理明显。",
+          "why_valuable": "连续动作展示饮品质感，画面信息密度高，适合做过程展示或日常氛围。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.85
+        },
+        {
+          "start": 10.2,
+          "end": 14.7,
+          "duration": 4.5,
+          "description": "杯内接近满杯，液体表面形成细密泡沫，倒液逐渐收尾。",
+          "why_valuable": "有完成感和满足感，适合作为段落收束或片尾。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.85
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 5.0,
+          "description": "手拿深色瓶子向装满冰块的玻璃杯倾倒深色液体，液体开始接触冰块。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 5.0,
+          "end": 10.5,
+          "description": "持续倾倒，杯内液面上升，液体在冰块间流动并产生气泡。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 10.5,
+          "end": 15.0,
+          "description": "杯内液体接近满杯，表面出现细密泡沫，倒液动作接近结束。",
+          "stability": "stable",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_05",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\05-city-cyclist-vertical.mp4",
+      "description": "固定机位中近距离跟拍：戴黑色弯檐帽、穿米色短袖T恤和黑色短裤的年轻男生骑着浅棕金色车架的单速、死飞风格自行车，在林荫覆盖的砖石步道上正面朝向镜头匀速驶来，背景是浓密绿树、路缘石、花池与远处停放的白色车辆，光线为明亮的午后自然光；主体动作升级：骑手身体姿态变化、车身开始晃动并抬起前轮，随后镜头前出现大幅度的抬起前轮和单轮骑行动作，车轮与车把在画面中占比变大，主体靠近镜头，画面运动感与速度感强；镜头视线偏移或主体驶出画面，只剩林荫步道、树冠、路桩、花池与远处车辆的空镜头，没有完整主体",
+      "main_subject": "",
+      "tags": [
+        "骑行",
+        "死飞自行车",
+        "城市林荫道",
+        "绿树光影",
+        "年轻男生",
+        "街头运动",
+        "午后自然光",
+        "慢速靠近镜头",
+        "单轮特技"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 7.924583333333333,
+      "width": 720,
+      "height": 1280,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "松弛、自由、青春活力",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.3,
+          "end": 2.2,
+          "duration": 1.9,
+          "description": "骑手正面匀速驶向镜头的中景镜头，绿荫背景与浅色上衣形成柔和对比，面部与上半身清晰",
+          "why_valuable": "画面干净、主体完整、构图居中且稳定，能一眼交代“人＋城市绿荫街道”的场景与人物气质，可直接用作开场或人物介绍",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.86
+        },
+        {
+          "start": 2.2,
+          "end": 3.9,
+          "duration": 1.7,
+          "description": "骑手逐渐靠近、身体略微调整姿态的连续骑行画面，树影与光斑在路面和人物身上移动",
+          "why_valuable": "保留了真实骑行的连续动作与位移感，光影斑驳，适合做节奏铺垫或与前后镜头顺滑衔接",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.78
+        },
+        {
+          "start": 5.4,
+          "end": 6.6,
+          "duration": 1.2,
+          "description": "前轮高高抬起的单轮骑行瞬间，车身倾斜压向镜头，前轮占据画面主体，动态张力最强",
+          "why_valuable": "整段素材中唯一的动作高潮与速度峰值，视觉冲击强，适合做节奏爆点或转场切点",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.83
+        },
+        {
+          "start": 4.3,
+          "end": 5.4,
+          "duration": 1.1,
+          "description": "骑手表情放松、略带笑意地看向前方，身体姿态变化、准备起势的中近景",
+          "why_valuable": "有清晰的人物面部与表情，能补充人物性格（松弛、随性、自信），适合人物塑造段落",
+          "suggested_vlog_role": "persona_expression",
+          "confidence": 0.72
+        },
+        {
+          "start": 6.7,
+          "end": 7.9,
+          "duration": 1.2,
+          "description": "主体驶出后留下的林荫步道空镜头，树影与路缘石构成纵深",
+          "why_valuable": "可作为动作后的留白与呼吸感镜头，用于段落收尾或转场过渡",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.55
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 3.9,
+          "description": "固定机位中近距离跟拍：戴黑色弯檐帽、穿米色短袖T恤和黑色短裤的年轻男生骑着浅棕金色车架的单速、死飞风格自行车，在林荫覆盖的砖石步道上正面朝向镜头匀速驶来，背景是浓密绿树、路缘石、花池与远处停放的白色车辆，光线为明亮的午后自然光",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 3.9,
+          "end": 6.6,
+          "description": "主体动作升级：骑手身体姿态变化、车身开始晃动并抬起前轮，随后镜头前出现大幅度的抬起前轮和单轮骑行动作，车轮与车把在画面中占比变大，主体靠近镜头，画面运动感与速度感强",
+          "stability": "slight_shake",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 6.6,
+          "end": 7.92,
+          "description": "镜头视线偏移或主体驶出画面，只剩林荫步道、树冠、路桩、花池与远处车辆的空镜头，没有完整主体",
+          "stability": "slight_shake",
+          "density": "low"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_06",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\06-red-sports-car.mp4",
+      "description": "低角度近景拍摄地下车库中的红色马自达MX-5敞篷车，画面包含后轮、尾灯和车身曲面，镜头基本稳定。；镜头缓慢前移，黑色轮毂与红色车身侧面线条逐渐放大，车库背景保持可见。；车轮占据前景，红色车身向车库纵深延伸，画面强调车身质感和空间层次。",
+      "main_subject": "",
+      "tags": [
+        "红色敞篷车",
+        "马自达MX-5",
+        "地下车库",
+        "低角度",
+        "车轮特写",
+        "车身细节",
+        "暗调光影",
+        "缓慢推进",
+        "无人物",
+        "空镜"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 10.208333333333334,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "冷峻、酷感、电影感",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 3.0,
+          "duration": 3.0,
+          "description": "低角度展示红色敞篷车后轮、尾灯和车身曲面。",
+          "why_valuable": "红黑对比强烈，低角度构图有视觉冲击力，画面稳定且主体明确，适合快速抓住注意力。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.82
+        },
+        {
+          "start": 3.0,
+          "end": 7.0,
+          "duration": 4.0,
+          "description": "镜头缓慢前移，黑色轮毂和红色车身侧面细节逐渐放大。",
+          "why_valuable": "运动镜头带来轻微推进感，能展示车辆细节与漆面质感，画面干净且背景有车库纵深。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.78
+        },
+        {
+          "start": 7.0,
+          "end": 10.208333333333334,
+          "duration": 3.208333333333334,
+          "description": "车轮占据前景，红色车身延伸至地下车库背景。",
+          "why_valuable": "前景车轮与后方车库形成空间层次，暗调光线强化电影感，适合作为收束镜头。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.7
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 3.0,
+          "description": "低角度近景拍摄地下车库中的红色马自达MX-5敞篷车，画面包含后轮、尾灯和车身曲面，镜头基本稳定。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 1,
+          "start": 3.0,
+          "end": 7.0,
+          "description": "镜头缓慢前移，黑色轮毂与红色车身侧面线条逐渐放大，车库背景保持可见。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 2,
+          "start": 7.0,
+          "end": 10.208333333333334,
+          "description": "车轮占据前景，红色车身向车库纵深延伸，画面强调车身质感和空间层次。",
+          "stability": "stable",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_07",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\07-red-balloons-vertical.mp4",
+      "description": "极近景拍摄反光金属管道/通风管，红色LED灯带沿边缘发光，画面右侧局部露出人物侧脸与红色服饰，整体呈强烈红霓虹色调。；中景，人物穿红色日文字样外袍、黑色内搭，站在粉色墙面与电表箱旁，前景金属管占据左侧，人物视线低垂或侧望。；中近景肖像，人物正面偏侧站立，红色外袍与黑色抹胸形成对比，背景为粉色粗糙墙面、管道和电表箱，人物看向画面左侧。",
+      "main_subject": "",
+      "tags": [
+        "红色霓虹",
+        "夜景人像",
+        "金属反光",
+        "日式元素",
+        "氛围感",
+        "街头",
+        "手持感"
+      ],
+      "quality": "medium",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 10.093416666666666,
+      "width": 720,
+      "height": 1280,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "冷艳迷离的都市夜氛围",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 2.52,
+          "duration": 2.52,
+          "description": "红色LED金属管道极近景，强反光与霓虹色彩形成抽象质感，右侧局部露出人物侧脸。",
+          "why_valuable": "色彩冲击强、视觉密度高，可作为氛围先行或转场钩子，快速建立红色夜景基调。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.85
+        },
+        {
+          "start": 2.52,
+          "end": 5.05,
+          "duration": 2.53,
+          "description": "人物在粉色墙面、电表箱与管道旁的中景，红色日文字样外袍与黑色内搭清晰可见。",
+          "why_valuable": "同时交代人物造型与环境氛围，适合用于建立场景和人物出场。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.9
+        },
+        {
+          "start": 5.05,
+          "end": 7.57,
+          "duration": 2.52,
+          "description": "中近景人物肖像，红霓虹光照在面部与服装上，人物侧望，构图稳定且主体突出。",
+          "why_valuable": "人物表情与造型完整，红色光线带来冷艳迷离的情绪，适合表达人物状态或情绪峰值。",
+          "suggested_vlog_role": "persona_expression",
+          "confidence": 0.9
+        },
+        {
+          "start": 7.57,
+          "end": 10.09,
+          "duration": 2.52,
+          "description": "侧拍人物望向远处，右侧前景形成遮挡，背景有街景虚影，红色环境光延续。",
+          "why_valuable": "视线方向和空间纵深感适合作为收束镜头，带出夜晚街头的余韵。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.82
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 2.52,
+          "description": "极近景拍摄反光金属管道/通风管，红色LED灯带沿边缘发光，画面右侧局部露出人物侧脸与红色服饰，整体呈强烈红霓虹色调。",
+          "stability": "slight_shake",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 2.52,
+          "end": 5.05,
+          "description": "中景，人物穿红色日文字样外袍、黑色内搭，站在粉色墙面与电表箱旁，前景金属管占据左侧，人物视线低垂或侧望。",
+          "stability": "slight_shake",
+          "density": "medium"
+        },
+        {
+          "index": 2,
+          "start": 5.05,
+          "end": 7.57,
+          "description": "中近景肖像，人物正面偏侧站立，红色外袍与黑色抹胸形成对比，背景为粉色粗糙墙面、管道和电表箱，人物看向画面左侧。",
+          "stability": "slight_shake",
+          "density": "medium"
+        },
+        {
+          "index": 3,
+          "start": 7.57,
+          "end": 10.09,
+          "description": "中景侧拍，人物从右侧前景边缘后露出，视线望向远处，背景出现建筑/街景虚影，红色环境光持续，画面有效区域偏窄。",
+          "stability": "slight_shake",
+          "density": "medium"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_08",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\08-night-fair-motion.mp4",
+      "description": "夜间游乐场旋转设施，画面被红、蓝、白等光轨和拖影占据，中央绿色装饰主体与红色圆形灯牌高速运动模糊。；光轨持续环绕，绿色装饰主体和黄色灯杆仍可辨认，但构图变化明显，整体仍以运动模糊为主。；画面相对清晰，可见游乐设施结构、绿色装饰主体、座舱轮廓、灯牌以及局部SHOW字样，运动模糊减弱。",
+      "main_subject": "",
+      "tags": [
+        "夜景",
+        "游乐园",
+        "旋转设施",
+        "光轨",
+        "运动模糊",
+        "霓虹灯",
+        "长曝光感"
+      ],
+      "quality": "medium",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 3.36,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "炫目、动感、迷幻",
+      "scene_type": "",
+      "vlog_value": "medium",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 0.84,
+          "duration": 0.84,
+          "description": "红蓝白光轨高速环绕，中央绿色装饰与红色灯牌形成强烈拖影。",
+          "why_valuable": "视觉冲击力强，运动光轨和霓虹色彩适合快速抓住注意力，可作为开场或转场素材。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.7
+        },
+        {
+          "start": 1.68,
+          "end": 2.52,
+          "duration": 0.84,
+          "description": "相对清晰地展示夜间旋转游乐设施结构、绿色装饰主体、座舱和灯牌。",
+          "why_valuable": "是整段素材中细节最可辨的窗口，能交代夜间游乐场环境和设施运动状态。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.78
+        },
+        {
+          "start": 2.52,
+          "end": 3.36,
+          "duration": 0.84,
+          "description": "大面积白色光带与彩色光轨再次铺满画面，形成快速旋转和收束感。",
+          "why_valuable": "动感强、氛围浓，适合作为结尾或节奏转场，制造夜游后的余韵。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.62
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 0.84,
+          "description": "夜间游乐场旋转设施，画面被红、蓝、白等光轨和拖影占据，中央绿色装饰主体与红色圆形灯牌高速运动模糊。",
+          "stability": "heavy_shake",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 0.84,
+          "end": 1.68,
+          "description": "光轨持续环绕，绿色装饰主体和黄色灯杆仍可辨认，但构图变化明显，整体仍以运动模糊为主。",
+          "stability": "heavy_shake",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 1.68,
+          "end": 2.52,
+          "description": "画面相对清晰，可见游乐设施结构、绿色装饰主体、座舱轮廓、灯牌以及局部SHOW字样，运动模糊减弱。",
+          "stability": "slight_shake",
+          "density": "medium"
+        },
+        {
+          "index": 3,
+          "start": 2.52,
+          "end": 3.36,
+          "description": "再次出现强烈光轨和拖影，下部被大面积白色光带覆盖，主体快速运动模糊，构图变化大。",
+          "stability": "heavy_shake",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_09",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\09-cherries-pink-splash.mp4",
+      "description": "多颗红色樱桃从上方以高速落入品红色水液中，炸开大片水花与气泡，画面充满动势；樱桃群在水中下沉漂浮，周身环绕大量翻涌的气泡与水流纹理，主体清晰，色彩饱和；镜头视线转为以上升气泡为主，樱桃退至画面下缘且处于虚焦状态，画面自上而下逐渐稀疏",
+      "main_subject": "",
+      "tags": [
+        "樱桃",
+        "水果",
+        "水下",
+        "高速摄影",
+        "品红背景",
+        "水花飞溅",
+        "气泡",
+        "微距",
+        "高饱和色彩",
+        "空镜"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 18.625,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "清爽、鲜甜、活力四射",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 3.2,
+          "duration": 3.2,
+          "description": "樱桃高速入水炸开的水花瞬间，气泡与飞溅形态最完整",
+          "why_valuable": "冲击力强、画面信息密度高，色彩对比强烈，可在极短时间内抓住视觉注意力",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.92
+        },
+        {
+          "start": 4.66,
+          "end": 8.5,
+          "duration": 3.84,
+          "description": "多颗樱桃悬浮水中，被水波纹与气泡包裹的饱和画面",
+          "why_valuable": "主体清晰、色彩饱满，能快速建立干净鲜亮的视觉基调",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.88
+        },
+        {
+          "start": 9.31,
+          "end": 12.6,
+          "duration": 3.29,
+          "description": "密集气泡缓缓上升的空镜，樱桃虚化点缀于下缘",
+          "why_valuable": "节奏舒缓、留白多，适合作为旁白或音乐留白处的过渡画面",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.75
+        },
+        {
+          "start": 14.5,
+          "end": 18.25,
+          "duration": 3.75,
+          "description": "单颗樱桃居中静置，气泡散落的极简收尾画面",
+          "why_valuable": "构图简洁、余韵感强，可作为结尾定格或情绪沉淀",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.81
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 4.66,
+          "description": "多颗红色樱桃从上方以高速落入品红色水液中，炸开大片水花与气泡，画面充满动势",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 4.66,
+          "end": 9.31,
+          "description": "樱桃群在水中下沉漂浮，周身环绕大量翻涌的气泡与水流纹理，主体清晰，色彩饱和",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 9.31,
+          "end": 13.97,
+          "description": "镜头视线转为以上升气泡为主，樱桃退至画面下缘且处于虚焦状态，画面自上而下逐渐稀疏",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 3,
+          "start": 13.97,
+          "end": 18.625,
+          "description": "气泡缓缓飘散，画面下半部单颗樱桃居中悬停，留白充足，节奏趋于安静",
+          "stability": "stable",
+          "density": "low"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_10",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\10-lego-fall-hands.mp4",
+      "description": "特写镜头，穿着粉色毛衣的双手在木桌上捧起一把五颜六色的乐高积木，桌面散落着大量方形、车轮等各种形状的积木零件。；双手继续在桌面上聚拢、摆弄和捧起积木，手中积木不断堆叠变化，同时有部分积木从指缝间滑落，色彩极其丰富。",
+      "main_subject": "",
+      "tags": [
+        "乐高",
+        "彩色积木",
+        "儿童玩具",
+        "手部特写",
+        "木桌",
+        "室内",
+        "解压"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 15.598916666666666,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "童趣、专注、解压",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 3.9,
+          "duration": 3.9,
+          "description": "双手初次捧起大把彩色积木，画面色彩冲击力强，积木细节清晰可见。",
+          "why_valuable": "色彩纷繁艳丽，极具视觉吸引力和童趣感，非常适合作为视频的开场或视线聚焦点。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.9
+        },
+        {
+          "start": 7.8,
+          "end": 11.7,
+          "duration": 3.9,
+          "description": "双手把玩积木的中段过程，积木在手中翻滚，包含轮子、透明件等特殊零件的特写。",
+          "why_valuable": "展现了积木的多样性和手部互动的动态过程，有很好的解压感和真实生活气息。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.85
+        },
+        {
+          "start": 11.7,
+          "end": 15.3,
+          "duration": 3.6,
+          "description": "稳固捧着的一堆色彩斑斓的积木，画面安静且充满丰富的色彩纹理。",
+          "why_valuable": "画面稳定且极度百搭，可以作为讲述童年、专注力或日常休闲主题的完美B-roll（空镜）补充。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.8
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 7.8,
+          "description": "特写镜头，穿着粉色毛衣的双手在木桌上捧起一把五颜六色的乐高积木，桌面散落着大量方形、车轮等各种形状的积木零件。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 7.8,
+          "end": 15.6,
+          "description": "双手继续在桌面上聚拢、摆弄和捧起积木，手中积木不断堆叠变化，同时有部分积木从指缝间滑落，色彩极其丰富。",
+          "stability": "stable",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_11",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\11-carousel-kids.mp4",
+      "description": "旋转木马中近景，前景有白色与彩色木马，孩子骑在木马上，背景可见黄昏天空、远山与游乐场红顶建筑；镜头随木马转动，画面有持续运动感。；侧面视角，女孩穿粉色条纹上衣双手扶金色立柱，旁边有其他孩子骑乘；旋转木马顶棚和镜面装饰入画，背景掠过遮阳棚、栏杆和游乐设施。；中近景跟随女孩，背景可见城堡造型游乐设施和开阔天空；木马上下起伏，画面保持旋转木马旋转与起伏的运动节奏。",
+      "main_subject": "",
+      "tags": [
+        "旋转木马",
+        "游乐园",
+        "黄昏",
+        "儿童",
+        "运动镜头",
+        "暖色调",
+        "笑容"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 26.56820833333333,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "温暖欢乐、童趣怀旧",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 3.5,
+          "duration": 3.5,
+          "description": "黄昏光线下的旋转木马开场，前景木马与骑乘孩子同框，背景有远山和游乐场建筑。",
+          "why_valuable": "画面色彩温暖，场景辨识度高，可作为游乐园或黄昏氛围的开场建立镜头。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.86
+        },
+        {
+          "start": 6.8,
+          "end": 10.8,
+          "duration": 4.0,
+          "description": "侧面跟随女孩扶金色立柱骑乘，画面掠过其他孩子与旋转木马装饰细节。",
+          "why_valuable": "人物动作自然，旋转木马的运动感和游乐场环境同时呈现，适合作为日常游玩片段。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.82
+        },
+        {
+          "start": 13.4,
+          "end": 17.4,
+          "duration": 4.0,
+          "description": "女孩在木马上持续骑乘，背景出现城堡造型设施与开阔天空，镜头保持跟随。",
+          "why_valuable": "中近景兼顾人物与游乐场背景，能表现游玩过程中的沉浸感和童趣氛围。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.8
+        },
+        {
+          "start": 19.9,
+          "end": 24.0,
+          "duration": 4.1,
+          "description": "女孩回头对镜头微笑，暖色黄昏光线打在人物与木马上，情绪表达清晰。",
+          "why_valuable": "人物表情自然且有感染力，是整段素材中最突出的情绪高光，适合表现快乐、童趣或旅行中的温暖瞬间。",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.93
+        },
+        {
+          "start": 24.0,
+          "end": 26.3,
+          "duration": 2.3,
+          "description": "近景木马头部与绿金装饰板占据画面，人物在后方随木马运动，画面逐渐收束。",
+          "why_valuable": "具有旋转木马细节与运动余韵，适合作为游乐园段落的收尾或转场画面。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.78
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 6.64,
+          "description": "旋转木马中近景，前景有白色与彩色木马，孩子骑在木马上，背景可见黄昏天空、远山与游乐场红顶建筑；镜头随木马转动，画面有持续运动感。",
+          "stability": "slight_shake",
+          "density": "medium"
+        },
+        {
+          "index": 1,
+          "start": 6.64,
+          "end": 13.28,
+          "description": "侧面视角，女孩穿粉色条纹上衣双手扶金色立柱，旁边有其他孩子骑乘；旋转木马顶棚和镜面装饰入画，背景掠过遮阳棚、栏杆和游乐设施。",
+          "stability": "slight_shake",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 13.28,
+          "end": 19.93,
+          "description": "中近景跟随女孩，背景可见城堡造型游乐设施和开阔天空；木马上下起伏，画面保持旋转木马旋转与起伏的运动节奏。",
+          "stability": "slight_shake",
+          "density": "high"
+        },
+        {
+          "index": 3,
+          "start": 19.93,
+          "end": 26.56820833333333,
+          "description": "近景聚焦女孩回头微笑，前景为木马头部，右侧为绿金装饰板；末段木马头部遮挡部分人物，仍保留游乐场氛围与运动感。",
+          "stability": "slight_shake",
+          "density": "medium"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_12",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\12-smiling-dog.mp4",
+      "description": "棕白长毛犬正面近景肖像，耳朵竖起，闭口或微张口，直视镜头，背景为虚化的户外树林与暖色光斑。；犬只仍保持正面近景，口部张开，露出牙齿和舌头，表情更明快，眼神看向镜头，背景虚化保持稳定。；延续正面近景，犬只张口、表情放松，头部有轻微姿态变化，眼部与鼻部细节清晰。",
+      "main_subject": "",
+      "tags": [
+        "犬",
+        "近景肖像",
+        "户外",
+        "虚化背景",
+        "自然光",
+        "表情变化",
+        "宠物",
+        "眼神交流"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 20.583333333333332,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "温顺、愉悦、好奇",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 5.15,
+          "duration": 5.15,
+          "description": "犬只正面近景直视镜头，耳朵竖起，眼神专注，背景虚化干净。",
+          "why_valuable": "主体清晰、眼神有交流感，浅景深突出面部细节，适合快速建立画面注意力和情绪入口。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.88
+        },
+        {
+          "start": 5.15,
+          "end": 10.29,
+          "duration": 5.14,
+          "description": "犬只张口露舌的明快表情，正面近景，眼神与镜头有互动。",
+          "why_valuable": "表情变化明显，情绪更愉悦活泼，面部细节和毛发质感清楚，适合作为情绪高点或角色展示。",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.92
+        },
+        {
+          "start": 10.29,
+          "end": 15.44,
+          "duration": 5.15,
+          "description": "犬只持续正面近景，张口放松，姿态自然，画面稳定。",
+          "why_valuable": "可提供稳定、自然的主体镜头，适合作为日常片段或人物化表达，也便于后期剪辑取舍。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.84
+        },
+        {
+          "start": 15.44,
+          "end": 20.17,
+          "duration": 4.73,
+          "description": "犬只侧脸看向画面左侧，轮廓与毛发层次清晰，后半段出现回正动作。",
+          "why_valuable": "侧脸视角增加镜头变化，能给Vlog提供不同构图和节奏过渡，适合作为场景收束或情绪留白。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.8
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 5.15,
+          "description": "棕白长毛犬正面近景肖像，耳朵竖起，闭口或微张口，直视镜头，背景为虚化的户外树林与暖色光斑。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 1,
+          "start": 5.15,
+          "end": 10.29,
+          "description": "犬只仍保持正面近景，口部张开，露出牙齿和舌头，表情更明快，眼神看向镜头，背景虚化保持稳定。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 2,
+          "start": 10.29,
+          "end": 15.44,
+          "description": "延续正面近景，犬只张口、表情放松，头部有轻微姿态变化，眼部与鼻部细节清晰。",
+          "stability": "stable",
+          "density": "medium"
+        },
+        {
+          "index": 3,
+          "start": 15.44,
+          "end": 20.583333333333332,
+          "description": "犬只转为侧脸看向画面左侧，随后接近结尾时回正并再次呈现张口表情，侧脸轮廓与毛发质感清楚。",
+          "stability": "stable",
+          "density": "low"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_13",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\13-tokyo-pedestrian.mp4",
+      "description": "雨夜霓虹灯商业街，浅景深虚化背景，前景右侧有撑透明伞的白衬衫男子，左侧及后方行人穿行。；街头人流持续经过，左侧女子撑黑色雨伞，画面中央穿粉色T恤、背双肩包的男子向前走，背景霓虹招牌虚化。；透明雨伞占据前景中央，伞后女子抬手整理头发，右侧有红色雨伞与行人，雨夜氛围明显。",
+      "main_subject": "",
+      "tags": [
+        "雨夜",
+        "霓虹",
+        "城市街头",
+        "行人",
+        "雨伞",
+        "浅景深",
+        "日系氛围",
+        "电影感"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 18.96,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "雨夜都市的静谧与疏离感",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 4.74,
+          "duration": 4.74,
+          "description": "雨夜霓虹街景开场，透明伞白衬衫男子作为前景主体，背景人群与灯牌虚化。",
+          "why_valuable": "画面电影感强，浅景深与霓虹色彩能快速建立雨夜都市氛围，适合做开场吸引注意力。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.88
+        },
+        {
+          "start": 4.74,
+          "end": 9.48,
+          "duration": 4.74,
+          "description": "黑伞女子与粉色上衣男子先后经过，行人层次丰富，街头生活感自然。",
+          "why_valuable": "人物运动方向明确，适合作为城市漫步或日常过渡镜头，能补充人群与街道的真实感。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.82
+        },
+        {
+          "start": 9.48,
+          "end": 14.22,
+          "duration": 4.74,
+          "description": "透明伞前景与女子整理头发的动作形成近距离观察感，雨夜光斑柔和。",
+          "why_valuable": "前景伞面与人物动作增加情绪和亲密感，适合表达雨天氛围或人物状态。",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.84
+        },
+        {
+          "start": 14.22,
+          "end": 18.96,
+          "duration": 4.74,
+          "description": "西装行人与红伞女子穿行于霓虹街头，人群纵深与虚化光斑明显。",
+          "why_valuable": "可作为结尾收束镜头，保留城市人流延续感，适合淡出或转场。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.8
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 4.74,
+          "description": "雨夜霓虹灯商业街，浅景深虚化背景，前景右侧有撑透明伞的白衬衫男子，左侧及后方行人穿行。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 4.74,
+          "end": 9.48,
+          "description": "街头人流持续经过，左侧女子撑黑色雨伞，画面中央穿粉色T恤、背双肩包的男子向前走，背景霓虹招牌虚化。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 9.48,
+          "end": 14.22,
+          "description": "透明雨伞占据前景中央，伞后女子抬手整理头发，右侧有红色雨伞与行人，雨夜氛围明显。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 3,
+          "start": 14.22,
+          "end": 18.96,
+          "description": "多名穿西装或休闲装的行人从画面中穿过，右侧女子撑红伞，背景霓虹光斑与人群形成层次。",
+          "stability": "stable",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_14",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\14-city-train-bridge.mp4",
+      "description": "高架桥下城市轨道场景，一列白底红线的列车从画面右侧远处沿轨道驶入，画面可见桥墩、铁丝网、站台与街道行人。；列车靠近并占据画面主体，车头灯、线路显示和驾驶室区域可辨，前景绿色立柱与桥体形成框架构图。；列车车厢连续通过，白色车身与红色线条在画面中横向移动，车窗与车身带有运动模糊，城市背景持续可见。",
+      "main_subject": "",
+      "tags": [
+        "城市轨道交通",
+        "列车驶过",
+        "高架桥下",
+        "通勤",
+        "街头纪实",
+        "运动模糊",
+        "低照度"
+      ],
+      "quality": "medium",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 20.02,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "城市日常纪实，平静通勤感",
+      "scene_type": "",
+      "vlog_value": "medium",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 5.0,
+          "duration": 5.0,
+          "description": "列车从远处沿轨道驶入高架桥下，桥墩、铁丝网与城市街道共同建立空间环境。",
+          "why_valuable": "能快速交代城市轨道场景与空间层次，适合做开场环境建立。",
+          "suggested_vlog_role": "scene_establish",
+          "confidence": 0.86
+        },
+        {
+          "start": 5.0,
+          "end": 10.0,
+          "duration": 5.0,
+          "description": "列车车头近距离经过，车灯、线路显示和驾驶室区域清晰可见，运动方向明确。",
+          "why_valuable": "主体进入画面且细节较完整，运动感强，能形成视觉注意力。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.82
+        },
+        {
+          "start": 10.0,
+          "end": 15.0,
+          "duration": 5.0,
+          "description": "白色车厢与红色线条连续横穿画面，车窗和车身产生运动模糊，节奏感明显。",
+          "why_valuable": "连续运动画面适合做节奏过渡或日常城市流动感表达。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.78
+        },
+        {
+          "start": 15.0,
+          "end": 19.62,
+          "duration": 4.62,
+          "description": "列车尾部或后续车厢通过，前景立柱与桥体框架强化城市空间结构，背景街道保持可见。",
+          "why_valuable": "可作为列车驶离后的收束镜头，保留城市环境余韵。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.72
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 5.0,
+          "description": "高架桥下城市轨道场景，一列白底红线的列车从画面右侧远处沿轨道驶入，画面可见桥墩、铁丝网、站台与街道行人。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 5.0,
+          "end": 10.0,
+          "description": "列车靠近并占据画面主体，车头灯、线路显示和驾驶室区域可辨，前景绿色立柱与桥体形成框架构图。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 10.0,
+          "end": 15.0,
+          "description": "列车车厢连续通过，白色车身与红色线条在画面中横向移动，车窗与车身带有运动模糊，城市背景持续可见。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 3,
+          "start": 15.0,
+          "end": 20.02,
+          "description": "列车尾部或后续车厢继续通过轨道，前景立柱、桥底结构与远处街道涂鸦建筑同框，画面保持城市通勤纪实感。",
+          "stability": "slight_shake",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    },
+    {
+      "id": "red_city_15",
+      "type": "video",
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\15-times-square-rain.mp4",
+      "description": "雨夜城市路口固定机位全景，霓虹广告牌和湿地面反光明显，行人撑伞在路边等待，黄色出租车从画面中穿过。；行人撑伞陆续穿过斑马线，车辆在湿滑路面上缓行，广告屏和车灯在积水地面形成彩色倒影。；路口人流增多，多把雨伞和行人从画面前方经过，出租车车灯照亮湿地面，背景霓虹持续闪烁。",
+      "main_subject": "",
+      "tags": [
+        "雨夜",
+        "城市夜景",
+        "时代广场",
+        "行人",
+        "雨伞",
+        "车流",
+        "霓虹灯",
+        "湿地面反光",
+        "街头"
+      ],
+      "quality": "high",
+      "quality_notes": "",
+      "resolution": "medium",
+      "composition": "okay",
+      "light": "sufficient",
+      "duration": 19.866666666666667,
+      "width": 1280,
+      "height": 720,
+      "has_face": false,
+      "face_count": 0,
+      "emotion_label": "雨夜都市的繁华与匆忙",
+      "scene_type": "",
+      "vlog_value": "high",
+      "vlog_applicability": [],
+      "highlight_clips": [
+        {
+          "start": 0.0,
+          "end": 4.8,
+          "duration": 4.8,
+          "description": "雨夜路口全景，霓虹广告牌、湿地面反光和黄色出租车同时入镜。",
+          "why_valuable": "画面信息密度高，霓虹色彩和湿地面反光形成强烈城市夜景氛围，适合快速建立环境。",
+          "suggested_vlog_role": "hook",
+          "confidence": 0.9
+        },
+        {
+          "start": 5.0,
+          "end": 9.6,
+          "duration": 4.6,
+          "description": "多名行人撑伞穿过斑马线，雨伞和行人动作清晰，湿地面倒影丰富。",
+          "why_valuable": "有人物运动和雨天细节，能提供自然的生活化街头片段。",
+          "suggested_vlog_role": "daily_moment",
+          "confidence": 0.86
+        },
+        {
+          "start": 10.0,
+          "end": 14.5,
+          "duration": 4.5,
+          "description": "行人、雨伞与出租车在霓虹背景下交错移动，湿地面反射出彩色灯光。",
+          "why_valuable": "动态元素和色彩反射集中，视觉节奏强，适合表现雨夜都市氛围。",
+          "suggested_vlog_role": "emotion_peak",
+          "confidence": 0.84
+        },
+        {
+          "start": 15.0,
+          "end": 19.4,
+          "duration": 4.4,
+          "description": "近景人群撑伞通过路口，背景车流和广告牌灯光持续可见。",
+          "why_valuable": "画面中人物更近，可作为街头人流收尾镜头，衔接自然。",
+          "suggested_vlog_role": "closing",
+          "confidence": 0.82
+        }
+      ],
+      "content_segments": [
+        {
+          "index": 0,
+          "start": 0.0,
+          "end": 4.97,
+          "description": "雨夜城市路口固定机位全景，霓虹广告牌和湿地面反光明显，行人撑伞在路边等待，黄色出租车从画面中穿过。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 1,
+          "start": 4.97,
+          "end": 9.93,
+          "description": "行人撑伞陆续穿过斑马线，车辆在湿滑路面上缓行，广告屏和车灯在积水地面形成彩色倒影。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 2,
+          "start": 9.93,
+          "end": 14.9,
+          "description": "路口人流增多，多把雨伞和行人从画面前方经过，出租车车灯照亮湿地面，背景霓虹持续闪烁。",
+          "stability": "stable",
+          "density": "high"
+        },
+        {
+          "index": 3,
+          "start": 14.9,
+          "end": 19.87,
+          "description": "人群继续通过路口，近景行人撑伞移动，远景车流和明亮广告牌构成雨夜都市街景。",
+          "stability": "stable",
+          "density": "high"
+        }
+      ],
+      "is_ai_generated": false
+    }
+  ],
+  "gaps": [],
+  "coverage_rate": 0,
+  "materials_count": 15,
+  "gaps_count": 0
+}

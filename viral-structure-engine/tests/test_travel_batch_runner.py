@@ -1,6 +1,12 @@
 from pathlib import Path
 
 from agents.planner import PlannerAgent, apply_scheme_patch
+from models.video_structure import ShotType
+from run_pipeline_e2e import (
+    apply_render_decisions,
+    build_fallback_render_decisions,
+    build_material_type_hint,
+)
 
 
 def test_planner_scheme_records_replan_iteration():
@@ -11,6 +17,105 @@ def test_planner_scheme_records_replan_iteration():
     )
 
     assert scheme.iteration == 2
+
+
+def test_planner_preserves_shot_aliases_and_motion_design():
+    scheme = PlannerAgent(None).build_scheme(
+        {
+            "storyboard": [
+                {
+                    "shot_type": "persona_expression",
+                    "duration": 2.5,
+                    "camera_movement": "handheld_follow",
+                    "shot_size": "medium_close_up",
+                    "composition": "off_center",
+                    "motion_effect": "speed_ramp",
+                    "rhythm_intensity": 0.8,
+                    "ken_burns_config": {"motion_type": "pan_left"},
+                    "speed_change": 1.25,
+                },
+                {"shot_type": "closing_moment", "duration": 2},
+                {"shot_type": "climax", "duration": 2},
+                {"shot_type": "establishing", "duration": 2},
+            ]
+        },
+        target_topic="travel vlog",
+    )
+
+    assert [frame.shot_type for frame in scheme.storyboard] == [
+        ShotType.PERSONA_EXPRESSION,
+        ShotType.CLOSING_MOMENT,
+        ShotType.EMOTION_PEAK,
+        ShotType.SCENE_ESTABLISH,
+    ]
+    first = scheme.storyboard[0].to_dict()
+    assert first["camera_movement"] == "handheld_follow"
+    assert first["shot_size"] == "medium_close_up"
+    assert first["composition"] == "off_center"
+    assert first["motion_effect"] == "speed_ramp"
+    assert first["rhythm_intensity"] == 0.8
+    assert first["ken_burns_config"] == {"motion_type": "pan_left"}
+    assert first["speed_change"] == 1.25
+
+
+def test_material_hint_reflects_real_inventory_types():
+    video_hint = build_material_type_hint({"items": [{"type": "video"}, {"type": "video"}]})
+    mixed_hint = build_material_type_hint({"items": [{"type": "video"}, {"type": "image"}]})
+
+    assert "全部为视频素材" in video_hint
+    assert "不要按静态照片方案" in video_hint
+    assert "1 个视频和 1 张图片" in mixed_hint
+
+
+def test_renderer_component_config_is_written_back():
+    scheme = {
+        "storyboard": [
+            {
+                "index": 0,
+                "render_component": "auto",
+                "custom_render_config": {"subtitle_animation": "fade_in"},
+            }
+        ]
+    }
+
+    apply_render_decisions(
+        scheme,
+        [
+            {
+                "index": 0,
+                "render_component": "custom:hero_push_in",
+                "custom_render_config": {"intensity": 0.75, "push_direction": "in"},
+            }
+        ],
+    )
+
+    frame = scheme["storyboard"][0]
+    assert frame["render_component"] == "custom:hero_push_in"
+    assert frame["custom_render_config"] == {
+        "subtitle_animation": "fade_in",
+        "intensity": 0.75,
+        "push_direction": "in",
+    }
+
+
+def test_renderer_timeout_fallback_uses_planner_motion_design():
+    decisions = build_fallback_render_decisions(
+        {
+            "storyboard": [
+                {"index": 0, "shot_type": "hook", "motion_effect": "zoom_heavy"},
+                {"index": 1, "shot_type": "persona", "motion_effect": "film_grain"},
+                {"index": 2, "shot_type": "emotion_peak", "motion_effect": "zoom_flash"},
+                {"index": 3, "shot_type": "closing", "motion_effect": "blur_in"},
+            ]
+        }
+    )
+
+    assert [item["render_component"] for item in decisions] == [
+        "custom:hero_push_in",
+        "custom:cinematic_grain",
+        "custom:kinetic_warp",
+        "custom:focus_blur_resolve",
+    ]
 
 
 def test_batch_report_upserts_case_results():

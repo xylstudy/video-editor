@@ -18,6 +18,13 @@ STABLE_CUSTOM_COMPONENTS = {
     "hero_push_in",
     "cinematic_grain",
     "neon_light_rays",
+    "floating_music_ui",
+    "search_cta_card",
+    "echo_stack",
+    "doodle_pop",
+    "torn_paper_frame",
+    "grid_memory",
+    "panel_fold_reveal",
 }
 
 

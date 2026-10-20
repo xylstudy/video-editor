@@ -17,6 +17,7 @@ import {
   getProject,
   listMaterials,
   listTasks,
+  mediaUrl,
   uploadMaterial,
 } from '../api.js'
 import {
@@ -89,6 +90,7 @@ export default function ProjectDetail() {
   const [uploading, setUploading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [taskType, setTaskType] = useState('end_to_end')
+  const [previewId, setPreviewId] = useState(null)
 
   const fetchAll = useCallback(async () => {
     try {
@@ -109,13 +111,14 @@ export default function ProjectDetail() {
     fetchAll()
   }, [fetchAll])
 
-  const handleUpload = async (e, type) => {
+  const handleUpload = async (e, type, role) => {
     const file = e.target.files[0]
     e.target.value = ''
     if (!file) return
     setUploading(true)
     try {
-      await uploadMaterial(id, file, type)
+      const resolvedType = type || (file.type.startsWith('video/') ? 'video' : 'image')
+      await uploadMaterial(id, file, resolvedType, role)
       fetchAll()
     } catch (err) {
       alert(err.response?.data?.detail || '上传失败')
@@ -131,18 +134,23 @@ export default function ProjectDetail() {
   }
 
   const handleCreateTask = async () => {
-    const hasVideo = materials.some((m) => m.type === 'video')
-    const hasImage = materials.some((m) => m.type === 'image')
-    if (taskType === 'analyze_video' && !hasVideo) {
+    const videos = materials.filter((m) => m.type === 'video')
+    const reference = videos.find((m) => m.meta?.role === 'reference') || videos[0]
+    const hasTarget = materials.some((m) => (
+      m.id !== reference?.id
+      && ['image', 'video'].includes(m.type)
+      && m.meta?.role !== 'reference'
+    ))
+    if (taskType === 'analyze_video' && !reference) {
       alert('视频结构分析需要至少一个参考视频')
       return
     }
-    if (taskType === 'material_analysis' && !hasImage) {
-      alert('素材分析需要至少一张照片')
+    if (taskType === 'material_analysis' && !hasTarget) {
+      alert('素材分析需要至少一张照片或一段视频')
       return
     }
-    if (taskType === 'end_to_end' && (!hasVideo || !hasImage)) {
-      alert('完整生成需要至少一个参考视频和一张照片')
+    if (taskType === 'end_to_end' && (!reference || !hasTarget)) {
+      alert('完整生成需要一个参考视频和至少一个图片/视频素材')
       return
     }
     setCreating(true)
@@ -165,6 +173,10 @@ export default function ProjectDetail() {
 
   const modeMeta = MODE_META[project.pipeline_mode] || MODE_META.editing_transfer
   const currentTypeOption = TASK_TYPE_OPTIONS.find((o) => o.value === taskType)
+  const projectVideos = materials.filter((m) => m.type === 'video')
+  const referenceMaterial = projectVideos.find((m) => m.meta?.role === 'reference') || projectVideos[0]
+  const previewMaterial = materials.find((material) => material.id === previewId) || referenceMaterial || materials[0]
+  const targetCount = materials.filter((material) => material.id !== referenceMaterial?.id && material.meta?.role !== 'reference').length
 
   return (
     <div>
@@ -186,49 +198,81 @@ export default function ProjectDetail() {
         )}
       />
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="vc-project-workspace">
         {/* 素材管理 */}
-        <Card className="p-5 lg:col-span-3">
-          <h2 className="mb-4 text-sm font-semibold text-white">素材管理</h2>
+        <Card className="vc-project-materials p-5">
+          <div className="vc-panel-heading"><div><span>MEDIA WORKSPACE</span><h2>素材工作区</h2></div><Badge color="indigo">{materials.length} 个素材</Badge></div>
 
-          <div className="mb-5 flex gap-3">
+          <div className="mb-5 grid gap-3 sm:grid-cols-2">
             <UploadZone
               icon={Film}
               label="上传参考视频"
               hint="爆款视频，用于提取结构"
               accept="video/*"
               uploading={uploading}
-              onChange={(e) => handleUpload(e, 'video')}
+              onChange={(e) => handleUpload(e, 'video', 'reference')}
             />
             <UploadZone
               icon={Images}
-              label="上传照片"
+              label="上传照片/视频"
               hint="你的实拍素材，可多次上传"
-              accept="image/*"
+              accept="image/*,video/*"
               uploading={uploading}
-              onChange={(e) => handleUpload(e, 'image')}
+              onChange={(e) => handleUpload(e, null, 'target')}
             />
           </div>
+
+          {previewMaterial && (
+            <div className="vc-material-preview mb-5">
+              <div className="vc-material-preview-head">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#654cc2]">{previewMaterial.id === referenceMaterial?.id ? '参考视频' : '素材预览'}</p>
+                  <p className="mt-0.5 truncate text-xs text-[#8b8495]">{previewMaterial.filename}</p>
+                </div>
+                <Badge color={previewMaterial.id === referenceMaterial?.id ? 'indigo' : 'blue'}>{previewMaterial.id === referenceMaterial?.id ? '结构与节奏来源' : '创作素材'}</Badge>
+              </div>
+              <div className="vc-material-preview-stage">
+              {previewMaterial.type === 'video' ? (
+              <video
+                key={previewMaterial.id}
+                src={mediaUrl(`/materials/${previewMaterial.id}/media`)}
+                controls
+                preload="metadata"
+                playsInline
+              >
+                当前浏览器不支持视频播放。
+              </video>
+              ) : previewMaterial.type === 'image' ? (
+                <img src={mediaUrl(`/materials/${previewMaterial.id}/media`)} alt={previewMaterial.filename} />
+              ) : (
+                <audio key={previewMaterial.id} src={mediaUrl(`/materials/${previewMaterial.id}/media`)} controls preload="metadata" />
+              )}
+              </div>
+            </div>
+          )}
 
           {materials.length === 0 ? (
             <p className="py-6 text-center text-sm text-[#5a5a7a]">
               还没有素材，先上传一个参考视频和几张照片吧
             </p>
           ) : (
-            <ul className="divide-y divide-[#2a2a42]">
+            <ul className="vc-material-grid" aria-label="项目素材">
               {materials.map((m) => (
-                <li key={m.id} className="flex items-center justify-between py-2.5">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <MaterialTypeIcon type={m.type} />
-                    <span className="truncate text-sm text-[#c8c8e0]">{m.filename}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
+                <li key={m.id} className={`vc-material-item ${previewMaterial?.id === m.id ? 'is-selected' : ''}`}>
+                  <button type="button" className="vc-material-select" aria-pressed={previewMaterial?.id === m.id} onClick={() => setPreviewId(m.id)} title={`预览 ${m.filename}`}>
+                    <span className="vc-material-type"><MaterialTypeIcon type={m.type} /></span>
+                    <span>{m.filename}</span>
+                  </button>
+                  <div className="vc-material-item-footer">
                     <Badge color={m.type === 'video' ? 'indigo' : 'green'}>
-                      {m.type === 'video' ? '视频' : m.type === 'image' ? '图片' : '音频'}
+                      {m.id === referenceMaterial?.id || m.meta?.role === 'reference'
+                        ? '参考视频'
+                        : m.type === 'video' ? '视频素材' : m.type === 'image' ? '图片素材' : '音频'}
                     </Badge>
                     <button
                       onClick={() => handleDeleteMaterial(m.id)}
                       title="删除素材"
+                      aria-label={`删除素材 ${m.filename}`}
                       className="rounded-lg p-1 text-[#5a5a7a] transition-all hover:bg-[rgba(248,113,113,0.08)] hover:text-[#f87171]"
                     >
                       <Trash2 size={15} />
@@ -241,8 +285,12 @@ export default function ProjectDetail() {
         </Card>
 
         {/* 生成任务 */}
-        <Card className="flex flex-col p-5 lg:col-span-2">
-          <h2 className="mb-4 text-sm font-semibold text-white">生成任务</h2>
+        <Card className="vc-project-run-panel p-5">
+          <div className="vc-panel-heading"><div><span>GENERATION</span><h2>生成任务</h2></div></div>
+          <div className="vc-project-readiness">
+            <span className={referenceMaterial ? 'is-ready' : ''}><i />{referenceMaterial ? '参考视频已就绪' : '等待添加参考视频'}</span>
+            <span className={targetCount ? 'is-ready' : ''}><i />{targetCount ? `${targetCount} 个创作素材` : '等待添加创作素材'}</span>
+          </div>
 
           <Field label="执行步骤" hint={currentTypeOption?.hint} className="mb-4">
             <SelectInput value={taskType} onChange={(e) => setTaskType(e.target.value)}>

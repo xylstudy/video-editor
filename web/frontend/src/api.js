@@ -77,10 +77,11 @@ export function listMaterials(projectId) {
   return api.get(`/materials/project/${projectId}`)
 }
 
-export function uploadMaterial(projectId, file, type) {
+export function uploadMaterial(projectId, file, type, role = '') {
   const form = new FormData()
   form.append('project_id', projectId)
   form.append('type', type)
+  if (role) form.append('role', role)
   form.append('file', file)
   return api.post('/materials/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },

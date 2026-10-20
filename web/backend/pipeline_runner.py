@@ -160,11 +160,21 @@ def get_task_storage(user_id: int, project_id: int, task_id: int) -> Path:
 
 
 def find_materials(session: Session, project_id: int) -> tuple[Material | None, list[Material]]:
-    """返回参考视频和照片列表。"""
+    """返回参考视频和待剪辑的图片/视频素材。"""
     materials = session.exec(select(Material).where(Material.project_id == project_id)).all()
-    video = next((m for m in materials if m.type == MaterialType.VIDEO), None)
-    photos = [m for m in materials if m.type == MaterialType.IMAGE]
-    return video, photos
+    videos = [m for m in materials if m.type == MaterialType.VIDEO]
+    video = next(
+        (m for m in videos if m.get_metadata().get("role") == "reference"),
+        videos[0] if videos else None,
+    )
+    user_materials = [
+        m
+        for m in materials
+        if m.id != getattr(video, "id", None)
+        and m.type in (MaterialType.IMAGE, MaterialType.VIDEO)
+        and m.get_metadata().get("role") != "reference"
+    ]
+    return video, user_materials
 
 
 def material_inventory_matches(photos: list[Material], inventory_path: Path) -> bool:
@@ -278,7 +288,7 @@ def write_materials_json(photos: list[Material], path: Path) -> Path:
         {
             "id": f"mat_{idx:03d}",
             "path": str(Path(photo.storage_path).resolve()),
-            "type": "image",
+            "type": photo.type.value,
             "description": Path(photo.filename).stem,
         }
         for idx, photo in enumerate(photos)
@@ -325,7 +335,7 @@ def write_lightweight_inventory(photos: list[Material], path: Path) -> Path:
         {
             "id": f"mat_{idx:03d}",
             "path": str(Path(photo.storage_path).resolve()),
-            "type": "image",
+            "type": photo.type.value,
             "description": Path(photo.filename).stem,
             "quality": "medium",
             "has_face": False,

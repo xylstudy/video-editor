@@ -377,6 +377,19 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 
 {advanced_motion_section}
 
+【参考特效轨道迁移（必须执行）】
+- Gene 中的 `reference_cut_points` 是参考片真实切点。按目标总时长等比例映射，除非素材长度不足，否则累计切点误差不得超过 0.15 秒。
+- Gene 中 `effect_tracks` 的 `priority=critical/high` 属于标志性包装，必须写入顶层 `effect_tracks` 或对应镜头的 `transition_in/render_component`，不得替换成泛化的 fade、zoom 或 film grain。
+- Gene 每个 `shot_genes[].effect_events` 都有稳定 id。对应分镜必须填写 `effect_event_ids` 和 `effect_mapping`；critical/high 事件只能标记为 mapped 或 degraded，禁止省略。
+- `effect_mapping` 的每项必须包含 status、component 和 reason。无法主体级实现时使用事件声明的 fallback_type，并明确标记 degraded，不能静默改成 auto。
+- `floating_music_ui`：写入顶层 effect_tracks，component=`floating_music_ui`，允许跨镜头持续。
+- `glitch_reveal`：对应镜头 transition_in=`glitch`，持续时间按参考轨道映射。
+- `slice_wipe`：对应镜头 transition_in=`slice_wipe`。
+- `black_dip`：对应镜头 transition_in=`flash_black`，只保留 2~4 帧冲击。
+- `search_cta_card`：收尾镜头 render_component=`custom:search_cta_card`，保留搜索框、平台标识与信息层级。
+- `source_aspect_ratio=3:4` 时，默认输出 canvas_width=1080、canvas_height=1440；只有用户明确要求 9:16 时才能覆盖。
+- `packaging_signature` 里的 title_cards、transitions_used、stickers_effects 必须落实到可渲染字段，不得只复述在 visual_description。
+
 【决策优先级（务必遵守）】
 1. 用户显式要求（创作偏好中的明确指示）
 2. Reference Gene 的硬约束（hard_constraints / importance=critical 的镜头功能）
@@ -393,15 +406,18 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 【关键设计要求】
 
 === 0. 素材使用要求 ===
-分镜总数必须控制在 5~10 个。当 Reference Gene 超过 10 个镜头时，按相邻镜头的结构功能、情绪和节奏合并，不要逐镜头机械展开。
+分镜总数优先遵守用户偏好中的 shot_count_target；未提供时，再根据目标时长和 Reference Gene 的节奏自行决定。需要合并镜头时，按相邻镜头的结构功能、情绪和节奏合并，不要机械套用固定镜头数。
 输出必须简洁：visual_description、voiceover_text 和 adaptation.reason 各不超过 40 个中文字；未使用的可选数组/对象使用空值，不要输出解释性长文。
-可用素材列表中的 **每一个素材都必须被用到** —— 这是硬性要求，审核会逐一核对。
-- 具体怎么用（一镜一图、多图拼贴、前景叠层、画中画），由你根据素材特点和爆款结构 **自行创意决定**
-- 可以通过 `layers` 字段在一镜中叠加多张素材，也可以通过 `composite_mode` 做合成
-- 你决定分镜数量和每镜的内容组织方式，只要最终所有素材都被用上即可
+优先覆盖与主题和 Gene 功能匹配的素材，但不要为了覆盖率强制拼贴或画中画。
+- 每个被选中的素材都要承担明确的叙事功能；一镜一素材是正常选择
+- 当分镜数不少于 12 时，素材池应提供不少于 `ceil(分镜数*0.6)` 个不同有效片段；不足时在 render_hints.material_shortfall 中记录缺口。
+- **素材禁止重复使用（硬约束）**：每个 storyboard 分镜必须使用不同的 source_material_id；同一 source_material_id 在整条视频中最多出现 1 次。素材数量少于分镜数量时，不得自行复用、循环或拆段冒充新素材，必须报告素材缺口并停止生成可通过审核的方案。
+- Hook、高潮、品牌/角色记忆点和 CTA 不得共用同一条普通素材来凑数。
+- 只有同屏对比、并行信息或 Gene 明确要求多层画面时，才使用 `layers` 或 `composite_mode`
+- 素材数量多于合理分镜数时，选择最匹配的素材；不要把剩余素材硬塞进同一镜头
 
-=== 1. 前景/背景合成必须使用（Critical）===
-你的素材中包含普通照片和已经抠出前景的照片（带 fg_ 前缀）。**至少 1/3 的分镜必须使用前景/背景合成**（composite_mode 不为 "none"）。
+=== 1. 前景/背景合成按素材和叙事需要使用（Critical）===
+先检查素材清单。只有确实存在透明前景或带 `fg_` 前缀的抠图素材，并且合成能表达 Gene 功能时，才使用前景/背景合成；不设数量配额。普通视频素材不得仅为增加变化而强制改成画中画。
 - 使用什么作为 **背景**（source_material_id = 原始照片）
 - 是否叠加 **前景抠图**（fg_source_id = 另一张照片的前景）
 - 合成方式（composite_mode）：
@@ -410,9 +426,9 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
   - "fg_reveal": 前景以揭示动画出现（浮入/缩放/模糊等）
   - "pip": 画中画效果
 - **多图拼贴**：除了前景叠加，还可以在 `layers` 字段中列出额外的素材 ID，实现一镜多图效果。适用于展示系列照片（如美食合集、风景拼贴）。
-- 充分利用 fg_source_id 字段引用抠图素材，把人物/建筑合成到不同的背景照片上
+- 使用 fg_source_id 时必须引用真实存在的抠图素材，并说明该合成承担的叙事作用
 
-创意提示：把人物/建筑从一张照片抠到另一张照片的背景上，创造"穿越"感。利用 `layers` 做多图拼贴来覆盖更多素材。
+创意提示：若 Gene 明确需要对比、穿越或信息并置，可使用前景叠层或拼贴；否则保持单镜头画面完整。
 
 === 2. 字幕配置应保持统一（Critical）===
 全片使用统一的字体、主色和安全区，最多设置 1 种强调样式。只有 Hook 或高潮需要强调时才改变字号或动画。
@@ -423,11 +439,11 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 - 平静叙述用小号（32~38）+ bottom + 淡入
 - 字幕以可读性和包装一致性优先，不为展示能力而堆叠效果
 
-=== 3. 转场服从 Reference 节奏（Critical）===
-优先使用 cut / fade / dissolve，整片通常控制在 1-3 种转场。只有 Gene 明确存在冲击点时才使用一次强调转场；不得为了多样化堆叠 whip、spin、zoom_flash 等效果。
+=== 3. 先确定本片剪辑语法，再选择转场（Critical）===
+根据 Reference Gene 的节奏、情绪弧线和素材运动，先在 render_hints.editing_grammar 中概括本片的主导剪辑语法，再逐镜选择转场。观察感、纪实感可以以 cut 为主；抒情段可以使用 fade / dissolve；动作或节拍冲击点才使用 whip、zoom_flash 等强调转场。不要沿用固定的“开头特效—中段直切—结尾淡出”模板，也不要机械轮换效果。
 
-=== 4. 渲染组件以稳定和必要性为先（Critical）===
-默认使用 auto；只有内置组件无法表达 Gene 功能时才使用 custom: 组件，且必须说明必要性。
+=== 4. 渲染组件必须表达逐镜设计（Critical）===
+`auto` 只适用于无需额外时空处理的普通镜头，不是默认答案。先根据 Gene 功能、素材类型和原始运动确定 camera_movement、motion_effect、speed_change，再选择能落实该设计的 render_component 和 custom_render_config。相邻镜头不得因为 shot_type 相同就复用同一套处理。
 - 纯文字表达/金句 → "text_card"（配合 typewriter/slide_in/fade_in 三种动画变体）
 - 多图展示 → "custom:photo_collage" / "custom:collage"
 - 快节奏堆叠 → "custom:montage" / "custom:fast_montage"
@@ -440,11 +456,14 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
 === 5. 音频整合（Audio Integration）===
 如果提供了参考音频，必须：
 - 在方案顶层指定 audio_source_id = 参考视频的 ID
-- 设置 audio_config = {{ "volume": 0.3, "loop": true }}
+- 设置 bgm.audio_path = "_viral_audio"，明确使用参考视频音轨
+- 设置 audio_config.source = "reference"，素材视频原声默认静音
+- 设置响度标准化目标；除非用户明确要求，不得混入素材视频原声
 - 分镜时长和情绪序列必须适配音频的能量曲线
 - 高潮分镜对齐音频的高潮点
 
 请生成完整的视频方案。每个分镜都需要包含上述合成决策，但不要为了差异化牺牲 Reference 结构保真、节奏自然度和包装一致性。
+输出长度必须可控：每个 storyboard 项只强制输出 index、shot_type、duration、source_material_id、transition_in、render_component、structure_function、gene_shot_index。存在 Gene effect_events 时，额外强制输出 effect_event_ids 和 effect_mapping。其他字段只在有非空、非默认且可执行的决定时输出；不要输出 null、空字符串、空数组或空对象。24 个分镜的整体 JSON 不得超过 12000 tokens。
 
 重要：只输出 JSON，不要包含任何解释文字，不要使用 markdown 代码块，直接输出纯 JSON。
 
@@ -461,14 +480,40 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
   "canvas_height": 1920,
   "render_hints": {{
     "visual_mood": "整体视觉氛围",
+    "editing_grammar": "由当前 Reference Gene 与素材共同决定的本片剪辑语法",
+    "signature_techniques": ["本片真正需要的 1~3 个标志性手法"],
     "custom_effects_needed": []
   }},
+  "effect_tracks": [
+    {{
+      "start": 0.0,
+      "end": 3.0,
+      "type": "floating_music_ui",
+      "component": "floating_music_ui",
+      "priority": "critical",
+      "parameters": {{}}
+    }}
+  ],
   "audio_source_id": "参考视频ID（如果有音频分析）",
-  "audio_config": {{
+  "bgm": {{
+    "audio_path": "_viral_audio",
+    "role": "background",
     "volume": 0.3,
     "loop": true,
     "trim_before": 0,
     "trim_after": null
+  }},
+  "audio_config": {{
+    "source": "reference",
+    "volume": 0.3,
+    "loop": true,
+    "trim_before": 0,
+    "trim_after": null,
+    "fade_frames": 15,
+    "original_audio_mode": "mute",
+    "normalize": true,
+    "target_lufs": -14.0,
+    "true_peak": -1.0
   }},
   "storyboard": [
     {{
@@ -493,14 +538,19 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
         "fontWeight": 600
       }},
       "voiceover_text": "旁白文案",
-      "transition_in": "cut/fade/dissolve/zoom_in/zoom_out/slide/whip/glitch/flash_white/zoom_flash/zoom_heavy/spin/blur_in/rotate_in/circle_reveal/light_leak/freeze_frame/slide_up/slide_down/slide_right/wipe_left/wipe_right/flash_black",
+      "transition_in": "cut/fade/dissolve/zoom_in/zoom_out/slide/whip/glitch/flash_white/zoom_flash/zoom_heavy/spin/blur_in/rotate_in/circle_reveal/light_leak/freeze_frame/slide_up/slide_down/slide_right/wipe_left/wipe_right/slice_wipe/flash_black",
       "emotion": "情绪标签",
       "camera_movement": "运镜",
       "shot_size": "close_up/medium/long",
       "composition": "构图",
+      "motion_effect": "本镜的时空处理或动效；无需处理时留空",
+      "rhythm_intensity": 0.5,
+      "speed_change": null,
+      "ken_burns_config": null,
       "has_face": false,
       "bgm_sync": false,
       "render_component": "auto",
+      "custom_render_config": {{}},
       "layers": [],
       "canvas_width": 1080,
       "canvas_height": 1920,
@@ -512,6 +562,14 @@ freeze_frame     | 冻结帧+RGB   | 瞬间定格，节奏马停                
         "preserved": true,
         "reason": "是否/为何做了功能级替代或结构适配",
         "original_function": "原 Gene 功能（若适配了则填写）"
+      }},
+      "effect_event_ids": ["shot_000_effect_00"],
+      "effect_mapping": {{
+        "shot_000_effect_00": {{
+          "status": "mapped/degraded",
+          "component": "实际使用的 transition 或 render_component",
+          "reason": "映射依据或降级原因"
+        }}
       }}
     }}
   ],
@@ -540,9 +598,9 @@ def build_scheme_iterate_prompt(
         original_storyboard_count = 0
     count_constraint = (
         f"当前方案有 {original_storyboard_count} 个分镜。迭代后必须保持在 "
-        f"{max(3, original_storyboard_count - 2)}~{min(10, original_storyboard_count + 2)} 个；"
+        f"{max(3, original_storyboard_count - 2)}~{original_storyboard_count + 2} 个；"
         "不得把整个方案压缩为 1~2 个长镜头。"
-        if original_storyboard_count else "迭代后保持 5~10 个可执行分镜。"
+        if original_storyboard_count else "迭代后保持与目标时长和 Reference Gene 匹配的可执行分镜数。"
     )
     gene_section = f"\n【参考视频结构基因（迭代中仍必须保持的硬约束）】\n{gene_json}\n" if gene_json else ""
     skill_names = []
@@ -573,7 +631,8 @@ def build_scheme_iterate_prompt(
 - fidelity（迁移得不像 Reference）：结构/节奏/情绪/高潮位置/镜头功能未保持 → 优先恢复 Gene 结构。
 - quality（像 Reference 但剪得不好）：素材匹配/转场/情绪连贯/字幕包装问题 → 在不破坏 Gene 结构的前提下优化。
 
-请根据审核反馈优化方案。保持结构骨架（Gene 硬约束）不变，但必须检查并修正以下方面：
+请根据审核反馈优化方案。保持结构骨架（Gene 硬约束）不变。素材禁止重复使用：每个分镜必须使用不同的 source_material_id；迭代时也不得把已经用于其他分镜的素材再次分配。
+必须检查并修正以下方面：
 0. **镜头数量保护**：{count_constraint}
 1. **素材覆盖率**：检查哪些素材还未被使用，创造性地安排进合适的镜头里。必须覆盖所有素材
 2. **字幕包装一致性**：统一字体、主色与位置，仅在 Hook/高潮做必要强调

@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-20T07:16:35.449Z",
+  "checks": [
+    "desktop genes: no horizontal overflow",
+    "mobile genes: no horizontal overflow",
+    "gene search, status filter, compact cards, thumbnail fallback",
+    "desktop knowledge: no horizontal overflow",
+    "mobile knowledge detail: no horizontal overflow",
+    "knowledge excerpt opens exact original content; Escape closes native modal; no eager demo video loading",
+    "knowledge search matches text hidden from list excerpts",
+    "mobile knowledge: no horizontal overflow",
+    "mobile gene report: no horizontal overflow",
+    "source navigation, report category switching, and full Hook text disclosure",
+    "gene and knowledge API payloads unchanged after browsing"
+  ],
+  "runtime_errors": []
+}

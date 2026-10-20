@@ -228,9 +228,12 @@ async def analyst_node(state: ViralEngineState) -> dict:
     logger.info(f"  ===========================================")
 
     try:
+        from tools.video_tools import SCENE_DETECTOR_VERSION
+
         cache_version = (
             f"{ANALYST_PROMPT_VERSION}+{STRUCTURE_PROMPT_VERSION}"
             f"+scene-{settings.SCENE_CHANGE_THRESHOLD}"
+            f"+{SCENE_DETECTOR_VERSION}"
         )
         cached, media_sha256 = load_analysis(
             "reference_video",
@@ -295,14 +298,16 @@ async def analyst_node(state: ViralEngineState) -> dict:
             }
 
         info = video_tools.get_video_info(video_path)
-        scenes = video_tools.detect_scene_changes(video_path)
+        scenes = video_tools.detect_scene_changes(
+            video_path, threshold=settings.SCENE_CHANGE_THRESHOLD
+        )
         out.save_json("analyst", "video_info.json", info)
         out.save_json("analyst", "scenes.json", scenes)
 
         # ===== 预处理阶段 =====
 
         # 1. 镜头多帧抽取
-        frames_map = video_tools.extract_multiple_frames(video_path, scenes, frames_per_shot=3)
+        frames_map = video_tools.extract_multiple_frames(video_path, scenes, frames_per_shot=5)
 
         # 保存关键帧图片到 frames/
         for shot_idx, frame_paths in frames_map.items():
@@ -692,6 +697,27 @@ async def planner_node(state: ViralEngineState) -> dict:
                 gene_json=gene_json, skill_context=skill_context,
             )
 
+        from run_pipeline_e2e import (
+            apply_audio_contract,
+            apply_material_diversity_contract,
+            apply_reference_effect_contract,
+        )
+        source_genes = state.get("source_genes", []) or []
+        primary_gene = source_genes[0] if source_genes else {}
+        primary_gene = primary_gene.to_dict() if hasattr(primary_gene, "to_dict") else primary_gene
+        inventory_contract = state.get("material_inventory") or {}
+        inventory_contract = (
+            inventory_contract.to_dict()
+            if hasattr(inventory_contract, "to_dict")
+            else inventory_contract
+        )
+        apply_reference_effect_contract(scheme_data, primary_gene if isinstance(primary_gene, dict) else {})
+        apply_audio_contract(scheme_data, primary_gene if isinstance(primary_gene, dict) else {})
+        apply_material_diversity_contract(
+            scheme_data,
+            inventory_contract if isinstance(inventory_contract, dict) else {},
+            primary_gene if isinstance(primary_gene, dict) else {},
+        )
         scheme = planner.build_scheme(scheme_data, target_topic, iteration)
         scheme.knowledge_refs = _collect_knowledge_refs()
         # A routed reference is not automatically "used".  Persist selection,
@@ -1146,6 +1172,7 @@ async def reviewer_node(state: ViralEngineState) -> dict:
             transition_summary=transition_summary,
             gene_json=gene_json,
         )
+        review = reviewer.apply_contract_gates(review, json.loads(scheme_json))
         from evaluation.run_evaluator import scheme_fingerprint
         review["scheme_fingerprint"] = scheme_fingerprint(json.loads(scheme_json))
         # 关联本方案参考的知识/手法，供后续统计「知识 → 审核分数」效果

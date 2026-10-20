@@ -8,14 +8,17 @@
     python render_knowledge_demos.py              # 渲染全部（跳过已存在）
     python render_knowledge_demos.py --only k_0   # 只渲染指定条目
     python render_knowledge_demos.py --force      # 全部重渲
+    python render_knowledge_demos.py --built-in   # 仅补齐内置技法，不处理个人知识
 """
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
 from pathlib import Path
+from uuid import uuid4
 
 VSE_DIR = Path(__file__).resolve().parent
 REMOTION_DIR = VSE_DIR / "remotion"
@@ -167,10 +170,20 @@ def render_source_demo(
         return False, f"渲染超时（>{timeout}s）"
 
 
+def select_demo_entries(entries: list[dict], only: str | None = None, built_in: bool = False) -> list[dict]:
+    """Keep built-in teaching renders separate from source-specific personal clips."""
+    return [
+        entry for entry in entries
+        if (not only or entry.get("id") == only)
+        and (not built_in or re.fullmatch(r"k_\d+", str(entry.get("id", ""))))
+    ]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--only", help="只渲染指定条目 id（如 k_0）")
     parser.add_argument("--force", action="store_true", help="已存在也重渲")
+    parser.add_argument("--built-in", action="store_true", help="仅渲染内置技法（k_数字），保留个人知识的源视频示例")
     args = parser.parse_args()
 
     entries = json.loads(KNOWLEDGE_JSON.read_text(encoding="utf-8"))
@@ -180,15 +193,36 @@ def main():
     DEMO_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     todo = []
-    for e in entries:
-        if args.only and e["id"] != args.only:
-            continue
+    for e in select_demo_entries(entries, only=args.only, built_in=args.built_in):
         out = DEMO_OUT_DIR / f"{e['id']}.mp4"
-        if out.exists() and not args.force:
+        if out.is_file() and out.stat().st_size > 0 and not args.force:
             continue
         todo.append(e)
 
     print(f"共 {len(entries)} 条知识，待渲染 {len(todo)} 条")
+    if args.built_in:
+        if not todo:
+            print("内置技法演示已齐全，无需渲染")
+            return
+        plan_path = REMOTION_DIR / f"demo_batch_{uuid4().hex}.json"
+        plan_path.write_text(json.dumps({
+            "output_dir": str(DEMO_OUT_DIR.resolve()),
+            "entries": [
+                {"id": entry["id"], "title": entry.get("title", ""),
+                 "kind": demo_spec(entry)[0], "tech_id": demo_spec(entry)[1]}
+                for entry in todo
+            ],
+        }, ensure_ascii=False), encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["node", str(REMOTION_DIR / "render-knowledge-demos.mjs"), str(plan_path)],
+                cwd=str(REMOTION_DIR),
+            )
+            if result.returncode:
+                sys.exit(result.returncode)
+        finally:
+            plan_path.unlink(missing_ok=True)
+        return
     ok, fail = 0, []
     t0 = time.time()
     for i, e in enumerate(todo, 1):

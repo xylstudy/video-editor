@@ -22,6 +22,33 @@ def test_motion_catalog_prompt_marks_components_as_builtin():
     assert "source_material_ids" in prompt
 
 
+def test_renderer_falls_back_only_for_image_only_custom_components_with_video():
+    scheme = {
+        "storyboard": [
+            {"source_material_id": "video", "render_component": "custom:fade_out_glow"},
+            {"source_material_id": "video", "render_component": "custom:beat_montage"},
+            {
+                "source_material_id": "video",
+                "render_component": "custom:split_screen_burst",
+                "custom_render_config": {"source_material_ids": ["video", "video_2"]},
+            },
+        ]
+    }
+    rendered = remotion_renderer._fallback_custom_video_components(
+        scheme,
+        [
+            {"id": "video", "path": "clip.mp4"},
+            {"id": "video_2", "path": "clip-2.mp4"},
+        ],
+    )
+
+    assert rendered["storyboard"][0]["render_component"] == "auto"
+    assert rendered["storyboard"][0]["render_fallback"]["from"] == "custom:fade_out_glow"
+    assert rendered["storyboard"][1]["render_component"] == "custom:beat_montage"
+    assert rendered["storyboard"][2]["render_component"] == "custom:split_screen_burst"
+    assert scheme["storyboard"][0]["render_component"] == "custom:fade_out_glow"
+
+
 def test_remotion_renderer_uses_project_local_temp(monkeypatch):
     test_root = remotion_renderer.REMOTION_DIR / ".test-tmp" / f"motion-{uuid4().hex}"
     test_root.mkdir(parents=True)

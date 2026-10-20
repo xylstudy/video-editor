@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clock3,
   Image as ImageIcon,
+  Layers3,
   Save,
   Trash2,
 } from 'lucide-react'
@@ -42,6 +43,19 @@ function editableFrame(frame) {
   }
 }
 
+function MaterialPreview({ material, controls = false }) {
+  const [failed, setFailed] = useState(false)
+  if (!material || failed) {
+    return <div className="vc-shot-placeholder"><ImageIcon size={24} /><span>{failed ? '素材预览暂不可用' : '尚未选择素材'}</span></div>
+  }
+  const isVideo = /\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(material.filename || '')
+  return isVideo ? (
+    <video src={mediaUrl(material.preview_url)} controls={controls} muted={!controls} playsInline preload="metadata" onError={() => setFailed(true)} />
+  ) : (
+    <img src={mediaUrl(material.preview_url)} alt={material.filename} loading="lazy" onError={() => setFailed(true)} />
+  )
+}
+
 export default function StoryboardEditor({ taskId, draft, onDraftChange, onConfirmed }) {
   const [title, setTitle] = useState(draft.title || '')
   const [frames, setFrames] = useState(() => draft.storyboard.map(editableFrame))
@@ -49,6 +63,7 @@ export default function StoryboardEditor({ taskId, draft, onDraftChange, onConfi
   const [confirming, setConfirming] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [selectedId, setSelectedId] = useState(draft.storyboard[0]?.draft_id)
 
   useEffect(() => {
     setTitle(draft.title || '')
@@ -56,10 +71,15 @@ export default function StoryboardEditor({ taskId, draft, onDraftChange, onConfi
   }, [draft])
 
   const materialMap = useMemo(
-    () => new Map(draft.materials.map((material) => [material.id, material])),
+    () => new Map(draft.materials.map((material) => [String(material.id), material])),
     [draft.materials]
   )
   const totalDuration = frames.reduce((sum, frame) => sum + Number(frame.duration || 0), 0)
+  const selectedIndex = Math.max(0, frames.findIndex((frame) => frame.draft_id === selectedId))
+  const selectedFrame = frames[selectedIndex]
+  const selectedMaterial = materialMap.get(String(selectedFrame?.material_id))
+  const busy = saving || confirming
+  const shotStart = frames.slice(0, selectedIndex).reduce((sum, frame) => sum + Number(frame.duration || 0), 0)
 
   const updateFrame = (index, patch) => {
     setFrames((current) => current.map((frame, i) => (i === index ? { ...frame, ...patch } : frame)))
@@ -127,153 +147,69 @@ export default function StoryboardEditor({ taskId, draft, onDraftChange, onConfi
   }
 
   return (
-    <Card className="mb-6 overflow-hidden">
-      <div className="border-b border-[#2a2a42] bg-[linear-gradient(135deg,rgba(124,92,252,0.12),rgba(0,212,255,0.04))] p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <Badge color="amber">等待确认</Badge>
-              <span className="text-xs text-[#8888a8]">当前第 {draft.revision} 版</span>
-            </div>
-            <h2 className="text-base font-semibold text-white">分镜确认台</h2>
-            <p className="mt-1 text-sm text-[#8888a8]">
-              调整顺序、素材、时长、字幕与转场；确认后才会开始正式渲染。
-            </p>
+    <Card className="vc-storyboard mb-6 overflow-hidden">
+      <div className="vc-studio-toolbar">
+        <div className="vc-studio-title"><span><Layers3 size={18} /></span><div><small>STORYBOARD STUDIO</small><h2>分镜确认台</h2></div></div>
+        <div className="vc-studio-meta"><Badge color="amber">等待确认</Badge><span>第 {draft.revision} 版</span><span><Clock3 size={13} />{frames.length} 镜头 · {totalDuration.toFixed(1)}s</span></div>
+      </div>
+
+      <div className="vc-studio-workspace">
+        <aside className="vc-shot-list" aria-label="分镜列表">
+          <div className="vc-studio-panel-head"><strong>镜头序列</strong><span>{frames.length}</span></div>
+          <div className="vc-shot-list-scroll">
+            {frames.map((frame, index) => (
+              <button type="button" key={frame.draft_id} aria-pressed={index === selectedIndex} onClick={() => setSelectedId(frame.draft_id)} className={`vc-shot-item ${index === selectedIndex ? 'is-selected' : ''}`}>
+                <span className="vc-shot-thumb"><MaterialPreview key={frame.material_id} material={materialMap.get(String(frame.material_id))} /></span>
+                <span className="vc-shot-item-copy"><strong>镜头 {String(index + 1).padStart(2, '0')}</strong><small>{Number(frame.duration).toFixed(1)}s · {TRANSITIONS.find(([value]) => value === frame.transition)?.[1] || frame.transition}</small></span>
+              </button>
+            ))}
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-[#2a2a42] bg-[#14141f] px-3 py-2 text-sm text-[#c8c8e0]">
-            <Clock3 size={15} className="text-[#66e0ff]" />
-            {frames.length} 个分镜 · {totalDuration.toFixed(1)} 秒
+        </aside>
+
+        <section className="vc-shot-canvas" aria-label="当前分镜预览">
+          <div className="vc-canvas-caption"><span>素材预览</span><span>{selectedFrame ? `镜头 ${String(selectedIndex + 1).padStart(2, '0')}` : '暂无分镜'}</span></div>
+          <div className="vc-shot-stage">
+            <div className="vc-shot-screen"><MaterialPreview key={selectedFrame?.material_id} material={selectedMaterial} controls /></div>
+            <p>预览原始素材；字幕、转场与动效会在确认渲染后呈现。</p>
           </div>
-        </div>
+          <div className="vc-shot-timecode"><Clock3 size={12} /><span>{shotStart.toFixed(1)}s — {(shotStart + Number(selectedFrame?.duration || 0)).toFixed(1)}s</span><span>共 {totalDuration.toFixed(1)}s</span></div>
+        </section>
 
-        <Field label="作品标题" className="mt-4 max-w-xl">
-          <TextInput value={title} maxLength={120} onChange={(event) => setTitle(event.target.value)} />
-        </Field>
+        <aside className="vc-shot-inspector" aria-label="分镜属性">
+          <div className="vc-studio-panel-head"><strong>镜头属性</strong><span>{String(selectedIndex + 1).padStart(2, '0')}</span></div>
+          {selectedFrame && (
+            <fieldset disabled={busy} className="vc-inspector-fields">
+              <Field label="使用素材"><SelectInput aria-label="使用素材" value={selectedFrame.material_id} onChange={(event) => updateFrame(selectedIndex, { material_id: event.target.value })}>
+                <option value="">不使用素材</option>
+                {draft.materials.map((item) => <option key={item.id} value={item.id}>{item.description || item.filename || item.id}</option>)}
+              </SelectInput></Field>
+              <Field label="字幕"><TextInput aria-label="字幕" value={selectedFrame.subtitle_text} maxLength={200} placeholder="该镜头不显示字幕" onChange={(event) => updateFrame(selectedIndex, { subtitle_text: event.target.value })} /></Field>
+              <Field label="时长（秒）"><TextInput aria-label="时长（秒）" type="number" min="0.2" max="30" step="0.1" value={selectedFrame.duration} onChange={(event) => updateFrame(selectedIndex, { duration: event.target.value })} /></Field>
+              <Field label="转场"><SelectInput aria-label="转场" value={selectedFrame.transition} onChange={(event) => updateFrame(selectedIndex, { transition: event.target.value })}>
+                {!TRANSITIONS.some(([value]) => value === selectedFrame.transition) && <option value={selectedFrame.transition}>{selectedFrame.transition}</option>}
+                {TRANSITIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </SelectInput></Field>
+              {selectedFrame.render_component && selectedFrame.render_component !== 'auto' && (
+                <div className="vc-shot-effect"><Badge color="purple">高级动效</Badge><span>{selectedFrame.render_component.replace(/^custom:/, '')}</span></div>
+              )}
+              <div className="vc-shot-actions">
+                <Button variant="secondary" size="sm" icon={ArrowUp} disabled={selectedIndex === 0} aria-label="上移分镜" onClick={() => moveFrame(selectedIndex, -1)}>上移</Button>
+                <Button variant="secondary" size="sm" icon={ArrowDown} disabled={selectedIndex === frames.length - 1} aria-label="下移分镜" onClick={() => moveFrame(selectedIndex, 1)}>下移</Button>
+                <Button variant="danger" size="sm" icon={Trash2} disabled={frames.length <= 1} aria-label="删除分镜" onClick={() => removeFrame(selectedIndex)}>删除</Button>
+              </div>
+            </fieldset>
+          )}
+        </aside>
       </div>
 
-      <div className="space-y-3 p-5">
-        {frames.map((frame, index) => {
-          const material = materialMap.get(frame.material_id)
-          return (
-            <div
-              key={frame.draft_id}
-              className="grid gap-4 rounded-xl border border-[#2a2a42] bg-[#101019] p-3 lg:grid-cols-[112px_minmax(0,1fr)_180px_80px]"
-            >
-              <div className="relative h-28 overflow-hidden rounded-lg bg-[#1c1c2b]">
-                {material ? (
-                  <img
-                    src={mediaUrl(material.preview_url)}
-                    alt={material.filename}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-[#5a5a7a]">
-                    <ImageIcon size={24} />
-                  </div>
-                )}
-                <span className="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-              </div>
-
-              <div className="min-w-0 space-y-3">
-                <Field label="使用素材">
-                  <SelectInput
-                    value={frame.material_id}
-                    onChange={(event) => updateFrame(index, { material_id: event.target.value })}
-                  >
-                    <option value="">不使用图片素材</option>
-                    {draft.materials.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.description || item.filename || item.id}
-                      </option>
-                    ))}
-                  </SelectInput>
-                </Field>
-                <Field label="字幕">
-                  <TextInput
-                    value={frame.subtitle_text}
-                    maxLength={200}
-                    placeholder="该镜头不显示字幕"
-                    onChange={(event) => updateFrame(index, { subtitle_text: event.target.value })}
-                  />
-                </Field>
-                {frame.render_component && frame.render_component !== 'auto' && (
-                  <div className="flex items-center gap-2 text-xs text-[#8888a8]">
-                    <Badge color="violet">高级动效</Badge>
-                    <span>{frame.render_component.replace(/^custom:/, '')}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Field label="时长（秒）">
-                  <TextInput
-                    type="number"
-                    min="0.2"
-                    max="30"
-                    step="0.1"
-                    value={frame.duration}
-                    onChange={(event) => updateFrame(index, { duration: event.target.value })}
-                  />
-                </Field>
-                <Field label="转场">
-                  <SelectInput
-                    value={frame.transition}
-                    onChange={(event) => updateFrame(index, { transition: event.target.value })}
-                  >
-                    {TRANSITIONS.map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </SelectInput>
-                </Field>
-              </div>
-
-              <div className="flex items-center justify-end gap-1 lg:flex-col lg:justify-start">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={ArrowUp}
-                  disabled={index === 0}
-                  title="上移"
-                  onClick={() => moveFrame(index, -1)}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={ArrowDown}
-                  disabled={index === frames.length - 1}
-                  title="下移"
-                  onClick={() => moveFrame(index, 1)}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  icon={Trash2}
-                  disabled={frames.length <= 1}
-                  title="删除分镜"
-                  onClick={() => removeFrame(index)}
-                />
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#2a2a42] bg-[#101019] px-5 py-4">
-        <div>
-          {error && <InfoBar type="error">{error}</InfoBar>}
-          {!error && message && <span className="text-sm text-[#6ee7b7]">{message}</span>}
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" icon={Save} loading={saving} disabled={confirming} onClick={save}>
-            保存草案
-          </Button>
-          <Button icon={CheckCircle2} loading={confirming} disabled={saving} onClick={confirm}>
-            确认并开始渲染
-          </Button>
+      <div className="vc-studio-footer">
+        <Field label="作品标题" className="vc-studio-title-field"><TextInput aria-label="作品标题" disabled={busy} value={title} maxLength={120} onChange={(event) => { setTitle(event.target.value); setMessage('') }} /></Field>
+        <div className="vc-studio-save-actions">
+          <Button variant="secondary" icon={Save} loading={saving} disabled={confirming || !frames.length} onClick={save}>保存草案</Button>
+          <Button icon={CheckCircle2} loading={confirming} disabled={saving || !frames.length} onClick={confirm}>确认并开始渲染</Button>
         </div>
       </div>
+      {(error || message) && <div className="vc-studio-feedback" role="status"><InfoBar type={error ? 'error' : 'success'}>{error || message}</InfoBar></div>}
     </Card>
   )
 }

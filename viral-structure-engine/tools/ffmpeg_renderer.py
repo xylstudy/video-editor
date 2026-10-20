@@ -57,6 +57,7 @@ class FFMpegRenderer:
         "wipe_right": "wiperight",
         "wipe_up": "wipeup",
         "wipe_down": "wipedown",
+        "slice_wipe": "wiperight",
         "whip": "fade",
         "glitch": "fade",
         # xfade has no "zoompan" transition. Use a widely supported fade;

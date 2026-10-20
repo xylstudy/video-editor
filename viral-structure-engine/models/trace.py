@@ -10,8 +10,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 # ===== Prompt 版本号 =====
-ANALYST_PROMPT_VERSION = "analyst_prompts_v2_multiframe"
-STRUCTURE_PROMPT_VERSION = "structure_analysis_prompts_v1"
+ANALYST_PROMPT_VERSION = "analyst_prompts_v3_effect_events"
+STRUCTURE_PROMPT_VERSION = "structure_analysis_prompts_v2_effect_tracks"
 KNOWLEDGE_EXTRACT_PROMPT_VERSION = "knowledge_extract_v1"
 
 # structure_input_summary 落盘时的单字段长度上限（完整数据已在分析结果 JSON 中）

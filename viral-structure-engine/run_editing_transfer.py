@@ -16,6 +16,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
+from config import settings
 from config.output_manager import OutputManager
 from tools.video_tools import VideoTools, _find_ffmpeg
 
@@ -111,7 +112,9 @@ def extract_editing_pattern(
     structure_path = Path(structure_analysis_path) if structure_analysis_path else None
     if not shot_path or not structure_path or not shot_path.is_file() or not structure_path.is_file():
         logger.info("未提供可复用分析报告，使用场景切分与节拍生成剪辑结构")
-        scenes = VideoTools().detect_scene_changes(viral_video_path, threshold=25.0)
+        scenes = VideoTools().detect_scene_changes(
+            viral_video_path, threshold=settings.SCENE_CHANGE_THRESHOLD
+        )
         return build_rule_based_acts(scenes, bpm, beat_times)
 
     shot_analyses = json.loads(shot_path.read_text(encoding="utf-8"))
@@ -120,7 +123,9 @@ def extract_editing_pattern(
     beats_raw = structure.get("script_structure", [])
     if not beats_raw:
         logger.info("分析报告未包含可用段落，回退到本地场景切分")
-        scenes = VideoTools().detect_scene_changes(viral_video_path, threshold=25.0)
+        scenes = VideoTools().detect_scene_changes(
+            viral_video_path, threshold=settings.SCENE_CHANGE_THRESHOLD
+        )
         return build_rule_based_acts(scenes, bpm, beat_times)
     beat_interval = 60.0 / bpm if bpm and bpm > 0 else 0.5
 
@@ -702,6 +707,21 @@ def main():
             "style": "原爆款视频BGM",
             "audio_path": "_viral_audio",
             "role": "background",
+            "volume": 0.3,
+            "loop": True,
+        },
+        "audio_source_id": Path(args.viral_video).stem,
+        "audio_config": {
+            "source": "reference",
+            "volume": 0.3,
+            "loop": True,
+            "trim_before": 0,
+            "trim_after": None,
+            "fade_frames": 15,
+            "original_audio_mode": "mute",
+            "normalize": True,
+            "target_lufs": -14.0,
+            "true_peak": -1.0,
         },
         "packaging": {
             "subtitle_style": {

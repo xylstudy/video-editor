@@ -1960,5 +1960,1834 @@
       "prompt_version": "local-knowledge-v1",
       "model": "local-rule-engine"
     }
+  },
+  {
+    "id": "k_u3_af57aa8e",
+    "type": "structure_template",
+    "title": "节奏卡点型结构模板",
+    "content": "采用节奏卡点型组织内容，以timeline推进；保持开场、展开、高潮与收束的清晰职责。",
+    "structured_data": {
+      "structure_type": "节奏卡点型",
+      "narrative_type": "timeline",
+      "script_structure": [
+        {
+          "index": 0,
+          "purpose": "hook",
+          "shot_range": "镜头1-4",
+          "content_summary": "日落、彩丘和太阳星芒连续建立视觉冲击",
+          "duration_hint": 7.6,
+          "emotion": "震撼",
+          "rhythm": "快"
+        },
+        {
+          "index": 1,
+          "purpose": "场景铺展",
+          "shot_range": "镜头5-9",
+          "content_summary": "云下山谷、农田、花朵、岩层和银河扩展自然尺度",
+          "duration_hint": 5.8,
+          "emotion": "梦幻",
+          "rhythm": "快"
+        },
+        {
+          "index": 2,
+          "purpose": "人设展示",
+          "shot_range": "镜头10-16",
+          "content_summary": "游客进入彩丘并通过自拍、微笑和拍摄建立体验感",
+          "duration_hint": 9.6,
+          "emotion": "探索",
+          "rhythm": "中快"
+        },
+        {
+          "index": 3,
+          "purpose": "情绪递进",
+          "shot_range": "镜头17-23",
+          "content_summary": "云海、羊驼、火烈鸟与人物感受把自然体验推向高潮",
+          "duration_hint": 6.8,
+          "emotion": "自由",
+          "rhythm": "快"
+        },
+        {
+          "index": 4,
+          "purpose": "场景转折",
+          "shot_range": "镜头24-30",
+          "content_summary": "湖区休闲活动由白天过渡到城市黄昏",
+          "duration_hint": 8.9,
+          "emotion": "欢乐",
+          "rhythm": "中快"
+        },
+        {
+          "index": 5,
+          "purpose": "高潮爆发与收尾",
+          "shot_range": "镜头31-35",
+          "content_summary": "DJ、鸡尾酒、现场音乐与美食构成夜生活高潮，以吉他定格收束",
+          "duration_hint": 4.9,
+          "emotion": "热烈",
+          "rhythm": "快"
+        }
+      ]
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "structure"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要复刻参考片段的叙事推进方式时。",
+    "confidence": 0.85,
+    "source_summary": "来源：参考视频《ref_02.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 2,
+      "source_gene_title": "自然风光情绪递进参考（ref_02）",
+      "source_video": "ref_02.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T14:52:35.373260",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_677f15c0",
+    "type": "hook_technique",
+    "title": "视觉冲击 Hook",
+    "content": "开场使用“视觉冲击”快速建立注意力。前3秒用盐碱地日落人物剪影与高饱和晚霞连续切换，先给结果级奇观",
+    "structured_data": {
+      "method": "视觉冲击",
+      "detail": "前3秒用盐碱地日落人物剪影与高饱和晚霞连续切换，先给结果级奇观",
+      "effectiveness": "题材、尺度和色彩在两镜内建立，抓取注意力有效",
+      "connection_to_body": "从日落自然过渡到彩丘、人物体验、湖区和夜生活"
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "hook",
+      "opening"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要提升前三秒停留率时。",
+    "confidence": 0.82,
+    "source_summary": "来源：参考视频《ref_02.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 2,
+      "source_gene_title": "自然风光情绪递进参考（ref_02）",
+      "source_video": "ref_02.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T14:52:35.373260",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_f8272c3e",
+    "type": "rhythm_pattern",
+    "title": "节奏卡点型节奏模式",
+    "content": "沿用参考片段镜头时长与段落密度的变化关系：开场快速建立信息，中段递进展开，高潮后留下收束空间。",
+    "structured_data": {
+      "shot_count": 35,
+      "duration": 45.0,
+      "rhythm_analysis": {
+        "curve_points": [
+          {
+            "time": 0.0,
+            "intensity": 0.9,
+            "note": "视觉冲击开场"
+          },
+          {
+            "time": 9.0,
+            "intensity": 0.75,
+            "note": "自然奇观快速铺展"
+          },
+          {
+            "time": 17.0,
+            "intensity": 0.82,
+            "note": "人物体验介入"
+          },
+          {
+            "time": 27.0,
+            "intensity": 0.72,
+            "note": "湖区活动放松"
+          },
+          {
+            "time": 38.5,
+            "intensity": 1.0,
+            "note": "夜生活高潮"
+          },
+          {
+            "time": 45.0,
+            "intensity": 0.65,
+            "note": "音乐意象定格"
+          }
+        ],
+        "pattern": "高密度卡点蒙太奇，以短镜头持续推进，湖区稍缓后在夜生活段再次加速",
+        "climax_position_percent": 86,
+        "front_3s_shot_count": 2,
+        "estimated_bpm_range": "110-130",
+        "bgm_style_guess": "电影感电子旅行音乐，后段转入现场节拍"
+      }
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "rhythm",
+      "shot duration"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "素材需要按照参考片段节拍和镜头密度重新编排时。",
+    "confidence": 0.8,
+    "source_summary": "来源：参考视频《ref_02.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 2,
+      "source_gene_title": "自然风光情绪递进参考（ref_02）",
+      "source_video": "ref_02.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T14:52:35.373260",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_1da176fd",
+    "type": "emotion_design",
+    "title": "惊叹—探索—松弛—热烈情绪弧线",
+    "content": "整体情绪以“惊叹—探索—松弛—热烈”为核心，镜头中的主要情绪依次围绕壮阔, 宁静, 震撼, 期待, 欢乐展开，并在高潮段集中强化。",
+    "structured_data": {
+      "overall_emotion": "惊叹—探索—松弛—热烈",
+      "emotion_distribution": {
+        "震撼": 2,
+        "壮阔": 3,
+        "惊艳": 1,
+        "神秘": 1,
+        "宁静": 3,
+        "治愈": 1,
+        "惊奇": 1,
+        "梦幻": 1,
+        "探索": 1,
+        "轻快": 1,
+        "期待": 2,
+        "愉悦": 1,
+        "希望": 1,
+        "自由": 1,
+        "纯净": 1,
+        "生机": 1,
+        "灵动": 1,
+        "欢乐": 2,
+        "放松": 1,
+        "清新": 1,
+        "松弛": 1,
+        "活力": 1,
+        "热闹": 1,
+        "兴奋": 1,
+        "精致": 1,
+        "热烈": 1,
+        "满足": 1,
+        "余韵": 1
+      },
+      "emotion_arc": []
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "emotion",
+      "惊叹—探索—松弛—热烈"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要让画面顺序形成明确情绪起伏时。",
+    "confidence": 0.78,
+    "source_summary": "来源：参考视频《ref_02.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 2,
+      "source_gene_title": "自然风光情绪递进参考（ref_02）",
+      "source_video": "ref_02.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T14:52:35.373260",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_eb6eea70",
+    "type": "packaging_style",
+    "title": "节奏卡点型包装组合",
+    "content": "将参考片的转场、字幕、构图和关键剪辑技法作为组合策略使用，让包装服务于段落功能，避免为动效而动效。",
+    "structured_data": {
+      "packaging_analysis": {
+        "subtitle_font_guess": "简洁无衬线体",
+        "subtitle_color_and_stroke": "底部黄色小字配轻微暗色描边",
+        "subtitle_position": "bottom",
+        "subtitle_animation": "fade_in",
+        "subtitle_density": "每个叙事段落一行短句",
+        "title_cards": [],
+        "transitions_used": [
+          {
+            "between": "绝大多数相邻镜头",
+            "type": "直接切换与音乐卡点"
+          }
+        ],
+        "color_grade": "cinematic",
+        "color_grade_detail": "白天强化大地红橙与湖水青绿，夜间强化蓝紫霓虹",
+        "stickers_effects": "无贴纸，以风光、字幕和节奏剪辑为主"
+      },
+      "key_techniques": [
+        "1秒级短镜头卡点：平均镜头约1.29秒",
+        "远景奇观与人物特写交替：在尺度和代入感之间切换",
+        "白天到夜晚的时间线转场：自然风光最终落到城市文化",
+        "暖色大地与冷色湖面、霓虹形成色彩对比",
+        "底部短字幕承担旁白式串联，不遮挡主体"
+      ]
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "packaging",
+      "transition"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "生成方案需要统一字幕、转场和视觉风格时。",
+    "confidence": 0.76,
+    "source_summary": "来源：参考视频《ref_02.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 2,
+      "source_gene_title": "自然风光情绪递进参考（ref_02）",
+      "source_video": "ref_02.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T14:52:35.373260",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_5947904e",
+    "type": "structure_template",
+    "title": "情绪递进型结构模板",
+    "content": "采用情绪递进型组织内容，以emotion推进；保持开场、展开、高潮与收束的清晰职责。",
+    "structured_data": {
+      "structure_type": "情绪递进型",
+      "narrative_type": "emotion",
+      "script_structure": [
+        {
+          "index": 0,
+          "purpose": "hook",
+          "shot_range": "镜头0",
+          "content_summary": "倾斜城市街景+双层巴士+音乐播放器UI叠加，无旁白",
+          "duration_hint": 3,
+          "emotion": "都市冷感",
+          "rhythm": "中"
+        },
+        {
+          "index": 1,
+          "purpose": "人设展示",
+          "shot_range": "镜头1 - 镜头2",
+          "content_summary": "「代替没留下的你陪自己」——POV冰饮特写+巴斯克芝士蛋糕暖调特写",
+          "duration_hint": 5,
+          "emotion": "治愈独白",
+          "rhythm": "慢"
+        },
+        {
+          "index": 2,
+          "purpose": "情绪递进",
+          "shot_range": "镜头3 - 镜头4",
+          "content_summary": "车内音乐歌词「说爱我的气息」→街头飘扬红旗空镜，从封闭空间过渡到开放空间",
+          "duration_hint": 3,
+          "emotion": "氛围升温",
+          "rhythm": "中"
+        },
+        {
+          "index": 3,
+          "purpose": "高潮爆发",
+          "shot_range": "镜头5",
+          "content_summary": "载旗摩托车骑行背影+抒情歌词，视觉冲击与情绪共鸣的双重高点",
+          "duration_hint": 1,
+          "emotion": "自由释放",
+          "rhythm": "快"
+        },
+        {
+          "index": 4,
+          "purpose": "价值输出/CTA互动",
+          "shot_range": "镜头6 - 镜头8",
+          "content_summary": "机场停机坪→飞机升空「偶尔想回味」→搜索框CTA「被你改变的那部分我」",
+          "duration_hint": 6,
+          "emotion": "余韵沉淀",
+          "rhythm": "慢"
+        }
+      ]
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "structure"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要复刻参考片段的叙事推进方式时。",
+    "confidence": 0.85,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T23:02:42.387769",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_7b157f08",
+    "type": "hook_technique",
+    "title": "视觉冲击+风格确立 Hook",
+    "content": "开场使用“视觉冲击+风格确立”快速建立注意力。首帧即采用非水平倾斜构图拍摄城市街景，叠加仿音乐App播放器UI界面，通过「胶片质感+都市元素+音乐符号」三位一体迅速建立独特的视觉识别度，让观众在3秒内感知到这是一条「有审美、有情绪」的优质Vlog",
+    "structured_data": {
+      "method": "视觉冲击+风格确立",
+      "detail": "首帧即采用非水平倾斜构图拍摄城市街景，叠加仿音乐App播放器UI界面，通过「胶片质感+都市元素+音乐符号」三位一体迅速建立独特的视觉识别度，让观众在3秒内感知到这是一条「有审美、有情绪」的优质Vlog",
+      "effectiveness": "极高——用强烈的风格化画面替代传统的人脸或悬念开场，精准筛选出对「氛围感内容」有偏好的目标受众",
+      "connection_to_body": "自然流畅——开篇确立的「都市孤独感」基调与后续POV独处、自我陪伴的内容主线高度一致"
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "hook",
+      "opening"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要提升前三秒停留率时。",
+    "confidence": 0.82,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T23:02:42.387769",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_509bb0b5",
+    "type": "rhythm_pattern",
+    "title": "情绪递进型节奏模式",
+    "content": "沿用参考片段镜头时长与段落密度的变化关系：开场快速建立信息，中段递进展开，高潮后留下收束空间。",
+    "structured_data": {
+      "shot_count": 9,
+      "duration": 17.466666666666665,
+      "rhythm_analysis": {
+        "curve_points": [
+          {
+            "time": 0.0,
+            "intensity": 0.6,
+            "note": "开篇建立视觉调性，倾斜构图+胶片滤镜抓住注意力"
+          },
+          {
+            "time": 3.0,
+            "intensity": 0.45,
+            "note": "切入POV内景，节奏放缓引导观众进入博主主观视角"
+          },
+          {
+            "time": 6.0,
+            "intensity": 0.5,
+            "note": "暖调美食特写带来温度感，维持舒缓治愈节奏"
+          },
+          {
+            "time": 8.0,
+            "intensity": 0.55,
+            "note": "车内歌词镜头增加叙事层次，情绪开始蓄力"
+          },
+          {
+            "time": 10.0,
+            "intensity": 0.85,
+            "note": "载旗骑行镜头为全片视觉高潮，色彩对比强烈"
+          },
+          {
+            "time": 11.0,
+            "intensity": 0.4,
+            "note": "机场静态画面，节奏骤降进入收尾阶段"
+          },
+          {
+            "time": 14.5,
+            "intensity": 0.35,
+            "note": "文字卡定格，情感落地并触发互动"
+          }
+        ],
+        "pattern": "平稳铺垫-缓慢蓄力-瞬间高潮-温柔收尾",
+        "climax_position_percent": 58,
+        "front_3s_shot_count": 1,
+        "estimated_bpm_range": "65-85",
+        "bgm_style_guess": "抒情流行/独立民谣，带有明显的人声哼唱或钢琴前奏，适合做情感类Vlog配乐"
+      }
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "rhythm",
+      "shot duration"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "素材需要按照参考片段节拍和镜头密度重新编排时。",
+    "confidence": 0.8,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T23:02:42.387769",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_77b837f5",
+    "type": "emotion_design",
+    "title": "治愈系伤感情绪弧线",
+    "content": "整体情绪以“治愈系伤感”为核心，镜头中的主要情绪依次围绕治愈, 都市感, 氛围, 平静展开，并在高潮段集中强化。",
+    "structured_data": {
+      "overall_emotion": "治愈系伤感",
+      "emotion_distribution": {
+        "都市感": 1,
+        "治愈": 6,
+        "氛围": 1,
+        "平静": 1
+      },
+      "emotion_arc": []
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "emotion",
+      "治愈系伤感"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要让画面顺序形成明确情绪起伏时。",
+    "confidence": 0.78,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-14T23:02:42.387769",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_7bac327d",
+    "type": "packaging_style",
+    "title": "城市漫游短片的界面化包装",
+    "content": "悬浮播放器 UI、节拍转场、冷暖交替调色与搜索引导卡共同构成包装；迁移时要保留它们的时间位置和跨镜头持续关系。",
+    "structured_data": {
+      "packaging_analysis": {
+        "title_card_style": "结构化抖音搜索引导收尾卡",
+        "title_cards": [
+          {
+            "start": 14.533,
+            "end": 17.467,
+            "type": "search_cta_card"
+          }
+        ],
+        "transitions_used": [
+          {
+            "time": 4.067,
+            "type": "glitch_reveal"
+          },
+          {
+            "time": 6.9,
+            "type": "slice_wipe"
+          },
+          {
+            "time": 7.867,
+            "type": "black_dip"
+          }
+        ],
+        "stickers_effects": "跨镜头悬浮音乐播放器 UI、RGB 故障噪点遮罩、竖向切片百叶窗",
+        "color_grade": "film_retro",
+        "color_grade_detail": "低饱和蓝灰户外与暖黄室内交替，高对比暗部并保留轻颗粒",
+        "visual_mood": "城市漫游、怀旧、节拍驱动"
+      },
+      "key_techniques": [
+        "POV第一人称视角：用手持杯、操作中控等主观镜头增强代入感，让观众「成为」博主",
+        "音乐UI可视化叠加：将听觉元素（BGM）转化为视觉元素（播放器界面），强化沉浸式体验",
+        "歌词即旁白：用车载屏幕歌词和手动添加的字幕歌词替代传统配音，实现「此时无声胜有声」",
+        "冷暖色调对比调度：室内暖光（美食/陪伴）vs室外冷光（街景/独行），用色彩心理学暗示情绪起伏",
+        "搜索框CTA收尾：用充满故事感的搜索关键词代替传统「关注点赞」口令，提升互动的文艺感和记忆点",
+        "去脸化人格塑造：全程无正脸出镜，通过手部动作、背影、物品选择来构建「独立清醒」的人设标签"
+      ],
+      "effect_tracks": [
+        {
+          "start": 0.0,
+          "end": 4.067,
+          "type": "floating_music_ui",
+          "component": "floating_music_ui",
+          "priority": "critical",
+          "persistence": "cross_shot",
+          "parameters": {
+            "track_title": "正在播放 · 城市漫游",
+            "artist": "Ato Radio"
+          }
+        },
+        {
+          "start": 4.067,
+          "end": 4.34,
+          "type": "glitch_reveal",
+          "priority": "critical",
+          "parameters": {
+            "blocks": 5,
+            "rgb_split": true
+          }
+        },
+        {
+          "start": 6.77,
+          "end": 6.97,
+          "type": "slice_wipe",
+          "priority": "critical",
+          "parameters": {
+            "slices": 6,
+            "alternating": true
+          }
+        },
+        {
+          "start": 7.83,
+          "end": 8.01,
+          "type": "black_dip",
+          "priority": "high",
+          "parameters": {
+            "frames": 5
+          }
+        },
+        {
+          "start": 12.0,
+          "end": 14.533,
+          "type": "foreground_silhouette",
+          "priority": "high",
+          "parameters": {
+            "motif": "bird_over_aircraft"
+          }
+        },
+        {
+          "start": 14.533,
+          "end": 17.467,
+          "type": "search_cta_card",
+          "component": "search_cta_card",
+          "priority": "critical",
+          "parameters": {
+            "platform": "抖音",
+            "query": "继续探索下一段旅程"
+          }
+        }
+      ],
+      "reference_cut_points": [
+        3.033,
+        4.333,
+        5.233,
+        5.933,
+        6.9,
+        7.867,
+        8.867,
+        10.067,
+        10.867,
+        12.0,
+        14.533
+      ],
+      "source_aspect_ratio": "3:4"
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "packaging",
+      "transition"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "生成方案需要统一字幕、转场和视觉风格时。",
+    "confidence": 0.96,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-15T00:00:00",
+      "prompt_version": "local-effect-contract-v1",
+      "model": "local-manual-analysis"
+    }
+  },
+  {
+    "id": "k_u3_8f2d_effect_contract",
+    "type": "packaging_style",
+    "title": "节拍型城市短片的跨镜头特效契约",
+    "content": "将悬浮音乐播放器作为跨镜头 UI 保留；在节拍点迁移 RGB 故障揭示、竖向切片转场和短黑场；结尾使用结构化搜索引导卡。特效必须进入可渲染字段，不能只写进文字说明。",
+    "structured_data": {
+      "source_aspect_ratio": "3:4",
+      "reference_cut_points": [
+        3.033,
+        4.333,
+        5.233,
+        5.933,
+        6.9,
+        7.867,
+        8.867,
+        10.067,
+        10.867,
+        12.0,
+        14.533
+      ],
+      "effect_tracks": [
+        {
+          "start": 0.0,
+          "end": 4.067,
+          "type": "floating_music_ui",
+          "component": "floating_music_ui",
+          "priority": "critical",
+          "persistence": "cross_shot",
+          "parameters": {
+            "track_title": "正在播放 · 城市漫游",
+            "artist": "Ato Radio"
+          }
+        },
+        {
+          "start": 4.067,
+          "end": 4.34,
+          "type": "glitch_reveal",
+          "priority": "critical",
+          "parameters": {
+            "blocks": 5,
+            "rgb_split": true
+          }
+        },
+        {
+          "start": 6.77,
+          "end": 6.97,
+          "type": "slice_wipe",
+          "priority": "critical",
+          "parameters": {
+            "slices": 6,
+            "alternating": true
+          }
+        },
+        {
+          "start": 7.83,
+          "end": 8.01,
+          "type": "black_dip",
+          "priority": "high",
+          "parameters": {
+            "frames": 5
+          }
+        },
+        {
+          "start": 12.0,
+          "end": 14.533,
+          "type": "foreground_silhouette",
+          "priority": "high",
+          "parameters": {
+            "motif": "bird_over_aircraft"
+          }
+        },
+        {
+          "start": 14.533,
+          "end": 17.467,
+          "type": "search_cta_card",
+          "component": "search_cta_card",
+          "priority": "critical",
+          "parameters": {
+            "platform": "抖音",
+            "query": "继续探索下一段旅程"
+          }
+        }
+      ],
+      "packaging_signature": {
+        "title_card_style": "结构化抖音搜索引导收尾卡",
+        "title_cards": [
+          {
+            "start": 14.533,
+            "end": 17.467,
+            "type": "search_cta_card"
+          }
+        ],
+        "transitions_used": [
+          {
+            "time": 4.067,
+            "type": "glitch_reveal"
+          },
+          {
+            "time": 6.9,
+            "type": "slice_wipe"
+          },
+          {
+            "time": 7.867,
+            "type": "black_dip"
+          }
+        ],
+        "stickers_effects": "跨镜头悬浮音乐播放器 UI、RGB 故障噪点遮罩、竖向切片百叶窗",
+        "color_grade": "film_retro",
+        "color_grade_detail": "低饱和蓝灰户外与暖黄室内交替，高对比暗部并保留轻颗粒",
+        "visual_mood": "城市漫游、怀旧、节拍驱动"
+      },
+      "transfer_rules": [
+        "按目标时长等比例缩放绝对时间轴",
+        "critical/high 特效必须落到 effect_tracks、transition_in 或 render_component",
+        "跨镜头 UI 放在全局轨道，避免每个分镜重新入场",
+        "3:4 参考片默认使用 1080x1440 画布"
+      ]
+    },
+    "tags": [
+      "vlog",
+      "city",
+      "packaging",
+      "effect_tracks",
+      "beat_sync",
+      "slice_wipe",
+      "glitch_reveal"
+    ],
+    "applicable_vlog_types": [
+      "travel",
+      "city",
+      "cinematic"
+    ],
+    "best_when": "参考片依赖 UI 合成、故障遮罩、切片转场和 CTA 收尾形成辨识度时",
+    "confidence": 0.96,
+    "source_summary": "来源：对参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的本地逐帧与音频分析",
+    "derivation": {
+      "source_gene_id": 3,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-15T00:00:00",
+      "prompt_version": "local-effect-contract-v1",
+      "model": "local-manual-analysis"
+    }
+  },
+  {
+    "id": "k_u3_3bb0937b",
+    "type": "structure_template",
+    "title": "情绪递进型结构模板",
+    "content": "采用情绪递进型组织内容，以emotion推进；保持开场、展开、高潮与收束的清晰职责。",
+    "structured_data": {
+      "structure_type": "情绪递进型",
+      "narrative_type": "emotion",
+      "script_structure": [
+        {
+          "index": 0,
+          "purpose": "hook",
+          "shot_range": "镜头0 - 镜头1",
+          "content_summary": "港风街景双层巴士 + 音乐播放器UI展示（歌名：若爱是遗憾 长大才合理），建立文艺都市漫游基调",
+          "duration_hint": 3,
+          "emotion": "期待",
+          "rhythm": "中"
+        },
+        {
+          "index": 1,
+          "purpose": "人设展示",
+          "shot_range": "镜头2 - 镜头5",
+          "content_summary": "居家猫咪空镜 → POV手持冰饮特写 → 美食蛋糕特写，配合金句文案'代替没留下的你陪自己'，建立独立治愈系人设",
+          "duration_hint": 5,
+          "emotion": "治愈",
+          "rhythm": "慢"
+        },
+        {
+          "index": 2,
+          "purpose": "情绪递进",
+          "shot_range": "镜头6 - 镜头7",
+          "content_summary": "车内音乐屏特写（歌词：你的发香 说爱我的气息）→ 阴天国旗与老楼空镜，情绪从自我疗愈转向深层感伤",
+          "duration_hint": 3,
+          "emotion": "忧郁",
+          "rhythm": "中"
+        },
+        {
+          "index": 3,
+          "purpose": "高潮爆发",
+          "shot_range": "镜头8",
+          "content_summary": "灰暗桥梁上骑插旗摩托车的孤独背影，视觉冲击力强，将孤独感推向宏大深沉的情绪顶点",
+          "duration_hint": 1,
+          "emotion": "深沉",
+          "rhythm": "快"
+        },
+        {
+          "index": 4,
+          "purpose": "价值输出",
+          "shot_range": "镜头9 - 镜头10",
+          "content_summary": "机场飞机静态空镜 + 飞机与飞鸟同向飞行，配合'偶尔想回味'文案，完成情绪收束与主题升华",
+          "duration_hint": 3.5,
+          "emotion": "平静",
+          "rhythm": "慢"
+        },
+        {
+          "index": 5,
+          "purpose": "CTA互动",
+          "shot_range": "镜头11",
+          "content_summary": "模拟抖音搜索界面文字卡，核心金句'被你改变的那部分我'引导用户搜索互动",
+          "duration_hint": 3,
+          "emotion": "治愈",
+          "rhythm": "静止"
+        }
+      ]
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "structure"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要复刻参考片段的叙事推进方式时。",
+    "confidence": 0.85,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 4,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T09:35:43.040420",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_fa5d64ba",
+    "type": "hook_technique",
+    "title": "视觉冲击+情绪定调 Hook",
+    "content": "开场使用“视觉冲击+情绪定调”快速建立注意力。首帧即用高地域辨识度的香港双层巴士动态镜头配合音乐播放器UI叠加，在1.5秒内同时完成'地点标签''审美品味''情绪基调'三重信息传递，利用港风滤镜和胶片颗粒感制造高级感吸引力",
+    "structured_data": {
+      "method": "视觉冲击+情绪定调",
+      "detail": "首帧即用高地域辨识度的香港双层巴士动态镜头配合音乐播放器UI叠加，在1.5秒内同时完成'地点标签''审美品味''情绪基调'三重信息传递，利用港风滤镜和胶片颗粒感制造高级感吸引力",
+      "effectiveness": "高效建立文艺都市Vlog的独特视觉识别度，精准筛选目标受众（喜欢港风/治愈系/情绪化内容的年轻女性群体）",
+      "connection_to_body": "衔接自然，开篇的'城市漫游'气质通过音乐UI这一视觉符号无缝过渡到后续的'居家独处'场景，保持统一的文艺叙事主线"
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "hook",
+      "opening"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要提升前三秒停留率时。",
+    "confidence": 0.82,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 4,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T09:35:43.040420",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_e7102c22",
+    "type": "rhythm_pattern",
+    "title": "情绪递进型节奏模式",
+    "content": "沿用参考片段镜头时长与段落密度的变化关系：开场快速建立信息，中段递进展开，高潮后留下收束空间。",
+    "structured_data": {
+      "shot_count": 12,
+      "duration": 17.466666666666665,
+      "rhythm_analysis": {
+        "curve_points": [
+          {
+            "time": 0.0,
+            "intensity": 0.6,
+            "note": "开篇Hook：高辨识度地标+音乐UI快速抓取注意力"
+          },
+          {
+            "time": 3.0,
+            "intensity": 0.4,
+            "note": "转入居家场景：节奏放缓，建立治愈氛围"
+          },
+          {
+            "time": 5.5,
+            "intensity": 0.55,
+            "note": "金句出现：POV冰饮+扎心文案形成第一个小情绪波峰"
+          },
+          {
+            "time": 8.0,
+            "intensity": 0.5,
+            "note": "情绪转折：从视觉享受转向听觉情感共鸣"
+          },
+          {
+            "time": 10.5,
+            "intensity": 0.9,
+            "note": "情绪高潮：红旗孤影意象形成最强视觉冲击"
+          },
+          {
+            "time": 12.0,
+            "intensity": 0.3,
+            "note": "情绪回落：飞机空镜提供宁静落点"
+          },
+          {
+            "time": 15.0,
+            "intensity": 0.2,
+            "note": "结尾定格：搜索界面完成互动引导"
+          }
+        ],
+        "pattern": "中-慢-快爆发-慢收束",
+        "climax_position_percent": 58,
+        "front_3s_shot_count": 2,
+        "estimated_bpm_range": "65-85",
+        "bgm_style_guess": "抒情流行/伤感慢歌，带有明显的副歌记忆点，适合卡点剪辑"
+      }
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "rhythm",
+      "shot duration"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "素材需要按照参考片段节拍和镜头密度重新编排时。",
+    "confidence": 0.8,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 4,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T09:35:43.040420",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_acdee32b",
+    "type": "emotion_design",
+    "title": "治愈情绪弧线",
+    "content": "整体情绪以“治愈”为核心，镜头中的主要情绪依次围绕治愈, 平静, 期待, 怀旧, 感伤展开，并在高潮段集中强化。",
+    "structured_data": {
+      "overall_emotion": "治愈",
+      "emotion_distribution": {
+        "期待": 1,
+        "怀旧": 1,
+        "治愈": 5,
+        "感伤": 1,
+        "忧郁": 1,
+        "深沉": 1,
+        "平静": 2
+      },
+      "emotion_arc": []
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "emotion",
+      "治愈"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要让画面顺序形成明确情绪起伏时。",
+    "confidence": 0.78,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 4,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T09:35:43.040420",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_e1b4b90d",
+    "type": "packaging_style",
+    "title": "情绪递进型包装组合",
+    "content": "将参考片的转场、字幕、构图和关键剪辑技法作为组合策略使用，让包装服务于段落功能，避免为动效而动效。",
+    "structured_data": {
+      "packaging_analysis": {
+        "subtitle_font_guess": "细黑体/文艺宋体类",
+        "subtitle_color_and_stroke": "白色或浅灰色主字，部分带轻微黑色描边或阴影增强可读性",
+        "subtitle_position": "画面中央偏下或随UI组件位置变化",
+        "subtitle_animation": "fade_in/slide_in",
+        "subtitle_density": "每秒大约4-8字",
+        "title_cards": [
+          {
+            "position_in_timeline": "约14.5秒处",
+            "content": "被你改变的那部分我",
+            "style": "模拟抖音搜索界面，居中对称排版，冷色调数字背光质感"
+          }
+        ],
+        "transitions_used": [
+          {
+            "between": "镜头0到镜头1",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头1到镜头2",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头7到镜头8",
+            "type": "硬切（情绪跳切）"
+          },
+          {
+            "between": "镜头10到镜头11",
+            "type": "硬切转文字卡"
+          }
+        ],
+        "color_grade": "film_retro",
+        "color_grade_detail": "整体采用港风胶片调色，低饱和度偏冷色调，暗部略带青蓝色，高光偏暖黄，有明显颗粒噪点，局部镜头（如美食）使用暖色聚焦光营造私密感",
+        "stickers_effects": "音乐播放器UI叠加层（贯穿前半段）、抖音账号水印、作者签名水印'ato'"
+      },
+      "key_techniques": [
+        "音乐UI情绪外化：将抽象的BGM情感转化为可视化的播放器界面，成为贯穿前半段的视觉锚点和人设表达工具",
+        "POV沉浸式叙事：使用第一人称手持视角拍摄冰饮等日常物品，消除创作者与观众的距离感，增强代入体验",
+        "空镜隐喻系统：用国旗+孤影、飞机+飞鸟等具有象征意义的空镜替代直白的人物表演，以视觉诗意承载深层情感",
+        "金句文案卡点：关键情感节点（如冰饮、美食镜头）精准匹配扎心文案，将普通生活场景升华为情感表达载体",
+        "胶片质感统一：全片一致的颗粒感/低饱和/暗角处理，构建独特的视觉美学壁垒和品牌识别度",
+        "搜索界面CTA收尾：用模拟搜索界面的形式呈现核心金句，兼具情感闭环与算法互动双重功能"
+      ]
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "packaging",
+      "transition"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "生成方案需要统一字幕、转场和视觉风格时。",
+    "confidence": 0.76,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 4,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T09:35:43.040420",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_c780f42f",
+    "type": "structure_template",
+    "title": "情绪递进型结构模板",
+    "content": "采用情绪递进型组织内容，以emotion推进；保持开场、展开、高潮与收束的清晰职责。",
+    "structured_data": {
+      "structure_type": "情绪递进型",
+      "narrative_type": "emotion",
+      "script_structure": [
+        {
+          "index": 0,
+          "purpose": "hook",
+          "shot_range": "镜头0 - 镜头1",
+          "content_summary": "无旁白。用红色双层巴士、雾中密集高楼两组香港符号快速做到“地点识别”，同时叠加iOS音乐播放器与勿扰模式浮层，把观众直接拉进“一个人戴着耳机看城市”的第一视角。",
+          "duration_hint": 3.0,
+          "emotion": "期待",
+          "rhythm": "中"
+        },
+        {
+          "index": 1,
+          "purpose": "场景铺展",
+          "shot_range": "镜头2 - 镜头5",
+          "content_summary": "无旁白，靠歌词字幕代为说话：碎花桌上的猫、暗光中加冰的酒杯、俯拍晃动的烈酒、便利店芝士蛋糕与“出口”标识，四组碎片日常共同体现“独处、微醺、有点失落的城市夜晚”。",
+          "duration_hint": 4.8,
+          "emotion": "慵懒",
+          "rhythm": "慢"
+        },
+        {
+          "index": 2,
+          "purpose": "情绪递进",
+          "shot_range": "镜头6 - 镜头8",
+          "content_summary": "车内方向盘的冷光配上《你的发香》车载歌词，再接旧楼前飘扬的红旗、载着两面红旗骑行的背影，歌词“说爱我的气息”串起从私密车内空间到城市空旷街景的情绪延伸。",
+          "duration_hint": 3.0,
+          "emotion": "忧郁",
+          "rhythm": "中"
+        },
+        {
+          "index": 3,
+          "purpose": "高潮爆发",
+          "shot_range": "镜头9 - 镜头10",
+          "content_summary": "停机坪与即将起飞的客机把“离开”具象化，随后老鹰掠过爬升客机的罕见同框，是配着“我偶尔想回味”这句歌词的全片情绪与视觉双高潮，怅然感在此达到最高点。",
+          "duration_hint": 3.7,
+          "emotion": "怀旧",
+          "rhythm": "快"
+        },
+        {
+          "index": 4,
+          "purpose": "CTA互动",
+          "shot_range": "镜头11 - 镜头11",
+          "content_summary": "纯界面卡：抖音搜索页加搜索框关键词“被你改变的那部分我”，把前面的怅然回味转成让观众主动去搜的好奇与行动。",
+          "duration_hint": 2.9,
+          "emotion": "好奇",
+          "rhythm": "慢"
+        }
+      ]
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "structure"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要复刻参考片段的叙事推进方式时。",
+    "confidence": 0.85,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 5,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T11:41:13.809573",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_0ed7a52d",
+    "type": "hook_technique",
+    "title": "视觉冲击 Hook",
+    "content": "开场使用“视觉冲击”快速建立注意力。第一个镜头直接把红色双层巴士塞在画面右侧三分处，配合密集高楼群和倾斜的黄色路面标线，用高辨识度的城市符号加倾斜构图制造画面张力；1.7秒后立刻切到雾中俯瞰的高楼，并叠出iOS控制中心与正在播放的歌词浮层，让观众在第一秒就知道“这是一个有音乐的、情绪化的城市漫游”",
+    "structured_data": {
+      "method": "视觉冲击",
+      "detail": "第一个镜头直接把红色双层巴士塞在画面右侧三分处，配合密集高楼群和倾斜的黄色路面标线，用高辨识度的城市符号加倾斜构图制造画面张力；1.7秒后立刻切到雾中俯瞰的高楼，并叠出iOS控制中心与正在播放的歌词浮层，让观众在第一秒就知道“这是一个有音乐的、情绪化的城市漫游”",
+      "effectiveness": "靠“地域符号的快识别”和“音乐UI的沉浸感”一起抓住观众：不用旁白、不用露脸，也能在3秒内让观众接住地点和情绪，适合靠完播率吸引人的短视频开头",
+      "connection_to_body": "衔接自然：开篇的音乐播放器浮层在后文多个镜头里一直出现，车载歌词、搜索卡上的歌名都跟开篇的“听歌漫游”设定形成同一个线索，从城市到独处场景的过渡也顺"
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "hook",
+      "opening"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要提升前三秒停留率时。",
+    "confidence": 0.82,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 5,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T11:41:13.809573",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_ffe7bed0",
+    "type": "rhythm_pattern",
+    "title": "情绪递进型节奏模式",
+    "content": "沿用参考片段镜头时长与段落密度的变化关系：开场快速建立信息，中段递进展开，高潮后留下收束空间。",
+    "structured_data": {
+      "shot_count": 12,
+      "duration": 17.466666666666665,
+      "rhythm_analysis": {
+        "curve_points": [
+          {
+            "time": 0.0,
+            "intensity": 0.6,
+            "note": "开篇即放上双层巴士和摩天楼的强地域符号，用高信息密度的城市街景迅速抓住观众"
+          },
+          {
+            "time": 1.7,
+            "intensity": 0.4,
+            "note": "切到雾中俯瞰的高楼和音乐播放器浮层，节奏稍微放缓，情绪从“看见城市”转向“感受氛围”"
+          },
+          {
+            "time": 3.0,
+            "intensity": 0.33,
+            "note": "猫咪静卧的慢镜头是全片最安静的节奏点，用来让观众适应抒情基调"
+          },
+          {
+            "time": 4.0,
+            "intensity": 0.55,
+            "note": "酒杯特写和孤独歌词出现，手持晃动加上浅景深，情绪第一次刻意拉高"
+          },
+          {
+            "time": 5.9,
+            "intensity": 0.5,
+            "note": "俯拍晃动的烈酒接芝士蛋糕，镜头时长拉长到近2秒，制造一段黏稠的独处时间"
+          },
+          {
+            "time": 7.9,
+            "intensity": 0.45,
+            "note": "切到车内视角，车载屏幕歌词成为画面主体，节奏平稳但没有人物，靠字幕承载情绪"
+          },
+          {
+            "time": 8.9,
+            "intensity": 0.55,
+            "note": "红旗飘动的短镜头作为纯转场，采用短切加同一元素的延续，让节奏略有起伏"
+          },
+          {
+            "time": 10.9,
+            "intensity": 0.62,
+            "note": "机场和客机把空间一下拉开，节奏开始爬升，暗示“离开”"
+          },
+          {
+            "time": 12.0,
+            "intensity": 0.92,
+            "note": "全片最强点：老鹰掠过爬升客机的偶然瞬间，加上2.5秒的长镜头和“我偶尔想回味”，情绪达到最高"
+          },
+          {
+            "time": 14.5,
+            "intensity": 0.45,
+            "note": "切到搜索引导卡，节奏快速回落收尾，把情绪导向行动"
+          }
+        ],
+        "pattern": "平稳-爆发",
+        "climax_position_percent": 76,
+        "front_3s_shot_count": 2,
+        "estimated_bpm_range": "70-90",
+        "bgm_style_guess": "慢板华语抒情流行或城市emo风，钢琴加弦乐铺底或民谣吉他扫弦，旋律线平缓、情绪偏伤感，单句歌词时长1-2.5秒，与切镜节奏几乎一拍一句地对应"
+      }
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "rhythm",
+      "shot duration"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "素材需要按照参考片段节拍和镜头密度重新编排时。",
+    "confidence": 0.8,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 5,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T11:41:13.809573",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_54a04bbc",
+    "type": "emotion_design",
+    "title": "怅然情绪弧线",
+    "content": "整体情绪以“怅然”为核心，镜头中的主要情绪依次围绕忧郁, 怀旧, 期待, 慵懒, 孤独展开，并在高潮段集中强化。",
+    "structured_data": {
+      "overall_emotion": "怅然",
+      "emotion_distribution": {
+        "期待": 1,
+        "忧郁": 6,
+        "慵懒": 1,
+        "孤独": 1,
+        "怀旧": 2,
+        "好奇": 1
+      },
+      "emotion_arc": []
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "emotion",
+      "怅然"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "需要让画面顺序形成明确情绪起伏时。",
+    "confidence": 0.78,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 5,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T11:41:13.809573",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_e45add17",
+    "type": "packaging_style",
+    "title": "情绪递进型包装组合",
+    "content": "将参考片的转场、字幕、构图和关键剪辑技法作为组合策略使用，让包装服务于段落功能，避免为动效而动效。",
+    "structured_data": {
+      "packaging_analysis": {
+        "subtitle_font_guess": "系统默认无衬线中文字体（类似苹方或思源黑体）的常规字重，偏细、不刻意设计",
+        "subtitle_color_and_stroke": "纯白色字体，没有明显描边，仅靠画面暗部或极轻的暗色投影保证可读性，整体很轻、不抢画面",
+        "subtitle_position": "bottom",
+        "subtitle_animation": "fade_in",
+        "subtitle_density": "每秒约2-3字",
+        "title_cards": [
+          {
+            "position_in_timeline": "14.5秒处",
+            "content": "大家都在抖音 / 搜索框「被你改变的那部分我」/ 截图保存到相册、抖音搜索页扫一扫",
+            "style": "深色背景加圆形抖音Logo的官方搜索引导卡，界面自发光、居中排版、纯UI质感，与前面的实拍画面形成明显的材质断裂"
+          }
+        ],
+        "transitions_used": [
+          {
+            "between": "镜头0到镜头1",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头1到镜头2",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头2到镜头3",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头3到镜头4",
+            "type": "硬切（同题近景递进）"
+          },
+          {
+            "between": "镜头4到镜头5",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头5到镜头6",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头6到镜头7",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头7到镜头8",
+            "type": "同元素匹配转场（红旗→两面红旗）"
+          },
+          {
+            "between": "镜头8到镜头9",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头9到镜头10",
+            "type": "硬切（机场地面→天空，空间跳跃）"
+          },
+          {
+            "between": "镜头10到镜头11",
+            "type": "硬切，实拍画面直接切入界面卡"
+          }
+        ],
+        "color_grade": "film_retro",
+        "color_grade_detail": "整体低饱和、偏青蓝的灰调滤镜，高光收得很紧、暗部略微发灰，部分镜头加柔化和雾感，颗粒感明显，呈现出阴天港片的胶片质感；只在酒杯和蛋糕这类室内镜头里，靠暖色人工光做局部对比",
+        "stickers_effects": "最突出的包装是贯穿全片的iOS音乐播放器、勿扰模式、歌词浮层（由屏幕录制叠加，并非普通贴纸），营造“一镜到底的手机视角”；另有抖音号水印和账号名，部分镜头加了肌理描边标签"
+      },
+      "key_techniques": [
+        "符号开篇法：第一帧就用红色双层巴士、密集高楼这类高辨识度地域符号，不用解释就能完成地点识别，并把观众的好奇留住",
+        "UI浮层叙事：把音乐播放器、勿扰模式、车载歌词当作画面元素直接叠在上层，用一种“手机屏幕录制”的视角制造沉浸感，同时为全片提供音乐线索",
+        "歌词代旁白：全片没有语音，用歌词字幕承担叙事和情绪表达，让信息落在“被改变的那部分我”“代替没留下的你陪自己”这类金句上",
+        "同元素匹配转场：旧楼前飘扬的红旗直接切到载着两面红旗的骑行者背影，用同一视觉元素完成从私密空间到城市开阔场景的跳跃",
+        "手持加浅景深的日记感：所有室内近景都用手持轻微晃动、浅景深虚化和噪点，弱化“作品感”，强化“随手记录”的真实与脆弱",
+        "情绪高点的长镜头：结尾处老鹰与客机同框是全片唯一的2.5秒长镜头，用时长和罕见画面双重加权，把情绪高点牢牢固定在这里"
+      ]
+    },
+    "tags": [
+      "vlog",
+      "情绪递进型",
+      "emotion",
+      "packaging",
+      "transition"
+    ],
+    "applicable_vlog_types": [
+      "emotion"
+    ],
+    "best_when": "生成方案需要统一字幕、转场和视觉风格时。",
+    "confidence": 0.76,
+    "source_summary": "来源：参考视频《8f2daa39f11c8136b5668566facd25d8.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 5,
+      "source_gene_title": "8f2daa39f11c8136b5668566facd25d8",
+      "source_video": "8f2daa39f11c8136b5668566facd25d8.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T11:41:13.809573",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_fedafba9",
+    "type": "structure_template",
+    "title": "节奏卡点型结构模板",
+    "content": "采用节奏卡点型组织内容，以timeline推进；保持开场、展开、高潮与收束的清晰职责。",
+    "structured_data": {
+      "structure_type": "节奏卡点型",
+      "narrative_type": "timeline",
+      "script_structure": [
+        {
+          "index": 0,
+          "purpose": "hook",
+          "shot_range": "镜头0 - 镜头1",
+          "content_summary": "无旁白。开场直接用弄堂街角一整墙红色毛绒装置的猎奇画面和画框装置定格，0.9秒完成抓眼和定场。",
+          "duration_hint": 1.9,
+          "emotion": "好奇",
+          "rhythm": "快"
+        },
+        {
+          "index": 1,
+          "purpose": "场景铺展",
+          "shot_range": "镜头2 - 镜头6",
+          "content_summary": "无旁白。车厘子竹筐、骑粉色单车的路人、街头花衬衫乐队、牵手情侣背影，四个市井空镜快速铺开老街区“文艺、烟火”的氛围底色。",
+          "duration_hint": 4.0,
+          "emotion": "活力",
+          "rhythm": "快"
+        },
+        {
+          "index": 2,
+          "purpose": "场景铺展",
+          "shot_range": "镜头7 - 镜头9",
+          "content_summary": "无旁白。切红苹果的手、店员倾倒红色果汁、街口“停”字牌，把街景收窄到“一杯现榨果汁”的具体生活细节，完成从环境到产品的软着陆。",
+          "duration_hint": 4.3,
+          "emotion": "治愈",
+          "rhythm": "中"
+        },
+        {
+          "index": 3,
+          "purpose": "情绪递进",
+          "shot_range": "镜头10 - 镜头14",
+          "content_summary": "无旁白。消防栓旁被加怒气贴纸的狗、手持果汁展示、撕纸描边瓶身特写，用两个小笑点和产品特写提升节奏趣味，并完成产品段落收尾。",
+          "duration_hint": 3.4,
+          "emotion": "幽默",
+          "rhythm": "快"
+        },
+        {
+          "index": 4,
+          "purpose": "场景铺展",
+          "shot_range": "镜头15 - 镜头18",
+          "content_summary": "无旁白。保时捷车尾空镜、全黑踏板黄线暗场、骑共享单车背影、街边看手机两人，用低信息量的暗场与运动模糊完成“出发去乐园”的场景切换。",
+          "duration_hint": 3.1,
+          "emotion": "期待",
+          "rhythm": "中"
+        },
+        {
+          "index": 5,
+          "purpose": "高潮爆发",
+          "shot_range": "镜头19 - 镜头23",
+          "content_summary": "无旁白。乐园卡通气球仰拍、木桌红果静物、蜘蛛侠玩具车、圣诞高飞挥手、苹果糖第一视角，密集输出游玩高光与情绪甜度，是全片情绪最高点。",
+          "duration_hint": 4.9,
+          "emotion": "欢乐",
+          "rhythm": "快"
+        },
+        {
+          "index": 6,
+          "purpose": "CTA互动",
+          "shot_range": "镜头24",
+          "content_summary": "无旁白。抖音搜索引导卡片，把观看行为导向站内搜索“卡点变速剪辑教程”，完成二次触达。",
+          "duration_hint": 2.9,
+          "emotion": "好奇",
+          "rhythm": "慢"
+        }
+      ]
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "structure"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要复刻参考片段的叙事推进方式时。",
+    "confidence": 0.85,
+    "source_summary": "来源：参考视频《7438bfb654d11319e6bc2c319357d565.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 6,
+      "source_gene_title": "7438bfb654d11319e6bc2c319357d565",
+      "source_video": "7438bfb654d11319e6bc2c319357d565.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T20:36:32.386388",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_01f892d2",
+    "type": "hook_technique",
+    "title": "视觉冲击 Hook",
+    "content": "开场使用“视觉冲击”快速建立注意力。首帧直接怼上一整面墙密集堆叠的红色毛绒圆球装置，构图居中、色彩高饱和、物体形态反常且带轻微诡异的密集感，0.9秒内制造“这是什么？这是哪儿？”的认知缺口；第二镜立刻用雕花画框内的红色环形装置做二次强化，把“奇趣老街”的调性一次性立住，同时靠街角门牌“201弄”和黄色雨棚交代真实地理感，兼顾猎奇与可信",
+    "structured_data": {
+      "method": "视觉冲击",
+      "detail": "首帧直接怼上一整面墙密集堆叠的红色毛绒圆球装置，构图居中、色彩高饱和、物体形态反常且带轻微诡异的密集感，0.9秒内制造“这是什么？这是哪儿？”的认知缺口；第二镜立刻用雕花画框内的红色环形装置做二次强化，把“奇趣老街”的调性一次性立住，同时靠街角门牌“201弄”和黄色雨棚交代真实地理感，兼顾猎奇与可信",
+      "effectiveness": "用低成本、高陌生感的街头装置替代人脸和语言，在前1秒就完成视觉截停，是典型的“场景即钩子”打法",
+      "connection_to_body": "衔接自然：装置艺术的老街正是后续车厘子摊、街头乐队、果汁摊的发生地，Hook既是钩子又是场景铺陈，不产生割裂"
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "hook",
+      "opening"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要提升前三秒停留率时。",
+    "confidence": 0.82,
+    "source_summary": "来源：参考视频《7438bfb654d11319e6bc2c319357d565.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 6,
+      "source_gene_title": "7438bfb654d11319e6bc2c319357d565",
+      "source_video": "7438bfb654d11319e6bc2c319357d565.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T20:36:32.386388",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_f83e4841",
+    "type": "rhythm_pattern",
+    "title": "节奏卡点型节奏模式",
+    "content": "沿用参考片段镜头时长与段落密度的变化关系：开场快速建立信息，中段递进展开，高潮后留下收束空间。",
+    "structured_data": {
+      "shot_count": 24,
+      "duration": 22.966666666666665,
+      "rhythm_analysis": {
+        "curve_points": [
+          {
+            "time": 0.0,
+            "intensity": 0.62,
+            "note": "开局即给满墙红色毛绒装置的猎奇画面，用非常规视觉0.9秒截停手指"
+          },
+          {
+            "time": 1.9,
+            "intensity": 0.5,
+            "note": "转入市井细节空镜，节奏略缓，给观众消化“这是什么地方”的时间"
+          },
+          {
+            "time": 5.0,
+            "intensity": 0.78,
+            "note": "花衬衫乐队+高饱和阳光，第一个小高峰，情绪从好奇转为活力"
+          },
+          {
+            "time": 7.0,
+            "intensity": 0.45,
+            "note": "切苹果/倒果汁的操作特写，节奏放慢，作为中段的喘息点"
+          },
+          {
+            "time": 9.3,
+            "intensity": 0.55,
+            "note": "重影“停”字牌做视觉停顿，段落间的换气镜头"
+          },
+          {
+            "time": 10.3,
+            "intensity": 0.72,
+            "note": "小狗怒气贴纸的笑点，制造情绪波峰与记忆点"
+          },
+          {
+            "time": 12.0,
+            "intensity": 0.5,
+            "note": "保时捷车尾高级感空镜+全黑暗场，压低亮度为后段爆发蓄力"
+          },
+          {
+            "time": 15.1,
+            "intensity": 0.82,
+            "note": "彩色卡通气球仰拍，正式进入乐园段，色彩与情绪同时拉满"
+          },
+          {
+            "time": 18.3,
+            "intensity": 1.0,
+            "note": "圣诞高飞夸张表情与挥手，全片情绪最高点"
+          },
+          {
+            "time": 20.0,
+            "intensity": 0.35,
+            "note": "搜索引导卡片收尾，节奏骤降，转为平静的信息输出"
+          }
+        ],
+        "pattern": "快-慢-快-慢-爆发",
+        "climax_position_percent": 79,
+        "front_3s_shot_count": 3,
+        "estimated_bpm_range": "105-130",
+        "bgm_style_guess": "轻快律动的电子流行/Urban轻快风，带明显鼓点与切分节奏，段落之间可能有变速处理（配合片尾的“卡点变速剪辑教程”提示），整体是清亮、有少女感和街拍感的卡点BGM"
+      }
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "rhythm",
+      "shot duration"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "素材需要按照参考片段节拍和镜头密度重新编排时。",
+    "confidence": 0.8,
+    "source_summary": "来源：参考视频《7438bfb654d11319e6bc2c319357d565.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 6,
+      "source_gene_title": "7438bfb654d11319e6bc2c319357d565",
+      "source_video": "7438bfb654d11319e6bc2c319357d565.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T20:36:32.386388",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_4d3a8662",
+    "type": "emotion_design",
+    "title": "轻快情绪弧线",
+    "content": "整体情绪以“轻快”为核心，镜头中的主要情绪依次围绕好奇, 活力, 期待, 治愈, 平静展开，并在高潮段集中强化。",
+    "structured_data": {
+      "overall_emotion": "轻快",
+      "emotion_distribution": {
+        "好奇": 7,
+        "活力": 3,
+        "温馨": 1,
+        "治愈": 2,
+        "专注": 1,
+        "幽默": 1,
+        "期待": 3,
+        "神秘": 1,
+        "平静": 2,
+        "梦幻": 1,
+        "童趣": 1,
+        "欢乐": 1
+      },
+      "emotion_arc": []
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "emotion",
+      "轻快"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "需要让画面顺序形成明确情绪起伏时。",
+    "confidence": 0.78,
+    "source_summary": "来源：参考视频《7438bfb654d11319e6bc2c319357d565.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 6,
+      "source_gene_title": "7438bfb654d11319e6bc2c319357d565",
+      "source_video": "7438bfb654d11319e6bc2c319357d565.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T20:36:32.386388",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
+  },
+  {
+    "id": "k_u3_6dd181c9",
+    "type": "packaging_style",
+    "title": "节奏卡点型包装组合",
+    "content": "将参考片的转场、字幕、构图和关键剪辑技法作为组合策略使用，让包装服务于段落功能，避免为动效而动效。",
+    "structured_data": {
+      "packaging_analysis": {
+        "subtitle_font_guess": "无常规旁白字幕，仅有底部居中的白色小写手写感账号标识“ato”，以及零星的口语字幕（如“对象…小勇”），推测为系统默认黑体或细圆体",
+        "subtitle_color_and_stroke": "纯白细体，几乎无描边，字号小、透明度低，弱化存在感，不干扰画面",
+        "subtitle_position": "bottom",
+        "subtitle_animation": "none",
+        "subtitle_density": "每秒约0.3字",
+        "title_cards": [
+          {
+            "position_in_timeline": "约20.0秒处（片尾）",
+            "content": "抖音搜索卡片：“大家都在抖音”搜索框“卡点变速剪辑教程”，底部“截图保存到相册”“抖音搜索页扫一扫”",
+            "style": "深色蓝绿渐变背景+居中抖音Logo+高亮搜索框，扁平UI风，带柔焦光晕"
+          }
+        ],
+        "transitions_used": [
+          {
+            "between": "镜头0到镜头1",
+            "type": "硬切"
+          },
+          {
+            "between": "镜头3到镜头4",
+            "type": "硬切（街景→室内台面，靠红色物体色彩呼应衔接）"
+          },
+          {
+            "between": "镜头9到镜头10",
+            "type": "硬切（静态路牌→动态小狗，节奏反差切）"
+          },
+          {
+            "between": "镜头12到镜头13",
+            "type": "硬切（同一道具延续，近似跳切）"
+          },
+          {
+            "between": "镜头14到镜头15",
+            "type": "暗场过渡（全黑踏板特写压低亮度，做场景切换缓冲）"
+          },
+          {
+            "between": "镜头18到镜头19",
+            "type": "硬切（街边→乐园，靠上扬仰拍镜头完成空间跳跃）"
+          },
+          {
+            "between": "镜头23到镜头24",
+            "type": "硬切进入UI卡片，节奏骤停收尾"
+          }
+        ],
+        "color_grade": "japanese_fresh",
+        "color_grade_detail": "整体自然通透、低对比偏灰的日系随手拍质感，白平衡随场景在暖调（果汁摊、乐园、街边暖墙）与冷灰（阴天街道、车内饰）之间切换；红色被刻意强化成贯穿全片的主色（毛绒装置、车厘子、果汁、苹果、苹果糖、玩具车），高饱和红色作为视觉锚点在灰调环境中反复跳色，营造“灰底跳红”的记忆点系统",
+        "stickers_effects": "镜头10小狗头顶手绘卡通“怒气/爆炸”符号；镜头13瓶身外加白色手绘撕纸描边框；镜头9“停”字牌带多层动态叠影重影效果；部分镜头有轻微滤镜与运动模糊处理"
+      },
+      "key_techniques": [
+        "高密度短切卡点：全片平均单镜0.96秒，最短0.4秒，用镜头长度变化制造呼吸感，长镜只留给审美定格和UI卡片",
+        "猎奇开场钩子：用反常的密集红色装置作为首帧，替代人脸和语言完成截停，且钩子即场景",
+        "贯穿色锚点：红色毛绒装置→车厘子→红色果汁→红苹果→蜘蛛侠玩具车→苹果糖，让破碎的空镜在潜意识里连成一条线",
+        "去人脸化的第一视角：大量手部特写、背影跟拍、局部身体入画（切苹果的手、举瓶的手、骑行背影），既保护隐私又强化“我也在场”的代入感",
+        "贴纸花字玩梗：狗头怒气符号、撕纸描边瓶身，用极低成本的后期贴纸制造笑点和二次传播记忆点",
+        "暗场/空镜做段落呼吸：全黑踏板特写和“停”字重影牌作为段落间的视觉减速带，让快节奏不至于疲劳"
+      ]
+    },
+    "tags": [
+      "vlog",
+      "节奏卡点型",
+      "timeline",
+      "packaging",
+      "transition"
+    ],
+    "applicable_vlog_types": [
+      "timeline"
+    ],
+    "best_when": "生成方案需要统一字幕、转场和视觉风格时。",
+    "confidence": 0.76,
+    "source_summary": "来源：参考视频《7438bfb654d11319e6bc2c319357d565.mp4》的结构分析",
+    "derivation": {
+      "source_gene_id": 6,
+      "source_gene_title": "7438bfb654d11319e6bc2c319357d565",
+      "source_video": "7438bfb654d11319e6bc2c319357d565.mp4",
+      "source_user_id": 3,
+      "extracted_at": "2026-10-19T20:36:32.386388",
+      "prompt_version": "local-knowledge-v1",
+      "model": "local-rule-engine"
+    }
   }
 ]

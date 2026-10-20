@@ -101,7 +101,7 @@ async def main():
     for i, scene in enumerate(scenes):
         motion = video_tools.compute_shot_motion(video_path, scene["start"], scene["end"])
         # 提取多帧做色彩统计（保留预处理数据辅助分析）
-        frames = video_tools.extract_multiple_frames(video_path, [scene], frames_per_shot=3)
+        frames = video_tools.extract_multiple_frames(video_path, [scene], frames_per_shot=5)
         color = video_tools.compute_color_stats(frames.get(0, []))
 
         try:

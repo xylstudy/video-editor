@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Dna, FileVideo, Loader2, Plus, Sparkles, Trash2 } from 'lucide-react'
-import { createGene, deleteGene, listGenes } from '../api.js'
+import { ArrowUpRight, Dna, FileVideo, Loader2, Plus, Search, Sparkles, Trash2 } from 'lucide-react'
+import { createGene, deleteGene, listGenes, mediaUrl } from '../api.js'
+import { compactText, geneDisplayTitle } from '../library.js'
 import {
   Badge,
   Button,
@@ -52,6 +53,17 @@ function formatDate(iso) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+function GeneCover({ gene }) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <div className="vc-gene-cover">
+      {gene.status === 'done' && !failed ? <img src={mediaUrl(`/genes/${gene.id}/frames/shot_000.jpg`)} alt={`${geneDisplayTitle(gene)}关键帧`} loading="lazy" onError={() => setFailed(true)} /> : <span className="vc-gene-cover-placeholder"><FileVideo size={30} strokeWidth={1.3} /><small>参考视频</small></span>}
+      <span className="vc-gene-cover-status"><Badge color={gene.status === 'done' ? 'green' : gene.status === 'failed' ? 'red' : 'indigo'}>{(gene.status === 'pending' || gene.status === 'analyzing') && <Loader2 size={11} className="animate-spin" />}{GENE_STATUS[gene.status] || gene.status}</Badge></span>
+      <span className="vc-gene-cover-id">GENE {String(gene.id).padStart(2, '0')}</span>
+    </div>
+  )
+}
+
 export default function Genes() {
   const [genes, setGenes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -60,6 +72,8 @@ export default function Genes() {
   const [file, setFile] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('')
   const fileRef = useRef(null)
 
   const fetchGenes = async () => {
@@ -67,6 +81,8 @@ export default function Genes() {
       const res = await listGenes()
       setGenes(res.data)
       return res.data
+    } catch (err) {
+      setError(err.response?.data?.detail || '基因库加载失败')
     } finally {
       setLoading(false)
     }
@@ -113,25 +129,37 @@ export default function Genes() {
     e.preventDefault()
     e.stopPropagation()
     if (!confirm('确定删除该基因？')) return
-    await deleteGene(id)
-    fetchGenes()
+    try {
+      await deleteGene(id)
+      fetchGenes()
+    } catch (err) {
+      setError(err.response?.data?.detail || '删除基因失败')
+    }
   }
 
   if (loading) {
     return <div className="py-16 text-center text-sm text-[#5a5a7a]">加载中...</div>
   }
 
+  const keyword = query.trim().toLowerCase()
+  const filteredGenes = genes.filter((gene) => (
+    (!status || (status === 'active' ? ['pending', 'analyzing'].includes(gene.status) : gene.status === status))
+    && (!keyword || [gene.title, gene.source_filename, gene.structure_type, gene.hook_method, gene.overall_emotion].some((value) => String(value || '').toLowerCase().includes(keyword)))
+  ))
+
   return (
     <div>
       <SectionHeader
         title="视频基因库"
-        description="上传爆款视频，引擎自动拆解它的结构基因 —— 分析过的视频可直接作为项目参考"
+        description="通过关键帧与结构标签挑选参考，再查看分析或创建项目"
         actions={
           <Button icon={Plus} onClick={() => setShowCreate((v) => !v)}>
             提取新基因
           </Button>
         }
       />
+
+      {!showCreate && error && <div className="mb-4"><InfoBar type="error">{error}</InfoBar></div>}
 
       {showCreate && (
         <Card className="mb-6 p-5 vc-fade-in">
@@ -184,6 +212,11 @@ export default function Genes() {
         </Card>
       )}
 
+      <div className="vc-library-toolbar">
+        <div className="vc-library-filters" aria-label="基因状态筛选">{[['', '全部'], ['done', '已就绪'], ['active', '分析中'], ['failed', '失败']].map(([value, label]) => <button type="button" key={value} aria-pressed={status === value} className={status === value ? 'is-active' : ''} onClick={() => setStatus(value)}>{label}</button>)}</div>
+        <div className="vc-library-search"><Search size={15} /><TextInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索名称 / 结构 / 情绪" aria-label="搜索基因" /></div>
+      </div>
+
       {genes.length === 0 ? (
         <Card>
           <EmptyState
@@ -196,65 +229,27 @@ export default function Genes() {
             </Button>
           </EmptyState>
         </Card>
+      ) : filteredGenes.length === 0 ? (
+        <Card><EmptyState icon={Search} title="没有匹配的视频基因" description="换一个名称、结构或状态试试" /></Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {genes.map((g) => (
-            <Link key={g.id} to={`/genes/${g.id}`} className="block">
-              <Card hover className="group relative h-full p-5">
-                <button
-                  onClick={(e) => handleDelete(e, g.id)}
-                  title="删除基因"
-                  className="absolute right-3 top-3 rounded-lg p-1.5 text-[#5a5a7a] opacity-0 transition-all hover:bg-[rgba(248,113,113,0.08)] hover:text-[#f87171] group-hover:opacity-100"
-                >
-                  <Trash2 size={15} />
-                </button>
-
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(0,212,255,0.1)]">
-                    {g.status === 'analyzing' || g.status === 'pending' ? (
-                      <Loader2 size={18} className="animate-spin text-[#66e0ff]" />
-                    ) : (
-                      <FileVideo size={18} className="text-[#66e0ff]" />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="truncate pr-6 text-sm font-semibold text-[#e8e8f0] group-hover:text-[#66e0ff] transition-colors">
-                      {g.title}
-                    </h3>
-                    <p className="mt-0.5 truncate text-xs text-[#5a5a7a]">{g.source_filename}</p>
-                  </div>
-                </div>
-
-                {g.status === 'done' ? (
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {g.structure_type && <Badge color="indigo">{g.structure_type}</Badge>}
-                    {g.hook_method && <Badge color="blue">Hook: {g.hook_method}</Badge>}
-                    {g.overall_emotion && <Badge color="green">{g.overall_emotion}</Badge>}
-                  </div>
-                ) : g.status === 'failed' ? (
-                  <p className="mt-4 line-clamp-2 text-xs text-[#fca5a5]">{g.error_message}</p>
-                ) : (
-                  <div className="mt-4">
-                    <div className="mb-1.5 flex items-center justify-between text-xs">
-                      <span className="text-[#8888a8]">{latestStageLabel(g)}</span>
-                      <span className="text-[#5a5a7a]">{g.progress || 0}%</span>
-                    </div>
-                    <ProgressBar value={g.progress || 0} />
-                  </div>
-                )}
-
-                <div className="mt-4 flex items-center justify-between border-t border-[#2a2a42] pt-3">
-                  <span className="text-xs text-[#5a5a7a]">
-                    {g.status === 'done'
-                      ? `${g.duration.toFixed(0)}s · ${g.shot_count} 个镜头`
-                      : GENE_STATUS[g.status] || g.status}
-                  </span>
-                  <span className="text-xs text-[#5a5a7a]">{formatDate(g.created_at)}</span>
+        <>
+          <p className="vc-library-count">{filteredGenes.length} 个参考 · {genes.filter((gene) => gene.status === 'done').length} 个已就绪</p>
+          <div className="vc-gene-grid">
+            {filteredGenes.map((g) => (
+              <Card key={g.id} hover className="vc-gene-card">
+                <Link to={`/genes/${g.id}`} aria-label={`查看基因分析：${g.title}`}><GeneCover gene={g} /></Link>
+                <div className="vc-gene-card-body">
+                  <div className="vc-gene-card-heading"><Link to={`/genes/${g.id}`} title={g.title}><h3>{geneDisplayTitle(g)}</h3></Link><button type="button" onClick={(event) => handleDelete(event, g.id)} className="vc-library-delete" aria-label={`删除基因：${g.title}`} title="删除基因"><Trash2 size={14} /></button></div>
+                  {g.status === 'done' ? <>
+                    <div className="vc-gene-metrics"><span><strong>{Number(g.duration || 0).toFixed(1)}</strong>秒</span><span><strong>{g.shot_count || 0}</strong>镜头</span><span title="平均镜头时长"><strong>{g.shot_count > 0 ? (Number(g.duration || 0) / g.shot_count).toFixed(1) : '—'}</strong>秒 / 镜</span></div>
+                    <div className="vc-gene-identity"><Badge color="indigo">{compactText(g.structure_type || '结构已提取', 14)}</Badge><span title={g.hook_method}>{compactText(g.hook_method || '—', 16)}</span><span title={g.overall_emotion}>{compactText(g.overall_emotion || '—', 12)}</span></div>
+                  </> : g.status === 'failed' ? <p className="vc-gene-error">{compactText(g.error_message || '提取失败，点开查看详情', 72)}</p> : <div className="vc-gene-progress"><span>{latestStageLabel(g)}</span><small>{g.progress || 0}%</small><ProgressBar value={g.progress || 0} /></div>}
+                  <div className="vc-gene-card-footer"><span>{formatDate(g.created_at)}</span><Link to={`/genes/${g.id}`}>查看分析 <ArrowUpRight size={13} /></Link>{g.status === 'done' && <Link className="vc-gene-use" to={`/projects?gene=${g.id}`}>用此基因</Link>}</div>
                 </div>
               </Card>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

@@ -58,7 +58,16 @@ def build_shot_analysis_prompt(
 - 运镜（你现在能看到连续画面，准确判断）：固定镜头 / 推 / 拉 / 平移 / 跟随 / 手持晃动 / 摇镜
 - 画面质感：高清干净 / 有噪点 / 胶片感 / 滤镜 / 虚化 / 模糊或过曝
 
-=== 第四步：Vlog结构功能判断 ===
+=== 第四步：逐帧特效和匹配剪辑判断 ===
+- 输入图片按照时间先后排列。只记录能从帧间变化直接观察到的效果，不要根据题材猜测。
+- 判断效果属于整帧、主体还是镜头交界；主体效果必须指出锚定对象。
+- 识别：主体复制/残影、跟踪贴纸、手绘涂鸦、主体抠图描边、遮挡转场、闪白/黑闪、分屏/分片、停格、折纸揭示、变速、推拉、甩镜、匹配切。
+- start_offset/end_offset 是相对本镜头开头的秒数，必须落在 0 到镜头时长范围内。
+- motion_path 使用归一化坐标 0-1；无法判断时返回空数组。
+- 没有可见特效时 effect_events 必须返回空数组，不要把普通硬切描述成特效。
+- match_cut_to_next 只描述本镜头与下一镜头可复用的颜色、形状、动作方向或遮挡关系；没有则返回空对象。
+
+=== 第五步：Vlog结构功能判断 ===
 这个镜头在爆款Vlog叙事中最可能承担什么功能？只选一个主功能：
 
 - hook吸引：强烈视觉冲击或悬念，开头抓注意力
@@ -99,6 +108,29 @@ def build_shot_analysis_prompt(
     "composition": "构图方式",
     "camera_movement": "运镜方式",
     "visual_quality": "画面质感描述"
+  }},
+  "transition_in": "cut/fade/dissolve/flash_white/flash_black/whip/zoom_flash/slice_wipe/mask/none",
+  "effect_events": [
+    {{
+      "id": "shot_{shot_index:03d}_effect_00",
+      "type": "tracked_doodle/subject_echo/cutout_outline/occlusion_wipe/panel_fold_reveal/stop_motion/flash_white/black_dip/speed_ramp/push_in/whip/match_cut/other",
+      "start_offset": 0.0,
+      "end_offset": 0.0,
+      "anchor": "frame/subject/transition",
+      "subject": "锚定主体；整帧效果留空",
+      "position": {{"x": 0.5, "y": 0.5, "width": 0.2, "height": 0.2}},
+      "motion_path": [{{"progress": 0.0, "x": 0.5, "y": 0.5, "scale": 1.0}}],
+      "mask_mode": "none/bbox/subject_cutout/foreground_occlusion/polygon",
+      "parameters": {{}},
+      "priority": "critical/high/medium/low",
+      "confidence": 0.0,
+      "fallback_type": "无法主体级实现时允许的整帧降级；无则为空"
+    }}
+  ],
+  "match_cut_to_next": {{
+    "basis": "color/shape/action_direction/occlusion/none",
+    "description": "可迁移的匹配剪辑关系",
+    "motion_direction": "left_to_right/right_to_left/up/down/static/unknown"
   }},
   "structure_role": {{
     "primary_function": "hook/scene_establish/daily_moment/emotion_peak/persona_expression/info_card/closing_moment/transition",
@@ -290,6 +322,20 @@ def build_structure_analysis_prompt(
     "color_grade_detail": "调色风格详细描述",
     "stickers_effects": "贴纸和特效描述（无则为空）"
   }},
+  "effect_tracks": [
+    {{
+      "id": "来自逐镜头 effect_events 的稳定 id",
+      "type": "特效类型",
+      "start": 0.0,
+      "end": 0.0,
+      "source_shot_index": 0,
+      "anchor": "frame/subject/transition",
+      "subject": "锚定主体",
+      "priority": "critical/high/medium/low",
+      "parameters": {{}},
+      "fallback_type": "可接受的降级类型"
+    }}
+  ],
   "hook_strategy": {{
     "method": "悬念提问/视觉冲击/金句开头/反差对比/声音吸引/直接展示结果",
     "detail": "具体手法描述（含音画配合方式）",

@@ -1,0 +1,111 @@
+{
+  "source_id": "8f2daa39f11c8136b5668566facd25d8",
+  "analysis_method": "local_ffmpeg_opencv_manual_review",
+  "duration": 17.467,
+  "source_aspect_ratio": "3:4",
+  "estimated_bpm": 101.33,
+  "reference_cut_points": [
+    3.033,
+    4.333,
+    5.233,
+    5.933,
+    6.9,
+    7.867,
+    8.867,
+    10.067,
+    10.867,
+    12.0,
+    14.533
+  ],
+  "packaging_signature": {
+    "title_card_style": "结构化抖音搜索引导收尾卡",
+    "title_cards": [
+      {
+        "start": 14.533,
+        "end": 17.467,
+        "type": "search_cta_card"
+      }
+    ],
+    "transitions_used": [
+      {
+        "time": 4.067,
+        "type": "glitch_reveal"
+      },
+      {
+        "time": 6.9,
+        "type": "slice_wipe"
+      },
+      {
+        "time": 7.867,
+        "type": "black_dip"
+      }
+    ],
+    "stickers_effects": "跨镜头悬浮音乐播放器 UI、RGB 故障噪点遮罩、竖向切片百叶窗",
+    "color_grade": "film_retro",
+    "color_grade_detail": "低饱和蓝灰户外与暖黄室内交替，高对比暗部并保留轻颗粒",
+    "visual_mood": "城市漫游、怀旧、节拍驱动"
+  },
+  "effect_tracks": [
+    {
+      "start": 0.0,
+      "end": 4.067,
+      "type": "floating_music_ui",
+      "component": "floating_music_ui",
+      "priority": "critical",
+      "persistence": "cross_shot",
+      "parameters": {
+        "track_title": "正在播放 · 城市漫游",
+        "artist": "Ato Radio"
+      }
+    },
+    {
+      "start": 4.067,
+      "end": 4.34,
+      "type": "glitch_reveal",
+      "priority": "critical",
+      "parameters": {
+        "blocks": 5,
+        "rgb_split": true
+      }
+    },
+    {
+      "start": 6.77,
+      "end": 6.97,
+      "type": "slice_wipe",
+      "priority": "critical",
+      "parameters": {
+        "slices": 6,
+        "alternating": true
+      }
+    },
+    {
+      "start": 7.83,
+      "end": 8.01,
+      "type": "black_dip",
+      "priority": "high",
+      "parameters": {
+        "frames": 5
+      }
+    },
+    {
+      "start": 12.0,
+      "end": 14.533,
+      "type": "foreground_silhouette",
+      "priority": "high",
+      "parameters": {
+        "motif": "bird_over_aircraft"
+      }
+    },
+    {
+      "start": 14.533,
+      "end": 17.467,
+      "type": "search_cta_card",
+      "component": "search_cta_card",
+      "priority": "critical",
+      "parameters": {
+        "platform": "抖音",
+        "query": "继续探索下一段旅程"
+      }
+    }
+  ]
+}

@@ -361,6 +361,142 @@ export const NeonLightRays: React.FC<MotionProps> = (props) => {
   );
 };
 
+export const EchoStack: React.FC<MotionProps> = (props) => {
+  const frame = useCurrentFrame();
+  const images = getImages(props);
+  const source = images[0];
+  const pulse = Math.sin(Math.min(frame, 12) / 12 * Math.PI);
+  if (!source) return <EmptyHint />;
+  return (
+    <AbsoluteFill style={{ background: "#050505", overflow: "hidden" }}>
+      {[-1, 0, 1].map((direction, index) => (
+        <AbsoluteFill
+          key={direction}
+          style={{
+            opacity: direction === 0 ? 1 : 0.34 * pulse,
+            transform: `translateX(${direction * (20 + pulse * 34)}px) scale(${1.02 + index * 0.012})`,
+            filter: direction === 0 ? "contrast(1.08) saturate(1.18)" : `hue-rotate(${direction * 18}deg) saturate(1.5)`,
+            mixBlendMode: direction === 0 ? "normal" : "screen",
+          }}
+        >
+          <Media src={source} />
+        </AbsoluteFill>
+      ))}
+      <AbsoluteFill style={{ background: `linear-gradient(90deg, ${getAccent(props)}33, transparent 35%, transparent 65%, #22d3ee33)` }} />
+      <Finish accent={getAccent(props)} grain={0.1} vignette={0.4} />
+    </AbsoluteFill>
+  );
+};
+
+export const DoodlePop: React.FC<MotionProps> = (props) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const images = getImages(props);
+  const p = spring({ frame: frame - 2, fps, config: { damping: 10, stiffness: 220, mass: 0.45 } });
+  const accent = getAccent(props);
+  const symbol = String(props.symbol || "!!");
+  const position = props.position && typeof props.position === "object"
+    ? props.position as Record<string, unknown>
+    : {};
+  const motionPath = Array.isArray(props.motion_path)
+    ? props.motion_path.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    : [];
+  const firstPoint = motionPath[0] || position;
+  const lastPoint = motionPath[motionPath.length - 1] || position;
+  const duration = Math.max(1, Number(props.durationInFrames || 30) - 1);
+  const pathProgress = clamp(frame / duration);
+  const x = interpolate(pathProgress, [0, 1], [Number(firstPoint.x ?? .82), Number(lastPoint.x ?? firstPoint.x ?? .82)]);
+  const y = interpolate(pathProgress, [0, 1], [Number(firstPoint.y ?? .18), Number(lastPoint.y ?? firstPoint.y ?? .18)]);
+  if (!images[0]) return <EmptyHint />;
+  return (
+    <AbsoluteFill style={{ background: "#080808", overflow: "hidden" }}>
+      <Media src={images[0]} style={{ transform: `scale(${1.06 + Math.sin(frame / 5) * .012})`, filter: "contrast(1.08) saturate(1.22)" }} />
+      <div style={{ position: "absolute", left: `${x * 100}%`, top: `${y * 100}%`, color: accent, font: `1000 142px/1 ${FONT}`, WebkitTextStroke: "8px #111", paintOrder: "stroke", transform: `translate(-50%, -50%) rotate(12deg) scale(${interpolate(p, [0, 1], [.1, 1])})`, textShadow: "10px 12px 0 #fff" }}>{symbol}</div>
+      {[0, 1, 2].map((index) => <div key={index} style={{ position: "absolute", left: `${10 + index * 12}%`, top: `${22 + index * 7}%`, width: 90, height: 14, borderRadius: 12, background: index % 2 ? "white" : accent, transform: `rotate(${-35 + index * 18}deg) scaleX(${p})`, transformOrigin: "right" }} />)}
+      <Finish accent={accent} grain={0.08} vignette={0.42} />
+    </AbsoluteFill>
+  );
+};
+
+export const TornPaperFrame: React.FC<MotionProps> = (props) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const images = getImages(props);
+  const p = spring({ frame, fps, config: { damping: 16, stiffness: 150 } });
+  if (!images[0]) return <EmptyHint />;
+  const paperShape = "polygon(1% 4%,8% 1%,15% 5%,23% 2%,31% 5%,40% 1%,49% 4%,58% 1%,67% 5%,76% 2%,85% 5%,98% 1%,96% 12%,99% 22%,96% 33%,99% 44%,96% 55%,99% 66%,96% 77%,99% 88%,96% 99%,86% 96%,76% 99%,66% 96%,56% 99%,46% 96%,36% 99%,26% 96%,16% 99%,2% 96%,5% 85%,1% 74%,4% 63%,1% 52%,4% 41%,1% 30%,4% 19%)";
+  return (
+    <AbsoluteFill style={{ background: "#111", overflow: "hidden" }}>
+      <Media src={images[0]} style={{ filter: "brightness(.48) blur(8px) saturate(.7)", transform: "scale(1.12)" }} />
+      <div style={{ position: "absolute", inset: "7%", padding: Number(props.border_width || 18), background: String(props.accent_color || "#fff"), clipPath: paperShape, filter: "drop-shadow(0 22px 36px rgba(0,0,0,.55))", transform: `rotate(${interpolate(p, [0, 1], [-3, 0])}deg) scale(${interpolate(p, [0, 1], [.72, 1])})`, opacity: p }}>
+        <div style={{ width: "100%", height: "100%", overflow: "hidden", clipPath: paperShape }}><Media src={images[0]} style={{ transform: `scale(${1.08 + frame / (fps * 180)})`, filter: "contrast(1.08) saturate(1.18)" }} /></div>
+      </div>
+      <Finish accent="#E60012" grain={0.11} vignette={0.36} />
+    </AbsoluteFill>
+  );
+};
+
+export const GridMemory: React.FC<MotionProps> = (props) => {
+  const frame = useCurrentFrame();
+  const images = getImages(props);
+  if (!images[0]) return <EmptyHint />;
+  const line = "rgba(8,8,8,.72)";
+  return (
+    <AbsoluteFill style={{ background: "#050505", overflow: "hidden" }}>
+      <Media src={images[0]} style={{ transform: `scale(${1.02 + Math.min(frame, 40) * .0026})`, filter: "contrast(1.08) saturate(1.2)" }} />
+      {[1, 2].map((index) => <div key={`v-${index}`} style={{ position: "absolute", top: 0, bottom: 0, left: `${index * 33.333}%`, width: 5, background: line, boxShadow: "0 0 10px rgba(255,255,255,.2)" }} />)}
+      {[1, 2].map((index) => <div key={`h-${index}`} style={{ position: "absolute", left: 0, right: 0, top: `${index * 33.333}%`, height: 5, background: line, boxShadow: "0 0 10px rgba(255,255,255,.2)" }} />)}
+      <AbsoluteFill style={{ border: `10px solid ${getAccent(props)}99`, boxSizing: "border-box", opacity: interpolate(frame, [0, 7, 16], [0, .8, .25], { extrapolateRight: "clamp" }) }} />
+      <Finish accent={getAccent(props)} grain={0.13} vignette={0.38} />
+    </AbsoluteFill>
+  );
+};
+
+export const PanelFoldReveal: React.FC<MotionProps> = (props) => {
+  const frame = useCurrentFrame();
+  const images = getImages(props);
+  if (!images[0]) return <EmptyHint />;
+  const duration = Math.max(1, Number(props.durationInFrames || 36));
+  const panels = [
+    "polygon(0 0,50% 0,25% 50%)",
+    "polygon(50% 0,100% 0,75% 50%)",
+    "polygon(0 0,25% 50%,0 100%)",
+    "polygon(100% 0,100% 100%,75% 50%)",
+    "polygon(0 100%,25% 50%,50% 100%)",
+    "polygon(50% 100%,75% 50%,100% 100%)",
+    "polygon(25% 50%,50% 0,75% 50%,50% 100%)",
+  ];
+  return (
+    <AbsoluteFill style={{ background: "#130607", overflow: "hidden" }}>
+      <Media src={images[0]} style={{ filter: "brightness(.28) saturate(.8)", transform: "scale(1.08)" }} />
+      {panels.map((clipPath, index) => {
+        const start = index * 2;
+        const p = interpolate(frame, [start, Math.min(duration - 1, start + 12)], [0, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.out(Easing.cubic),
+        });
+        const direction = index % 2 === 0 ? -1 : 1;
+        return (
+          <AbsoluteFill
+            key={clipPath}
+            style={{
+              clipPath,
+              opacity: p,
+              transform: `perspective(1100px) rotateY(${direction * (1 - p) * 82}deg) scale(${.82 + p * .18})`,
+              transformOrigin: "50% 50%",
+              filter: `brightness(${.7 + p * .3}) saturate(1.2)`,
+            }}
+          >
+            <Media src={images[0]} />
+          </AbsoluteFill>
+        );
+      })}
+      <Finish accent={getAccent(props)} grain={0.08} vignette={0.3} />
+    </AbsoluteFill>
+  );
+};
+
 const advancedComponents: Record<string, React.FC<MotionProps>> = {
   focus_blur_resolve: FocusBlurResolve,
   kinetic_warp: KineticWarp,
@@ -374,6 +510,11 @@ const advancedComponents: Record<string, React.FC<MotionProps>> = {
   hero_push_in: HeroPushIn,
   cinematic_grain: CinematicGrainScene,
   neon_light_rays: NeonLightRays,
+  echo_stack: EchoStack,
+  doodle_pop: DoodlePop,
+  torn_paper_frame: TornPaperFrame,
+  grid_memory: GridMemory,
+  panel_fold_reveal: PanelFoldReveal,
 };
 
 for (const [name, component] of Object.entries(advancedComponents)) {

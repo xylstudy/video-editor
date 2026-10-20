@@ -19,7 +19,8 @@ import socket
 import subprocess
 import sys
 import threading
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from copy import deepcopy
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -119,6 +120,51 @@ def _safe_props_filename(input_props: dict) -> str:
     return f"input_props_{abs(hash(json.dumps(storyboard, sort_keys=True)))}.json"
 
 
+def _fallback_custom_video_components(scheme: dict, materials: list[dict[str, str]]) -> dict:
+    """Use the video-aware auto renderer when an image-only custom effect receives video."""
+    result = deepcopy(scheme)
+    video_safe_custom_components = {
+        "custom:split_screen_burst",
+        "custom:beat_montage",
+        "custom:hero_push_in",
+        "custom:cinematic_grain",
+        "custom:neon_light_rays",
+        "custom:floating_music_ui",
+        "custom:search_cta_card",
+        "custom:echo_stack",
+        "custom:doodle_pop",
+        "custom:torn_paper_frame",
+        "custom:grid_memory",
+        "custom:panel_fold_reveal",
+    }
+    video_ids = {
+        item["id"]
+        for item in materials
+        if Path(item["path"]).suffix.lower() in {".mp4", ".mov", ".webm", ".avi", ".mkv"}
+    }
+    for frame in result.get("storyboard", []):
+        component = str(frame.get("render_component") or "auto")
+        if not component.startswith("custom:"):
+            continue
+        if component in video_safe_custom_components:
+            continue
+        config = frame.get("custom_render_config") or {}
+        referenced = {
+            frame.get("source_material_id"),
+            frame.get("fg_source_id"),
+            frame.get("bg_source_id"),
+            *(config.get("source_material_ids") or []),
+            *(config.get("material_ids") or []),
+        }
+        if any(material_id in video_ids for material_id in referenced if material_id):
+            frame["render_component"] = "auto"
+            frame["render_fallback"] = {
+                "from": component,
+                "reason": "custom component is image-only while the selected material is video",
+            }
+    return result
+
+
 def render_with_remotion(
     scheme: Any,
     material_items: list[Any],
@@ -146,6 +192,7 @@ def render_with_remotion(
 
     scheme_dict = _scheme_to_dict(scheme)
     materials = _normalize_materials(material_items)
+    scheme_dict = _fallback_custom_video_components(scheme_dict, materials)
 
     media_root = None
     run_temp_root = None
@@ -182,7 +229,7 @@ def render_with_remotion(
 
         # 2) 启动本地 HTTP 服务
         port = _find_free_port()
-        httpd = HTTPServer(("127.0.0.1", port), lambda *args, **kwargs: _SilentHandler(*args, directory=media_root, **kwargs))
+        httpd = ThreadingHTTPServer(("127.0.0.1", port), lambda *args, **kwargs: _SilentHandler(*args, directory=media_root, **kwargs))
         httpd_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         httpd_thread.start()
         logger.info(f"素材 HTTP 服务已启动: http://127.0.0.1:{port} ({len(material_map)} 个素材)")
@@ -204,6 +251,8 @@ def render_with_remotion(
             f"--props={props_file}",
             "--overwrite",
             "--log=verbose",
+            "--timeout=120000",
+            "--concurrency=1",
         ]
 
         logger.info(f"Remotion 渲染命令: {' '.join(cmd)}")

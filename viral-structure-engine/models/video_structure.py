@@ -5,6 +5,13 @@ from typing import Optional
 from models.gene import StructureGene
 
 
+def _safe_float(value, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 class ShotType(str, Enum):
     HOOK = "hook"
     CTA = "cta"
@@ -38,6 +45,7 @@ class TransitionType(str, Enum):
     WIPE_RIGHT = "wipe_right"
     WIPE_UP = "wipe_up"
     WIPE_DOWN = "wipe_down"
+    SLICE_WIPE = "slice_wipe"
     BLUR_IN = "blur_in"
     ROTATE_IN = "rotate_in"
     WHIP = "whip"
@@ -55,6 +63,61 @@ class TransitionType(str, Enum):
     LIQUID_WARP = "liquid_warp"
     CHROMATIC_ABERRATION = "chromatic_aberration"
     NONE = "none"
+
+
+@dataclass
+class EffectEvent:
+    """A time-bounded visual effect observed inside one reference shot."""
+
+    id: str
+    type: str
+    start_offset: float = 0.0
+    end_offset: float = 0.0
+    anchor: str = "frame"  # frame / subject / transition
+    subject: str = ""
+    position: dict = field(default_factory=dict)
+    motion_path: list[dict] = field(default_factory=list)
+    mask_mode: str = "none"
+    parameters: dict = field(default_factory=dict)
+    priority: str = "medium"
+    confidence: float = 0.0
+    fallback_type: str = ""
+
+    @classmethod
+    def from_dict(cls, value: dict, *, default_id: str = "") -> "EffectEvent":
+        value = value if isinstance(value, dict) else {}
+        return cls(
+            id=str(value.get("id") or default_id),
+            type=str(value.get("type") or value.get("effect_type") or ""),
+            start_offset=max(0.0, _safe_float(value.get("start_offset"))),
+            end_offset=max(0.0, _safe_float(value.get("end_offset"))),
+            anchor=str(value.get("anchor") or "frame"),
+            subject=str(value.get("subject") or ""),
+            position=dict(value.get("position")) if isinstance(value.get("position"), dict) else {},
+            motion_path=list(value.get("motion_path")) if isinstance(value.get("motion_path"), list) else [],
+            mask_mode=str(value.get("mask_mode") or "none"),
+            parameters=dict(value.get("parameters")) if isinstance(value.get("parameters"), dict) else {},
+            priority=str(value.get("priority") or "medium"),
+            confidence=min(1.0, max(0.0, _safe_float(value.get("confidence")))),
+            fallback_type=str(value.get("fallback_type") or ""),
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "type": self.type,
+            "start_offset": self.start_offset,
+            "end_offset": self.end_offset,
+            "anchor": self.anchor,
+            "subject": self.subject,
+            "position": self.position,
+            "motion_path": self.motion_path,
+            "mask_mode": self.mask_mode,
+            "parameters": self.parameters,
+            "priority": self.priority,
+            "confidence": self.confidence,
+            "fallback_type": self.fallback_type,
+        }
 
 
 @dataclass
@@ -86,6 +149,8 @@ class ShotInfo:
     motion_intensity: float = 0.0          # 镜头内运动强度 [0, 1]
     color_stats: dict = field(default_factory=dict)  # HSV 统计 + 主色调
     audio_type: str = ""                   # speech / silence / music / mixed
+    effect_events: list[EffectEvent] = field(default_factory=list)
+    match_cut_to_next: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -110,6 +175,11 @@ class ShotInfo:
             "motion_intensity": self.motion_intensity,
             "color_stats": self.color_stats,
             "audio_type": self.audio_type,
+            "effect_events": [
+                event.to_dict() if hasattr(event, "to_dict") else dict(event)
+                for event in self.effect_events
+            ],
+            "match_cut_to_next": self.match_cut_to_next,
         }
 
 
@@ -178,6 +248,10 @@ class PackagingStyle:
     sticker_types: list[str] = field(default_factory=list)
     color_palette: list[str] = field(default_factory=list)
     default_ken_burns: str = "slow_zoom_in"
+    title_cards: list[dict] = field(default_factory=list)
+    transitions_used: list[dict] = field(default_factory=list)
+    stickers_effects: str = ""
+    color_grade_detail: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -194,6 +268,10 @@ class PackagingStyle:
             "sticker_types": self.sticker_types,
             "color_palette": self.color_palette,
             "default_ken_burns": self.default_ken_burns,
+            "title_cards": self.title_cards,
+            "transitions_used": self.transitions_used,
+            "stickers_effects": self.stickers_effects,
+            "color_grade_detail": self.color_grade_detail,
         }
 
 
@@ -205,6 +283,11 @@ class BGMInfo:
     beat_points: list[float] = field(default_factory=list)
     role: str = "background"
     reference_track: str = ""
+    audio_path: str = ""
+    volume: float = 0.3
+    loop: bool = True
+    trim_before: int = 0
+    trim_after: int | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -214,6 +297,11 @@ class BGMInfo:
             "beat_points": self.beat_points,
             "role": self.role,
             "reference_track": self.reference_track,
+            "audio_path": self.audio_path,
+            "volume": self.volume,
+            "loop": self.loop,
+            "trim_before": self.trim_before,
+            "trim_after": self.trim_after,
         }
 
 
@@ -257,6 +345,8 @@ class VideoStructure:
     shots: list[ShotInfo] = field(default_factory=list)
     script_blocks: list[dict] = field(default_factory=list)
     rhythm_curve: list[RhythmPoint] = field(default_factory=list)
+    # Timeline-level effects can continue across shot boundaries.
+    effect_tracks: list[dict] = field(default_factory=list)
 
     # 旧版兼容字段
     video_path: str = ""
@@ -318,6 +408,7 @@ class VideoStructure:
             "shots": [s.to_dict() for s in self.shots],
             "script_blocks": self.script_blocks,
             "rhythm_curve": [rp.to_dict() for rp in self.rhythm_curve],
+            "effect_tracks": self.effect_tracks,
             "packaging": self.packaging.to_dict(),
             "bgm": self.bgm.to_dict(),
             "vlog_meta": self.vlog_meta.to_dict(),

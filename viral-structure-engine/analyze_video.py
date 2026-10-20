@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
+from prompts.analyst_prompts import (
+    build_shot_analysis_prompt as build_current_shot_analysis_prompt,
+    build_structure_analysis_prompt as build_current_structure_analysis_prompt,
+)
+
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_VIDEO_PATH = PROJECT_ROOT / "data" / "samples" / "viral.mp4"
 DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "data" / "output" / "analysis_result.json"
@@ -21,6 +26,18 @@ DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "data" / "output" / "analysis_result.json"
 # 结构化事件前缀：Web 后端逐行读取子进程 stdout，借此解析分析进度。
 # 普通 print 保持人类可读，事件行保持机器可解析，两者互不干扰。
 EVENT_PREFIX = "__GENE_EVENT__"
+
+
+def sample_shot_times(start_time: float, end_time: float) -> list[float]:
+    """Return ordered samples that expose motion and within-shot effects."""
+    start = max(0.0, float(start_time))
+    end = max(start, float(end_time))
+    duration = end - start
+    if duration <= 0:
+        return [start]
+    ratios = (0.12, 0.5, 0.88) if duration < 0.6 else (0.08, 0.28, 0.5, 0.72, 0.92)
+    upper = max(start, end - min(0.01, duration / 10))
+    return [round(min(upper, start + duration * ratio), 3) for ratio in ratios]
 
 
 def _emit(event_type: str, **data):
@@ -97,7 +114,9 @@ async def analyze_video():
         return
 
     try:
-        scenes = video.detect_scene_changes(video_path, threshold=0.3)
+        scenes = video.detect_scene_changes(
+            video_path, threshold=settings.SCENE_CHANGE_THRESHOLD
+        )
         print(f"\n[镜头切分结果]:")
         print(f"   检测到 {len(scenes)} 个镜头")
         for i, s in enumerate(scenes):
@@ -139,31 +158,33 @@ async def analyze_video():
         _emit("shot_start", index=i, total=len(scenes),
               start=round(scene["start"], 2), end=round(scene["end"], 2))
 
-        mid_time = (scene["start"] + scene["end"]) / 2
-        frame_path = None
-        frame_name = None
+        extracted_frames = []
+        saved_frames = []
         try:
-            frame_path = video.extract_frame(video_path, mid_time)
-            has_face = face.has_face(frame_path)
-            # 保存一份关键帧到输出目录，供前端展示缩略图
-            try:
-                frames_dir.mkdir(parents=True, exist_ok=True)
-                frame_name = f"shot_{i:03d}.jpg"
-                shutil.copy2(frame_path, frames_dir / frame_name)
-            except Exception as ce:
-                print(f"      关键帧保存失败: {ce}")
-                frame_name = None
+            frames_dir.mkdir(parents=True, exist_ok=True)
+            for sample_index, sample_time in enumerate(sample_shot_times(scene["start"], scene["end"])):
+                extracted = str(video.extract_frame(video_path, sample_time))
+                extracted_frames.append(extracted)
+                saved_path = frames_dir / f"shot_{i:03d}_{sample_index:02d}.jpg"
+                shutil.copy2(extracted, saved_path)
+                saved_frames.append(str(saved_path))
+            if saved_frames:
+                # Keep the historical thumbnail name for the current frontend.
+                shutil.copy2(saved_frames[len(saved_frames) // 2], frames_dir / f"shot_{i:03d}.jpg")
+            has_face = any(face.has_face(path) for path in extracted_frames)
         except Exception as e:
-            print(f"      抽帧失败: {e}")
+            print(f"      多帧抽取失败: {e}")
             has_face = False
 
-        prompt = build_shot_analysis_prompt(i, scene["start"], scene["end"], info["duration"], prev_desc)
-        if frame_path:
-            response = await llm.chat_with_images(prompt, [frame_path], response_format="json")
+        prompt = build_current_shot_analysis_prompt(
+            i, scene["start"], scene["end"], info["duration"], prev_desc,
+            visual_samples_only=True,
+        )
+        if extracted_frames:
+            response = await llm.chat_with_images(prompt, extracted_frames, response_format="json")
         else:
             response = await llm.chat(prompt, response_format="json")
-        frame_paths = ([str(frames_dir / frame_name)] if frame_name
-                       else ([frame_path] if frame_path else []))
+        frame_paths = saved_frames or extracted_frames
         try:
             result = llm.parse_json(response)
             result["has_face"] = has_face
@@ -208,7 +229,7 @@ async def analyze_video():
     print(f"\n📊 全局结构分析 (调用 DeepSeek)...")
     _emit("structure_start", total_shots=len(shot_analyses))
     shot_text = json.dumps(shot_analyses, ensure_ascii=False)
-    prompt = build_structure_analysis_prompt(
+    prompt = build_current_structure_analysis_prompt(
         info["duration"], info["width"], info["height"],
         len(shot_analyses), shot_text, transcript,
     )
@@ -229,7 +250,7 @@ async def analyze_video():
     trace = make_analysis_trace(
         video_path=str(video_path), duration=info["duration"],
         resolution=[info["width"], info["height"]],
-        scene_count=len(scenes), scene_threshold=0.3,
+        scene_count=len(scenes), scene_threshold=settings.SCENE_CHANGE_THRESHOLD,
         audio_summary={"transcript_chars": len(transcript), "transcribed": bool(transcript)},
         shots=shot_traces,
         structure_input_summary=shot_text,
@@ -304,7 +325,7 @@ async def analyze_video():
     _emit("done", output=str(output_path.resolve()), shot_count=len(video_structure.shots))
 
 
-def build_shot_analysis_prompt(shot_index, start_time, end_time, total_duration, prev_frame_desc):
+def _legacy_build_shot_analysis_prompt(shot_index, start_time, end_time, total_duration, prev_frame_desc):
     prev_context = f"前一帧内容：{prev_frame_desc}" if prev_frame_desc else "这是视频的第一个镜头。"
     return f"""你是一位有8年经验的短视频内容分析师，专门研究抖音和小红书爆款Vlog的画面语言。你能从一帧画面中读出拍摄意图、情绪信息和结构作用。
 
@@ -372,7 +393,7 @@ def build_shot_analysis_prompt(shot_index, start_time, end_time, total_duration,
 }}"""
 
 
-def build_structure_analysis_prompt(duration, width, height, shot_count, shot_analyses_text, transcript):
+def _legacy_build_structure_analysis_prompt(duration, width, height, shot_count, shot_analyses_text, transcript):
     transcript_section = (
         f"以下是视频的完整语音转写文本（旁白/口播/对话）：\n{transcript}"
         if transcript

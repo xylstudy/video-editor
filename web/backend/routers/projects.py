@@ -57,14 +57,14 @@ def create_project(
         material_dir.mkdir(parents=True, exist_ok=True)
         dest = material_dir / src.name
         shutil.copy2(src, dest)
-        session.add(
-            Material(
-                project_id=project.id,
-                type=MaterialType.VIDEO,
-                filename=gene.source_filename or src.name,
-                storage_path=str(dest),
-            )
+        reference = Material(
+            project_id=project.id,
+            type=MaterialType.VIDEO,
+            filename=gene.source_filename or src.name,
+            storage_path=str(dest),
         )
+        reference.set_metadata({"role": "reference", "source_gene_id": gene.id})
+        session.add(reference)
         session.commit()
 
     return project

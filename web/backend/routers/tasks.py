@@ -26,7 +26,8 @@ ALLOWED_TRANSITIONS = {
     "slide_down", "wipe_left", "wipe_right", "wipe_up", "wipe_down",
     "blur_in", "rotate_in", "whip", "mask", "circle_reveal", "zoom_flash",
     "glitch", "spin", "zoom_heavy", "light_leak", "freeze_frame", "flip_3d",
-    "radial_wipe", "zoom_through", "liquid_warp", "chromatic_aberration", "none",
+    "radial_wipe", "zoom_through", "liquid_warp", "chromatic_aberration",
+    "slice_wipe", "none",
 }
 
 
@@ -147,14 +148,23 @@ def create_task(
 
     from db_models import Material
     materials = session.exec(select(Material).where(Material.project_id == project_id)).all()
-    has_video = any(m.type == MaterialType.VIDEO for m in materials)
-    has_photo = any(m.type == MaterialType.IMAGE for m in materials)
-    if task_in.type == TaskType.ANALYZE_VIDEO and not has_video:
+    videos = [m for m in materials if m.type == MaterialType.VIDEO]
+    reference = next(
+        (m for m in videos if m.get_metadata().get("role") == "reference"),
+        videos[0] if videos else None,
+    )
+    has_target = any(
+        m.id != getattr(reference, "id", None)
+        and m.type in (MaterialType.IMAGE, MaterialType.VIDEO)
+        and m.get_metadata().get("role") != "reference"
+        for m in materials
+    )
+    if task_in.type == TaskType.ANALYZE_VIDEO and reference is None:
         raise HTTPException(status_code=400, detail="分析参考视频需要至少一个视频素材")
-    if task_in.type == TaskType.MATERIAL_ANALYSIS and not has_photo:
-        raise HTTPException(status_code=400, detail="分析素材需要至少一张图片")
-    if task_in.type == TaskType.END_TO_END and (not has_video or not has_photo):
-        raise HTTPException(status_code=400, detail="完整生成需要至少一个参考视频和一张图片")
+    if task_in.type == TaskType.MATERIAL_ANALYSIS and not has_target:
+        raise HTTPException(status_code=400, detail="分析素材需要至少一张图片或一段视频")
+    if task_in.type == TaskType.END_TO_END and (reference is None or not has_target):
+        raise HTTPException(status_code=400, detail="完整生成需要一个参考视频和至少一个图片/视频素材")
 
     task = Task(
         project_id=project_id,

@@ -108,7 +108,9 @@ export const DynamicFrame: React.FC<DynamicFrameProps> = ({
       foregroundSourceId: foregroundPath || imagePath,
       subtitleText: frame.subtitle_text ?? "",
       subtitle: frame.subtitle_text ?? "",
-      text: frame.text_card_content || frame.visual_description || "",
+      // visual_description is planner metadata for editors and reviewers. It
+      // must not leak into the finished video as an on-screen technical note.
+      text: frame.text_card_content || "",
     };
 
     // 对内置 ken_burns 组件，解析 LLM 生成的动画名（如 "slow_zoom_in"）
@@ -312,7 +314,7 @@ const AutoFrame: React.FC<DynamicFrameProps> = ({ frame, materialMap, durationIn
 // ===== 内部小部件 =====
 
 const NativeVideoLayer: React.FC<{ path: string }> = ({ path }) => (
-  <OffthreadVideo src={path} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  <OffthreadVideo muted src={path} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
 );
 
 function getMaterialPath(frame: StoryboardFrame, materialMap: MaterialMap): string | undefined {

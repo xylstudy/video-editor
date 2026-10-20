@@ -1,0 +1,17 @@
+[
+  {"id":"red_city_01","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\01-fresh-red-apples.mp4","description":"带水珠的红苹果微距特写，红色圆形视觉锚点"},
+  {"id":"red_city_02","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\02-slicing-red-apple.mp4","description":"手部切红苹果的动作镜头，适合动作匹配剪辑"},
+  {"id":"red_city_03","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\03-rinsing-fruit.mp4","description":"水流冲洗红色水果，适合水花和制作过程"},
+  {"id":"red_city_04","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\04-red-drink-pour.mp4","description":"竖屏红色饮料倒入杯中，产品制作动作"},
+  {"id":"red_city_05","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\05-city-cyclist-vertical.mp4","description":"竖屏城市自行车特技，运动方向明显"},
+  {"id":"red_city_06","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\06-red-sports-car.mp4","description":"地下车库红色跑车，红色物体押韵与速度感"},
+  {"id":"red_city_07","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\07-red-balloons-vertical.mp4","description":"竖屏人物手持红色发光气球，适合人物高潮"},
+  {"id":"red_city_08","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v1\\08-night-fair-motion.mp4","description":"夜间游乐场高速光轨，适合能量高潮和甩镜"},
+  {"id":"red_city_09","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\09-cherries-pink-splash.mp4","description":"红樱桃落入水中产生气泡和水花，适合水下红色主体与贴纸笑点"},
+  {"id":"red_city_10","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\10-lego-fall-hands.mp4","description":"俯拍彩色积木落入双手，适合桌面停格和折叠分片揭示"},
+  {"id":"red_city_11","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\11-carousel-kids.mp4","description":"孩子乘坐旋转木马，角色、游乐园与旋转运动高潮"},
+  {"id":"red_city_12","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\12-smiling-dog.mp4","description":"狗狗正面微笑并转头，适合跟踪涂鸦和意外笑点"},
+  {"id":"red_city_13","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\13-tokyo-pedestrian.mp4","description":"东京霓虹街头行人穿行，适合行人过桥和城市节奏"},
+  {"id":"red_city_14","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\14-city-train-bridge.mp4","description":"城市列车从桥下横向经过，适合遮挡转场和方向匹配"},
+  {"id":"red_city_15","type":"video","path":"E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-red-apple-city-v2\\15-times-square-rain.mp4","description":"雨夜时代广场、行人和红色车灯倒影，适合城市高潮与收尾"}
+]

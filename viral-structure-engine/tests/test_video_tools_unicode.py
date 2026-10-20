@@ -78,3 +78,34 @@ def test_scene_threshold_uses_normalized_frame_difference():
             video_path.unlink()
         if temp_root.exists():
             temp_root.rmdir()
+
+
+def test_scene_detection_keeps_cuts_between_one_second_samples():
+    temp_root = Path(__file__).parent / f"_fast_scene_output_{uuid.uuid4().hex}"
+    temp_root.mkdir(parents=True)
+    video_path = temp_root / "fast-scene-test.mp4"
+    writer = cv2.VideoWriter(
+        str(video_path),
+        cv2.VideoWriter_fourcc(*"mp4v"),
+        10.0,
+        (64, 48),
+    )
+    assert writer.isOpened()
+    for color in ((220, 20, 20), (20, 220, 20), (20, 20, 220)):
+        frame = np.full((48, 64, 3), color, dtype=np.uint8)
+        for _ in range(6):
+            writer.write(frame)
+    writer.release()
+
+    try:
+        scenes = VideoTools(str(temp_root)).detect_scene_changes(
+            str(video_path), threshold=0.3
+        )
+
+        assert len(scenes) == 3
+        assert [round(scene["end"], 1) for scene in scenes] == [0.6, 1.2, 1.8]
+    finally:
+        if video_path.exists():
+            video_path.unlink()
+        if temp_root.exists():
+            temp_root.rmdir()

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from copy import deepcopy
@@ -10,7 +11,7 @@ from prompts.planner_prompts import (
     build_scheme_iterate_prompt,
 )
 from models.scheme import VideoScheme, StoryboardFrame
-from models.video_structure import ShotType, TransitionType
+from models.video_structure import BGMInfo, PackagingStyle, ShotType, SubtitleStyle, TransitionType
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,8 @@ def apply_scheme_patch(original: dict, patch: dict) -> dict:
     allowed_top_level = {
         "title", "target_duration", "structure_type", "render_hints",
         "audio_source_id", "audio_config", "packaging", "total_duration",
-        "gene_refs", "skill_refs_used", "adaptation_log",
+        "gene_refs", "skill_refs_used", "adaptation_log", "effect_tracks",
+        "canvas_width", "canvas_height",
     }
     for key, value in (patch.get("top_level_changes") or {}).items():
         if key in allowed_top_level:
@@ -118,14 +120,17 @@ class PlannerAgent(BaseAgent):
         prompt = build_skeleton_extract_prompt(structure_summary, target_topic, target_info, structure_analysis)
         for attempt in range(3):
             try:
-                response = await self.llm.chat(
-                    prompt,
-                    response_format="json",
-                    temperature=0.2,
-                    max_tokens=16384,
+                response = await asyncio.wait_for(
+                    self.llm.chat(
+                        prompt,
+                        response_format="json",
+                        temperature=0.2,
+                        max_tokens=16384,
+                    ),
+                    timeout=180,
                 )
                 return self.llm.parse_json(response)
-            except (json.JSONDecodeError, ValueError) as e:
+            except (json.JSONDecodeError, ValueError, TimeoutError) as e:
                 logger.warning(f"骨架解析失败 (尝试 {attempt+1}/3): {e}")
                 if attempt == 2:
                     raise
@@ -146,9 +151,12 @@ class PlannerAgent(BaseAgent):
                                                skill_context=skill_context)
         for attempt in range(3):
             try:
-                response = await self.llm.chat(prompt, response_format="json", max_tokens=16384)
+                response = await asyncio.wait_for(
+                    self.llm.chat(prompt, response_format="json", max_tokens=16384),
+                    timeout=180,
+                )
                 return self.llm.parse_json(response)
-            except (json.JSONDecodeError, ValueError) as e:
+            except (json.JSONDecodeError, ValueError, TimeoutError) as e:
                 logger.warning(f"方案解析失败 (尝试 {attempt+1}/3): {e}")
                 if attempt == 2:
                     raise
@@ -160,7 +168,10 @@ class PlannerAgent(BaseAgent):
                                              gene_json=gene_json, skill_context=skill_context)
         for attempt in range(3):
             try:
-                response = await self.llm.chat(prompt, response_format="json", max_tokens=16384)
+                response = await asyncio.wait_for(
+                    self.llm.chat(prompt, response_format="json", max_tokens=16384),
+                    timeout=180,
+                )
                 patch = self.llm.parse_json(response)
                 original = json.loads(scheme_json)
                 revised = apply_scheme_patch(original, patch)
@@ -168,13 +179,13 @@ class PlannerAgent(BaseAgent):
                 revised_count = len(revised.get("storyboard") or [])
                 if original_count:
                     minimum = max(3, original_count - 2)
-                    maximum = min(10, original_count + 2)
+                    maximum = original_count + 2
                     if not minimum <= revised_count <= maximum:
                         raise ValueError(
                             f"re-plan storyboard count {revised_count} outside {minimum}..{maximum}"
                         )
                 return revised
-            except (json.JSONDecodeError, ValueError) as e:
+            except (json.JSONDecodeError, ValueError, TimeoutError) as e:
                 logger.warning(f"方案迭代解析失败 (尝试 {attempt+1}/3): {e}")
                 if attempt == 2:
                     raise
@@ -186,9 +197,22 @@ class PlannerAgent(BaseAgent):
     def build_scheme(self, scheme_data: dict, target_topic: str, iteration: int = 0) -> VideoScheme:
         shot_map = {
             "hook": ShotType.HOOK, "cta": ShotType.CTA, "transition": ShotType.TRANSITION,
-            "scene_establish": ShotType.SCENE_ESTABLISH, "daily_moment": ShotType.DAILY_MOMENT,
-            "emotion_peak": ShotType.EMOTION_PEAK, "persona": ShotType.PERSONA_EXPRESSION,
-            "info_card": ShotType.INFO_CARD, "closing": ShotType.CLOSING_MOMENT,
+            "scene_establish": ShotType.SCENE_ESTABLISH,
+            "establishing": ShotType.SCENE_ESTABLISH,
+            "daily_moment": ShotType.DAILY_MOMENT,
+            "emotion_peak": ShotType.EMOTION_PEAK,
+            "climax": ShotType.EMOTION_PEAK,
+            "persona": ShotType.PERSONA_EXPRESSION,
+            "persona_expression": ShotType.PERSONA_EXPRESSION,
+            "info_card": ShotType.INFO_CARD,
+            "closing": ShotType.CLOSING_MOMENT,
+            "closing_moment": ShotType.CLOSING_MOMENT,
+            "pain_point": ShotType.PAIN_POINT,
+            "product": ShotType.PRODUCT_SHOW,
+            "product_show": ShotType.PRODUCT_SHOW,
+            "usage": ShotType.USAGE_DEMO,
+            "usage_demo": ShotType.USAGE_DEMO,
+            "comparison": ShotType.COMPARISON,
         }
         trans_map = {
             "cut": TransitionType.CUT, "fade": TransitionType.FADE,
@@ -201,6 +225,7 @@ class PlannerAgent(BaseAgent):
             "slide_down": TransitionType.SLIDE_DOWN,
             "wipe_left": TransitionType.WIPE_LEFT, "wipe_right": TransitionType.WIPE_RIGHT,
             "wipe_up": TransitionType.WIPE_UP, "wipe_down": TransitionType.WIPE_DOWN,
+            "slice_wipe": TransitionType.SLICE_WIPE,
             "blur_in": TransitionType.BLUR_IN, "rotate_in": TransitionType.ROTATE_IN,
             "whip": TransitionType.WHIP, "mask": TransitionType.MASK,
             "circle_reveal": TransitionType.CIRCLE_REVEAL,
@@ -228,7 +253,20 @@ class PlannerAgent(BaseAgent):
                 voiceover_text=fd.get("voiceover_text", ""),
                 transition=trans_map.get(fd.get("transition_in", "cut"), TransitionType.CUT),
                 emotion=fd.get("emotion", ""),
+                camera_movement=fd.get("camera_movement", ""),
+                camera_note=fd.get("camera_note", ""),
+                shot_size=fd.get("shot_size", ""),
+                composition=fd.get("composition", ""),
+                motion_effect=fd.get("motion_effect", ""),
+                packaging_note=fd.get("packaging_note", ""),
+                rhythm_intensity=fd.get("rhythm_intensity", 0.5),
                 has_face=fd.get("has_face", False),
+                bgm_sync=fd.get("bgm_sync", False),
+                ken_burns_config=fd.get("ken_burns_config"),
+                speed_change=fd.get("speed_change"),
+                text_card_content=fd.get("text_card_content", ""),
+                text_card_style=fd.get("text_card_style", {}),
+                text_card_config=fd.get("text_card_config"),
                 # 前景/背景合成（Planner 决策）
                 fg_source_id=fd.get("fg_source_id", ""),
                 bg_source_id=fd.get("bg_source_id", ""),
@@ -247,7 +285,57 @@ class PlannerAgent(BaseAgent):
                 gene_shot_index=fd.get("gene_shot_index", -1),
                 skill_refs=fd.get("skill_refs", []),
                 adaptation=fd.get("adaptation", {}),
+                effect_event_ids=fd.get("effect_event_ids", []),
+                effect_mapping=fd.get("effect_mapping", {}),
             ))
+
+        packaging_data = scheme_data.get("packaging", {}) or {}
+        subtitle_data = packaging_data.get("subtitle_style", {}) or {}
+        packaging = PackagingStyle(
+            subtitle_style=SubtitleStyle(
+                font_family=subtitle_data.get("font_family", ""),
+                font_size=subtitle_data.get("font_size", 48),
+                color=subtitle_data.get("color", "#FFFFFF"),
+                stroke_color=subtitle_data.get("stroke_color", "#000000"),
+                stroke_width=subtitle_data.get("stroke_width", 2),
+                position=subtitle_data.get("position", "bottom"),
+                animation=subtitle_data.get("animation", "none"),
+            ),
+            title_card_style=packaging_data.get("title_card_style", ""),
+            text_card_background=packaging_data.get("text_card_background", ""),
+            text_card_font=packaging_data.get("text_card_font", ""),
+            preferred_transitions=packaging_data.get("preferred_transitions", []),
+            transition_frequency=packaging_data.get("transition_frequency", "moderate"),
+            color_grade=packaging_data.get("color_grade", ""),
+            filter_style=packaging_data.get("filter_style", ""),
+            visual_mood=packaging_data.get("visual_mood", ""),
+            emphasis_elements=packaging_data.get("emphasis_elements", []),
+            sticker_types=packaging_data.get("sticker_types", []),
+            color_palette=packaging_data.get("color_palette", []),
+            default_ken_burns=packaging_data.get("default_ken_burns", "slow_zoom_in"),
+            title_cards=packaging_data.get("title_cards", []),
+            transitions_used=packaging_data.get("transitions_used", []),
+            stickers_effects=packaging_data.get("stickers_effects", ""),
+            color_grade_detail=packaging_data.get("color_grade_detail", ""),
+        )
+        bgm_data = scheme_data.get("bgm", {}) or {}
+        bgm = BGMInfo(
+            style=bgm_data.get("style", ""),
+            bpm=int(bgm_data.get("bpm", 0) or 0),
+            mood=bgm_data.get("mood", ""),
+            beat_points=bgm_data.get("beat_points", []),
+            role=bgm_data.get("role", "background"),
+            reference_track=bgm_data.get("reference_track", ""),
+            audio_path=bgm_data.get("audio_path", ""),
+            volume=float(0.3 if bgm_data.get("volume") is None else bgm_data.get("volume")),
+            loop=bool(bgm_data.get("loop", True)),
+            trim_before=int(bgm_data.get("trim_before", 0) or 0),
+            trim_after=(
+                int(bgm_data["trim_after"])
+                if bgm_data.get("trim_after") is not None
+                else None
+            ),
+        )
 
         return VideoScheme(
             id=f"scheme_{iteration}",
@@ -256,9 +344,12 @@ class PlannerAgent(BaseAgent):
             target_duration=scheme_data.get("target_duration", 60.0),
             structure_type=scheme_data.get("structure_type", ""),
             storyboard=frames,
+            packaging=packaging,
+            bgm=bgm,
             version=iteration + 1,
             iteration=iteration,
             status="draft" if iteration == 0 else "revised",
+            effect_tracks=scheme_data.get("effect_tracks", []),
             canvas_width=scheme_data.get("canvas_width", 1080),
             canvas_height=scheme_data.get("canvas_height", 1920),
             render_hints=scheme_data.get("render_hints", {}),

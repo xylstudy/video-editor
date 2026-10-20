@@ -1,0 +1,83 @@
+{
+  "collection": "curated-travel-diary-8f2d",
+  "reference_video": "../8f2daa39f11c8136b5668566facd25d8.mp4",
+  "creative_direction": "白天城市出发、机场雨窗、猫与咖啡、机翼和鸟群组成的轻盈旅行日记",
+  "license": {
+    "name": "Pexels License",
+    "url": "https://www.pexels.com/license/"
+  },
+  "materials": [
+    {
+      "filename": "01-city-bus-vertical.mp4",
+      "pexels_id": 35585901,
+      "author": "HisArt Studios",
+      "page_url": "https://www.pexels.com/video/city-street-with-traffic-and-public-bus-in-daylight-35585901/",
+      "download_url": "https://videos.pexels.com/video-files/35585901/15080097_2160_3840_24fps.mp4",
+      "role": "城市出发建立镜头",
+      "width": 2160,
+      "height": 3840,
+      "fps": 23.976,
+      "duration_seconds": 6.30
+    },
+    {
+      "filename": "02-airport-rain-window-vertical.mp4",
+      "pexels_id": 6372561,
+      "author": "Jer Rey",
+      "page_url": "https://www.pexels.com/video/plane-seen-from-airport-window-under-rain-6372561/",
+      "download_url": "https://videos.pexels.com/video-files/6372561/6372561-hd_1080_1920_30fps.mp4",
+      "role": "机场情绪与等待",
+      "width": 720,
+      "height": 1280,
+      "fps": 29.97,
+      "duration_seconds": 35.10
+    },
+    {
+      "filename": "03-cat-coffee-kitchen.mp4",
+      "pexels_id": 35674363,
+      "author": "Airam Dato-on",
+      "page_url": "https://www.pexels.com/video/cozy-morning-in-a-kitchen-with-cat-and-coffee-35674363/",
+      "download_url": "https://videos.pexels.com/video-files/35674363/15117479_3840_2160_30fps.mp4",
+      "role": "猫与居家生活细节",
+      "width": 3840,
+      "height": 2160,
+      "fps": 29.97,
+      "duration_seconds": 17.48
+    },
+    {
+      "filename": "04-coffee-ritual-vertical.mp4",
+      "pexels_id": 35576556,
+      "author": "Content Kiosk",
+      "page_url": "https://www.pexels.com/video/cozy-morning-coffee-ritual-in-sunlit-bedroom-35576556/",
+      "download_url": "https://videos.pexels.com/video-files/35576556/15075913_2160_3840_60fps.mp4",
+      "role": "饮品动作特写",
+      "width": 2160,
+      "height": 3840,
+      "fps": 60.0,
+      "duration_seconds": 11.77
+    },
+    {
+      "filename": "05-airplane-boarding-window.mp4",
+      "pexels_id": 19068600,
+      "author": "Pexels contributor",
+      "page_url": "https://www.pexels.com/video/airplane-boarding-takeoff-boarding-bridge-airplane-inside-view-19068600/",
+      "download_url": "https://videos.pexels.com/video-files/19068600/19068600-uhd_3840_2160_60fps.mp4",
+      "role": "机场推进与机翼",
+      "width": 3840,
+      "height": 2160,
+      "fps": 59.94,
+      "duration_seconds": 6.23
+    },
+    {
+      "filename": "06-birds-sky.mp4",
+      "pexels_id": 9206138,
+      "author": "Pexels contributor",
+      "page_url": "https://www.pexels.com/video/birds-flying-in-the-sky-9206138/",
+      "download_url": "https://videos.pexels.com/video-files/9206138/9206138-uhd_3840_2160_25fps.mp4",
+      "role": "结尾天空留白",
+      "width": 3840,
+      "height": 2160,
+      "fps": 25.0,
+      "duration_seconds": 15.96
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import type { RenderInput } from "./types/schema";
 import "./dynamic/index";
 // Stable, hand-authored motion recipes available to scheme.json via custom:{name}.
 import "./components/AdvancedMotion";
+import "./components/ReferenceEffects";
 import { KenBurnsTestSuite } from "./KenBurnsTest";
 import { EffectsShowcase } from "./EffectsShowcase";
 import { BeijingVlog } from "./BeijingVlog";
@@ -52,10 +53,15 @@ export const Root: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={defaultProps as unknown as Record<string, unknown>}
-        calculateMetadata={({ props }) => ({
-          durationInFrames: calcDurationInFrames(props),
-          props,
-        })}
+        calculateMetadata={({ props }) => {
+          const scheme = (props as unknown as RenderInput).scheme;
+          return {
+            durationInFrames: calcDurationInFrames(props),
+            width: scheme?.canvas_width || 1080,
+            height: scheme?.canvas_height || 1920,
+            props,
+          };
+        }}
       />
       <Composition
         id="KenBurnsTest"
