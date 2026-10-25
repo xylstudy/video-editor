@@ -129,3 +129,44 @@ def test_nonempty_length_truncated_response_is_retried(monkeypatch):
     assert asyncio.run(client.chat("test", max_tokens=4096)) == '{"complete": true}'
     assert [request["max_tokens"] for request in requests] == [4096, 8192]
     assert client.usage_snapshot()["attempts"] == 2
+
+
+def test_deepseek_flash_planner_reserves_thinking_and_storyboard_budget(monkeypatch):
+    from agents.planner import PlannerAgent
+
+    requests = []
+
+    def handler(request):
+        payload = __import__("json").loads(request.content)
+        requests.append(payload)
+        return httpx.Response(200, json={
+            "choices": [{"message": {"content": '{"title":"complete","storyboard":[]}'}, "finish_reason": "stop"}],
+        }, request=request)
+
+    original_client = httpx.AsyncClient
+    transport = httpx.MockTransport(handler)
+    monkeypatch.setattr(llm_client.httpx, "AsyncClient", lambda **kwargs: original_client(transport=transport))
+    client = LLMTools(api_key="test-key", base_url="https://api.deepseek.com", model="deepseek-flash")
+    result = asyncio.run(PlannerAgent(client)._generate_scheme("{}", "{}", "diary", "", "{}"))
+    assert result["title"] == "complete"
+    assert requests[0]["max_tokens"] == 32768
+
+
+def test_other_provider_planner_keeps_existing_output_budget(monkeypatch):
+    from agents.planner import PlannerAgent
+
+    requests = []
+
+    def handler(request):
+        payload = __import__("json").loads(request.content)
+        requests.append(payload)
+        return httpx.Response(200, json={
+            "choices": [{"message": {"content": '{}'}, "finish_reason": "stop"}],
+        }, request=request)
+
+    original_client = httpx.AsyncClient
+    transport = httpx.MockTransport(handler)
+    monkeypatch.setattr(llm_client.httpx, "AsyncClient", lambda **kwargs: original_client(transport=transport))
+    client = LLMTools(api_key="test-key", base_url="https://other.example/v1", model="deepseek-flash")
+    asyncio.run(PlannerAgent(client)._generate_scheme("{}", "{}", "diary", "", "{}"))
+    assert requests[0]["max_tokens"] == 16384

@@ -22,6 +22,7 @@ STABLE_CUSTOM_COMPONENTS = {
     "search_cta_card",
     "echo_stack",
     "doodle_pop",
+    "sticker_doodle",
     "torn_paper_frame",
     "grid_memory",
     "panel_fold_reveal",

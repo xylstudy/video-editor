@@ -12,7 +12,7 @@ const TYPE_TABS = [
   { key: 'transition_type', label: '转场' },
   { key: 'editing_technique', label: '剪辑技法' },
   { key: 'packaging_style', label: '包装风格' },
-  { key: 'effect_type', label: '特效' },
+  { key: 'effect_type', label: '特效 / 贴纸' },
   { key: 'structure_template', label: '结构模板' },
   { key: 'hook_technique', label: 'Hook 技法' },
   { key: 'rhythm_pattern', label: '节奏模式' },
@@ -38,11 +38,11 @@ const SOURCE_TABS = [
 ]
 
 /** 技法演示播放器：默认收起，点击后加载视频（避免整页同时加载几十个视频） */
-function DemoPlayer({ id, initiallyOpen = false }) {
+function DemoPlayer({ id, demos, initiallyOpen = false }) {
   const [open, setOpen] = useState(initiallyOpen)
   const [failed, setFailed] = useState(false)
-
-  if (failed) return <InfoBar type="error">演示视频暂时无法播放。<button type="button" className="ml-2 underline" onClick={() => setFailed(false)}>重新加载</button></InfoBar>
+  const [variant, setVariant] = useState(demos[0].variant)
+  const currentDemo = demos.find((demo) => demo.variant === variant) || demos[0]
 
   if (!open) {
     return (
@@ -57,17 +57,23 @@ function DemoPlayer({ id, initiallyOpen = false }) {
   }
 
   return (
-    <div className="mt-3 overflow-hidden rounded-lg bg-black">
+    <div className="mt-3">
+      {demos.length > 1 && <div className="vc-demo-variants" role="group" aria-label="选择演示类型">{demos.map((demo) => <button key={demo.variant} type="button" aria-pressed={variant === demo.variant} onClick={() => { setVariant(demo.variant); setFailed(false) }}>{demo.label}</button>)}</div>}
+      <p className="vc-demo-caption">{currentDemo.description || (currentDemo.variant === 'teaching' ? '播放这条知识对应的实拍剪辑效果。打开声音可听示例鼓点。' : currentDemo.label === '原片示例' ? '截取自来源参考视频，观察知识在实际画面中的应用。' : '观察技法在画面中的变化。')}</p>
+      {failed ? <InfoBar type="error">演示视频暂时无法播放。<button type="button" className="ml-2 underline" onClick={() => setFailed(false)}>重新加载</button></InfoBar> :
+      <div className="overflow-hidden rounded-lg bg-black">
       <video
-        src={mediaUrl(`/knowledge/${encodeURIComponent(id)}/demo`)}
+        key={`${variant}:${currentDemo.version || ''}`}
+        src={mediaUrl(`/knowledge/${encodeURIComponent(id)}/demo${variant === 'teaching' ? `?variant=teaching${currentDemo.version ? `&v=${encodeURIComponent(currentDemo.version)}` : ''}` : ''}`)}
         controls
         autoPlay
         loop
         playsInline
-        aria-label="技法演示视频"
+        aria-label={`${currentDemo.label}视频`}
         onError={() => setFailed(true)}
-        className="vc-technique-demo-video"
+        className={`vc-technique-demo-video${variant === 'teaching' ? ' vc-real-edit-demo' : ''}`}
       />
+      </div>}
     </div>
   )
 }
@@ -206,10 +212,10 @@ export default function Knowledge() {
         </Card>
       ) : (
         <>
-          <p className="mb-3 text-xs text-[#5a5a7a]">共 {entries.length} 条 · {entries.filter((entry) => entry.has_demo).length} 个视频演示</p>
+          <p className="mb-3 text-xs text-[#5a5a7a]">共 {entries.length} 条 · {scope === 'mine' ? `${entries.filter((entry) => entry.has_teaching_demo).length} 个剪辑示例 · ${entries.filter((entry) => entry.demos?.some((demo) => demo.variant === 'example')).length} 个原片示例` : `${entries.filter((entry) => entry.has_demo).length} 个视频演示`}</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {entries.map((e) => (
-              <Card key={e.id} hover className="vc-knowledge-card">
+              <Card key={e.id} hover className="vc-knowledge-card" data-knowledge-id={e.id}>
                 <button type="button" className="vc-knowledge-card-open" onClick={() => openEntry(e)} aria-label={`查看知识：${e.title}`}>
                   <KnowledgeVisual entry={e} />
                   <span className="vc-knowledge-card-content">
@@ -217,7 +223,7 @@ export default function Knowledge() {
                   <Badge color={TYPE_BADGE[e.type] || 'gray'}>
                     {TYPE_LABEL[e.type] || e.type}
                   </Badge>
-                  {e.has_demo && <span className="vc-demo-indicator"><PlayCircle size={12} />{e.source === 'system' ? '有技法演示' : '有视频示例'}</span>}
+                  {e.has_demo && <span className="vc-demo-indicator"><PlayCircle size={12} />{e.has_teaching_demo ? '有剪辑示例' : e.source === 'system' ? '有技法演示' : '有视频示例'}</span>}
                   </span>
                   <strong className="vc-knowledge-card-title" title={e.title}>{shortHeading(e.title, 30)}</strong>
                   <span className="vc-knowledge-card-summary">{firstSentence(e.content)}</span>
@@ -240,11 +246,13 @@ export default function Knowledge() {
       {selected && (
         <LibraryDetail key={selected.id} title={selected.title} subtitle={TYPE_LABEL[selected.type] || '技法详情'} onClose={() => setSelected(null)}>
           <KnowledgeVisual entry={selected} />
-          {selected.has_demo && <section className="vc-knowledge-detail-section"><h3>{selected.source === 'system' ? '技法演示' : '视频示例'}</h3><DemoPlayer id={selected.id} initiallyOpen={demoRequested} /></section>}
+          {selected.demo_pending_reason && <InfoBar type="info">效果示例待补齐：{selected.demo_pending_reason}</InfoBar>}
+          {selected.has_demo && <section className="vc-knowledge-detail-section"><h3>{selected.source === 'system' ? '技法演示' : '剪辑效果示例'}</h3><DemoPlayer id={selected.id} demos={selected.demos?.length ? selected.demos : [{ variant: 'example', label: selected.source === 'system' ? '教学演示' : '原片示例' }]} initiallyOpen={demoRequested} /></section>}
           <section className="vc-knowledge-detail-section"><h3>技法说明</h3><p>{selected.content || '暂无说明'}</p></section>
           {selected.best_when && <section className="vc-knowledge-detail-section"><h3>适用场景</h3><p>{selected.best_when}</p></section>}
           {selected.structured_data?.effectiveness && <section className="vc-knowledge-detail-section"><h3>效果与依据</h3><p>{selected.structured_data.effectiveness}</p></section>}
           {selected.structured_data?.connection_to_body && <section className="vc-knowledge-detail-section"><h3>如何衔接正文</h3><p>{selected.structured_data.connection_to_body}</p></section>}
+          {selected.type === 'effect_type' && selected.structured_data?.evidence?.length > 0 && <section className="vc-knowledge-detail-section"><h3>原片中的应用位置 · {selected.structured_data.category || '特效'}</h3><div className="vc-knowledge-segments">{selected.structured_data.evidence.map((evidence, index) => <details key={evidence.id || index}><summary><span>{String(index + 1).padStart(2, '0')}</span><strong>{evidence.subject || selected.title}</strong><small>{Number(evidence.start_time).toFixed(2)}–{Number(evidence.end_time).toFixed(2)}s</small></summary><p>{evidence.parameters?.style || evidence.parameters?.outline_style || evidence.parameters?.border_style || '观察这段画面中的效果与主体关系。'}{evidence.position && Object.keys(evidence.position).length > 0 ? ` · 锚点 ${Math.round(Number(evidence.position.x || 0) * 100)}%、${Math.round(Number(evidence.position.y || 0) * 100)}%` : ''}{evidence.motion_path?.length > 0 ? ` · ${evidence.motion_path.length} 个运动路径节点` : ''}{evidence.mask_mode === 'subject_cutout' ? ' · 需要主体抠像' : ''}</p></details>)}</div></section>}
           {selected.structured_data?.script_structure?.length > 0 && <section className="vc-knowledge-detail-section"><h3>段落用法</h3><div className="vc-knowledge-segments">{selected.structured_data.script_structure.map((segment, index) => <details key={index}><summary><span>{String(index + 1).padStart(2, '0')}</span><strong>{segment.purpose}</strong><small>{segment.duration_hint ? `${segment.duration_hint}s` : ''}</small></summary><p>{segment.content_summary}</p></details>)}</div></section>}
           <section className="vc-knowledge-detail-section"><h3>参考来源</h3><p>{selected.source_summary || (selected.source === 'user' ? '个人提炼' : '系统内置技法')}</p>
             {selected.derivation?.source_gene_id && <Link className="vc-library-source-link" to={`/genes/${selected.derivation.source_gene_id}`}>查看来源视频与完整分析 <ArrowUpRight size={14} /></Link>}

@@ -261,7 +261,7 @@ class LLMTools:
                             body["max_tokens"] = next_limit
                             continue
                         raise LLMEmptyResponseError(
-                            "模型输出在 max_tokens=16384 时仍被截断，拒绝下传不完整结果"
+                            f"模型输出在 max_tokens={current_limit} 时仍被截断，拒绝下传不完整结果"
                         )
                     if content.strip():
                         return content

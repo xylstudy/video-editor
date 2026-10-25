@@ -265,6 +265,7 @@ flowchart TD
 | 成片评测与指标定义 | [评测说明](viral-structure-engine/evaluation/README.md) |
 | 剪辑 Skill 与按需加载 | [Skill 说明](viral-structure-engine/skills/README.md) |
 | Web 执行入口 | [pipeline_runner.py](web/backend/pipeline_runner.py) |
+| 自动沉淀入口 | [learning_service.py](web/backend/learning_service.py) |
 
 项目成员：杨瑞环（核心开发）、陈榕阳（测试与反馈）、张涵（资料整理）。
 

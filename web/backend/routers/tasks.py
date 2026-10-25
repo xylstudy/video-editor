@@ -20,6 +20,29 @@ from websocket_manager import ws_manager
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
+
+@router.get("/{task_id}/learning")
+def task_learning(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    from db_models import LearningJob
+    from learning_service import job_payload
+    _owned_task(task_id, current_user.id, session)
+    job = session.exec(select(LearningJob).where(LearningJob.task_id == task_id, LearningJob.user_id == current_user.id)).first()
+    return job_payload(job) if job else None
+
+
+@router.post("/{task_id}/learning/retry")
+def retry_task_learning(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    from learning_service import ensure_task_learning, job_payload
+    task, _ = _owned_task(task_id, current_user.id, session)
+    job = ensure_task_learning(session, task, current_user.id)
+    if not job:
+        raise HTTPException(status_code=409, detail="只有已完成的参考视频分析或成片任务可以更新资产")
+    if job.status not in ("pending", "running", "retrying"):
+        job.status, job.attempts, job.next_retry_at, job.error = "pending", 0, 0, None
+        session.add(job)
+    session.commit()
+    return job_payload(job)
+
 ALLOWED_TRANSITIONS = {
     "cut", "fade", "dissolve", "zoom_in", "zoom_out", "flash_white",
     "flash_black", "slide", "slide_left", "slide_right", "slide_up",

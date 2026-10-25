@@ -155,6 +155,10 @@ class TaskQueue:
                         "progress": 100,
                         "result_path": result_path,
                     }
+                    from learning_service import ensure_task_learning
+                    learning = ensure_task_learning(session, task, item.user_id)
+                    if learning:
+                        status_payload["learning_job_id"] = learning.id
                 task.error_message = None
                 task.updated_at = datetime.utcnow()
                 session.add(task)

@@ -1,4 +1,5 @@
 import asyncio
+from urllib.parse import urlparse
 import json
 import logging
 from copy import deepcopy
@@ -149,11 +150,17 @@ class PlannerAgent(BaseAgent):
                                                audio_data=audio_data,
                                                gene_json=gene_json,
                                                skill_context=skill_context)
+        # DeepSeek Flash/V4 enables thinking by default. Its reasoning and
+        # final storyboard share the output budget; 16K can truncate a 22-shot
+        # JSON even when the final JSON itself stays below the prompt limit.
+        model = str(getattr(self.llm, "model", ""))
+        official_deepseek = urlparse(str(getattr(self.llm, "chat_url", ""))).hostname == "api.deepseek.com"
+        output_tokens = 32768 if official_deepseek and (model == "deepseek-flash" or model.startswith("deepseek-v4")) else 16384
         for attempt in range(3):
             try:
                 response = await asyncio.wait_for(
-                    self.llm.chat(prompt, response_format="json", max_tokens=16384),
-                    timeout=180,
+                    self.llm.chat(prompt, response_format="json", max_tokens=output_tokens),
+                    timeout=300 if output_tokens > 16384 else 180,
                 )
                 return self.llm.parse_json(response)
             except (json.JSONDecodeError, ValueError, TimeoutError) as e:

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app_config import ALLOWED_ORIGINS
 from database import create_db_and_tables
 from gene_sync import reconcile_completed_task_genes
-from knowledge_sync import reconcile_gene_knowledge
+from learning_service import start_learning_worker, stop_learning_worker
 from queue_manager import queue
 from routers import auth, api_keys, chat, genes, insights, knowledge, materials, models, projects, stats, tasks, works
 
@@ -24,11 +24,12 @@ async def lifespan(app: FastAPI):
     synced = await asyncio.to_thread(reconcile_completed_task_genes)
     if synced:
         logging.getLogger(__name__).info("已回填 %s 个历史任务到基因库", synced)
-    knowledge_added = await reconcile_gene_knowledge()
-    if knowledge_added:
-        logging.getLogger(__name__).info("已从历史基因回填 %s 条个人知识", knowledge_added)
     queue.start()
-    yield
+    start_learning_worker()
+    try:
+        yield
+    finally:
+        await stop_learning_worker()
 
 
 app = FastAPI(

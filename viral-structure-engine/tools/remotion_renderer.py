@@ -133,6 +133,7 @@ def _fallback_custom_video_components(scheme: dict, materials: list[dict[str, st
         "custom:search_cta_card",
         "custom:echo_stack",
         "custom:doodle_pop",
+        "custom:sticker_doodle",
         "custom:torn_paper_frame",
         "custom:grid_memory",
         "custom:panel_fold_reveal",

@@ -32,6 +32,10 @@ def test_renderer_falls_back_only_for_image_only_custom_components_with_video():
                 "render_component": "custom:split_screen_burst",
                 "custom_render_config": {"source_material_ids": ["video", "video_2"]},
             },
+            {
+                "source_material_id": "video", "render_component": "custom:sticker_doodle",
+                "custom_render_config": {"stickers": [{"kind": "eyes", "position": {"x": .5, "y": .4}}]},
+            },
         ]
     }
     rendered = remotion_renderer._fallback_custom_video_components(
@@ -46,6 +50,8 @@ def test_renderer_falls_back_only_for_image_only_custom_components_with_video():
     assert rendered["storyboard"][0]["render_fallback"]["from"] == "custom:fade_out_glow"
     assert rendered["storyboard"][1]["render_component"] == "custom:beat_montage"
     assert rendered["storyboard"][2]["render_component"] == "custom:split_screen_burst"
+    assert rendered["storyboard"][3]["render_component"] == "custom:sticker_doodle"
+    assert rendered["storyboard"][3]["custom_render_config"]["stickers"][0]["kind"] == "eyes"
     assert scheme["storyboard"][0]["render_component"] == "custom:fade_out_glow"
 
 

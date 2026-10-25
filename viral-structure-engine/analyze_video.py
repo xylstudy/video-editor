@@ -160,6 +160,7 @@ async def analyze_video():
 
         extracted_frames = []
         saved_frames = []
+        frame_name = ""
         try:
             frames_dir.mkdir(parents=True, exist_ok=True)
             for sample_index, sample_time in enumerate(sample_shot_times(scene["start"], scene["end"])):
@@ -170,7 +171,9 @@ async def analyze_video():
                 saved_frames.append(str(saved_path))
             if saved_frames:
                 # Keep the historical thumbnail name for the current frontend.
-                shutil.copy2(saved_frames[len(saved_frames) // 2], frames_dir / f"shot_{i:03d}.jpg")
+                thumbnail = frames_dir / f"shot_{i:03d}.jpg"
+                shutil.copy2(saved_frames[len(saved_frames) // 2], thumbnail)
+                frame_name = thumbnail.name
             has_face = any(face.has_face(path) for path in extracted_frames)
         except Exception as e:
             print(f"      多帧抽取失败: {e}")

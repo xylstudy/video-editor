@@ -14,6 +14,7 @@ import { BeijingVlogSegmented } from "./BeijingVlogSegmented";
 import { VlogTechniquesShowcase } from "./VlogTechniquesShowcase";
 import { BeijingVlogVariety, BEIJING_VARIETY_DURATION } from "./BeijingVlogVariety";
 import { TechniqueDemo, getDemoDuration, type TechniqueDemoProps } from "./TechniqueDemo";
+import { PersonalKnowledgeDemo } from "./PersonalKnowledgeDemo";
 import { CinematicDemo, CINEMATIC_DEMO_DURATION } from "./CinematicDemo";
 
 const fps = 30;
@@ -136,6 +137,16 @@ export const Root: React.FC = () => {
         })}
       />
       {/* 进阶特效示范：粒子 / 真实运动模糊 / 卡点爆发 */}
+      <Composition
+        id="PersonalKnowledgeDemo"
+        component={PersonalKnowledgeDemo as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={360}
+        fps={fps}
+        width={540}
+        height={960}
+        defaultProps={{ title: "剪辑效果示例", knowledge_type: "hook_technique", duration_frames: 360, edited: [], technique: "", grade: "warm", film: false, music_ui: false, search_cta: false, audio: "demo-beat-120bpm.wav", source: "实拍素材" }}
+        calculateMetadata={({ props }) => ({ durationInFrames: Number(props.duration_frames) || 360 })}
+      />
       <Composition
         id="CinematicDemo"
         component={CinematicDemo}

@@ -795,9 +795,11 @@ def build_fallback_render_decisions(scheme_dict: dict) -> list[dict]:
     return decisions
 
 
-def build_preferences(topic: str, target_duration: float = 45.0) -> dict:
+def build_preferences(topic: str, target_duration: float = 45.0, reference_shot_count: int = 0) -> dict:
     subject = topic.strip() or "短视频"
     shot_count = "6-10个分镜" if target_duration <= 20 else "12-16个分镜"
+    if reference_shot_count > 0:
+        shot_count = f"{reference_shot_count}个分镜"
     return {
         "style": f"贴合“{subject}”的创意短视频风格",
         "shot_count_target": shot_count,
@@ -1007,7 +1009,7 @@ async def main():
     logger.info(f"   骨架: {skeleton.get('structure_type', '?')}")
 
     inv_json = json.dumps(inventory, ensure_ascii=False)
-    preferences_data = build_preferences(args.topic, target_duration)
+    preferences_data = build_preferences(args.topic, target_duration, reference_shot_count)
     reference_profile = load_local_reference_profile(struct)
     profile_cut_points = reference_profile.get("reference_cut_points", [])
     if isinstance(profile_cut_points, list) and profile_cut_points:

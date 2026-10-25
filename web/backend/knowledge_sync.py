@@ -1,12 +1,13 @@
 """Synchronize completed video genes into the user's personal knowledge base."""
 
 import asyncio
+import copy
+import hashlib
 import json
 import logging
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
 
 from sqlmodel import Session, select
 
@@ -32,7 +33,7 @@ def _existing_entry_ids(store, session: Session, gene_id: int, user_id: int) -> 
 
 def _render_demo_entries(entries: list[dict]) -> dict:
     """Render source clips for personal knowledge, isolating per-entry failures."""
-    from render_knowledge_demos import DEMO_OUT_DIR, render_one, render_source_demo
+    from render_knowledge_demos import DEMO_OUT_DIR, render_source_demo, source_demo_window
 
     rendered = 0
     existing = 0
@@ -49,6 +50,7 @@ def _render_demo_entries(entries: list[dict]) -> dict:
                     metadata.get("source_video") == str(source_video.resolve())
                     and metadata.get("source_fingerprint")
                     == f"{source_video.stat().st_size}:{source_video.stat().st_mtime_ns}"
+                    and (entry.get("type") != "effect_type" or metadata.get("source_window") == source_demo_window(entry))
                 )
             except (OSError, ValueError, TypeError, json.JSONDecodeError):
                 source_is_current = False
@@ -60,17 +62,25 @@ def _render_demo_entries(entries: list[dict]) -> dict:
         if source_video.is_file():
             success, info = render_source_demo(entry, source_video, output)
         else:
-            success, info = render_one(entry)
+            success, info = False, "参考视频缺失，无法生成真实原片示例"
         if success:
             rendered += 1
         else:
             logger.warning("knowledge demo render failed: entry=%s error=%s", entry.get("id"), info)
             failed.append(entry.get("id", ""))
+    from personal_knowledge_demos import render_personal_teaching_demos
+
+    try:
+        teaching = render_personal_teaching_demos(entries)
+    except Exception:
+        logger.exception("personal teaching-demo rendering failed")
+        teaching = {"teaching_demos_rendered": 0, "teaching_demos_existing": 0, "teaching_demo_failures": [entry["id"] for entry in entries]}
     return {
         "demos_rendered": rendered,
         "demos_existing": existing,
         "demos_available": rendered + existing,
         "demo_failures": failed,
+        **teaching,
     }
 
 
@@ -85,7 +95,8 @@ def _label(value, *keys: str) -> str:
 
 
 def _local_entries(report: dict, source_filename: str):
-    """Build five reusable dimensions from a completed video report."""
+    """Build core dimensions plus individually observed effects."""
+    from knowledge.effects import extract_effect_entries
     from models.knowledge import KnowledgeEntry, KnowledgeType
 
     meta = report.get("vlog_meta") or {}
@@ -111,7 +122,7 @@ def _local_entries(report: dict, source_filename: str):
     source = f"来源：参考视频《{source_filename}》的结构分析"
     shared_tags = list(dict.fromkeys(filter(None, ["vlog", structure_type, narrative_type])))
 
-    return [
+    entries = [
         KnowledgeEntry(
             type=KnowledgeType.STRUCTURE_TEMPLATE,
             title=f"{structure_type}结构模板",
@@ -192,16 +203,17 @@ def _local_entries(report: dict, source_filename: str):
             source_summary=source,
         ),
     ]
+    return entries + extract_effect_entries(report, source_filename)
 
 
-async def extract_gene_knowledge(gene_id: int, user_id: int) -> dict:
-    """Extract knowledge once for a gene and keep demo clips source-specific."""
+async def extract_gene_knowledge(gene_id: int, user_id: int, *, render_demos: bool = True) -> dict:
+    """Reconcile missing dimensions/effects while preserving existing personal entries."""
     lock = _gene_locks.setdefault(gene_id, asyncio.Lock())
     async with lock:
         from knowledge.store import KnowledgeStore
 
         store = KnowledgeStore()
-        existing_payloads: list[dict] = []
+        added_ids, updated_ids, originals = [], [], {}
         with Session(engine) as session:
             gene = session.get(Gene, gene_id)
             if not gene or gene.user_id != user_id:
@@ -211,116 +223,75 @@ async def extract_gene_knowledge(gene_id: int, user_id: int) -> dict:
             report_path = Path(gene.report_path)
             if not report_path.is_file():
                 raise RuntimeError("gene report is missing")
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            source_filename = gene.source_filename or Path(gene.video_path).name
+            candidates = _local_entries(report, source_filename)
             existing_ids = _existing_entry_ids(store, session, gene_id, user_id)
-            if existing_ids:
-                existing_payloads = [
-                    entry.to_dict()
-                    for entry in store.get_all_entries()
-                    if entry.id in set(existing_ids)
-                ]
-                for payload in existing_payloads:
-                    payload["__source_video_path"] = gene.video_path
-                existing_result = {
-                    "added": 0,
-                    "existing": len(existing_ids),
-                    "skipped": True,
-                    "trace_path": str(report_path.parent / "knowledge_extract_trace.json"),
-                }
-                report = None
-                title = ""
-                source_filename = ""
-            else:
-                existing_result = None
-                report = json.loads(report_path.read_text(encoding="utf-8"))
-                title = gene.title
-                source_filename = gene.source_filename
-
-        if existing_result is not None:
-            demo_result = await asyncio.to_thread(_render_demo_entries, existing_payloads)
-            return {**existing_result, **demo_result}
-
-        trace_path = report_path.parent / "knowledge_extract_trace.json"
-        entries = _local_entries(report, source_filename)
-        if not entries:
-            raise RuntimeError("gene report contains no reusable knowledge")
-
-        added_ids: list[str] = []
-        existing_payloads = []
-        with Session(engine) as session:
-            existing_ids = _existing_entry_ids(store, session, gene_id, user_id)
-            if existing_ids:
-                existing_payloads = [
-                    entry.to_dict()
-                    for entry in store.get_all_entries()
-                    if entry.id in set(existing_ids)
-                ]
-                gene_video = session.get(Gene, gene_id).video_path
-                for payload in existing_payloads:
-                    payload["__source_video_path"] = gene_video
-                existing_result = {
-                    "added": 0,
-                    "existing": len(existing_ids),
-                    "skipped": True,
-                    "trace_path": str(trace_path),
-                }
-            else:
-                existing_result = None
-                extracted_at = datetime.now().isoformat()
-                try:
-                    for entry in entries:
-                        entry.id = f"k_u{user_id}_{uuid4().hex[:8]}"
-                        entry.source_summary = entry.source_summary or f"From gene: {title}"
+            existing_entries = [store.get_entry(entry_id) for entry_id in existing_ids]
+            core_types = {entry.type for entry in existing_entries if entry.type.value != "effect_type"}
+            effect_entries = {(entry.structured_data.get("effect_key") or entry.structured_data.get("id")): entry
+                              for entry in existing_entries if entry.type.value == "effect_type"}
+            extracted_at = datetime.now().isoformat()
+            try:
+                for entry in candidates:
+                    effect_key = entry.structured_data.get("effect_key")
+                    previous = effect_entries.get(effect_key) if effect_key else None
+                    if not effect_key and entry.type in core_types:
+                        continue
+                    if previous:
+                        # Refresh only machine-derived effect records. Keep user-authored knowledge.
+                        if not previous.structured_data.get("extraction_version"):
+                            continue
+                        if (previous.structured_data == entry.structured_data and previous.title == entry.title
+                                and previous.content == entry.content and previous.source_summary == entry.source_summary):
+                            continue
+                        originals[previous.id] = copy.deepcopy(previous)
+                        entry.id = previous.id
+                        entry.derivation = {**previous.derivation, "updated_at": extracted_at}
+                        updated_ids.append(entry.id)
+                    else:
+                        entry_key = f"effect:{effect_key}" if effect_key else f"core:{entry.type.value}"
+                        digest = hashlib.sha256(f"{gene_id}:{entry_key}".encode()).hexdigest()[:12]
+                        entry.id = f"k_u{user_id}_{digest}"
+                        orphan = store.get_entry(entry.id)
+                        if orphan:
+                            if ((orphan.derivation or {}).get("source_gene_id") != gene_id
+                                    or (orphan.derivation or {}).get("source_user_id") != user_id):
+                                raise RuntimeError("knowledge identity collision")
+                            originals[entry.id] = copy.deepcopy(orphan)
                         entry.derivation = {
-                            "source_gene_id": gene_id,
-                            "source_gene_title": title,
-                            "source_video": source_filename,
-                            "source_user_id": user_id,
-                            "extracted_at": extracted_at,
-                            "prompt_version": "local-knowledge-v1",
-                            "model": "local-rule-engine",
+                            "source_gene_id": gene_id, "source_gene_title": gene.title,
+                            "source_video": source_filename, "source_user_id": user_id,
+                            "extracted_at": extracted_at, "extraction_key": entry_key,
+                            "prompt_version": "local-knowledge-v2-effects", "model": "local-rule-engine",
                         }
-                        store.add_entry(entry)
                         added_ids.append(entry.id)
                         session.add(KnowledgeOwnership(entry_id=entry.id, user_id=user_id))
-                    session.commit()
-                except Exception:
-                    session.rollback()
-                    for entry_id in added_ids:
+                    store.add_entry(entry)
+                session.commit()
+            except Exception:
+                session.rollback()
+                for entry_id in added_ids:
+                    if entry_id not in originals:
                         store.remove_entry(entry_id)
-                    raise
+                for original in originals.values():
+                    store.add_entry(original)
+                raise
+            all_ids = _existing_entry_ids(store, session, gene_id, user_id)
+            payloads = [store.get_entry(entry_id).to_dict() for entry_id in all_ids]
+            source_video_path = gene.video_path
 
-        if existing_result is not None:
-            demo_result = await asyncio.to_thread(_render_demo_entries, existing_payloads)
-            return {**existing_result, **demo_result}
-
-        trace_path.write_text(
-            json.dumps(
-                {
-                    "prompt_version": "local-knowledge-v1",
-                    "model": "local-rule-engine",
-                    "entry_count": len(entries),
-                    "entries": [entry.to_dict() for entry in entries],
-                    "created_at": datetime.now().isoformat(),
-                },
-                ensure_ascii=False,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
-        with Session(engine) as session:
-            source_gene = session.get(Gene, gene_id)
-            source_video_path = source_gene.video_path if source_gene else ""
-        demo_entries = [entry.to_dict() for entry in entries]
-        for payload in demo_entries:
-            payload["__source_video_path"] = source_video_path
-        demo_result = await asyncio.to_thread(_render_demo_entries, demo_entries)
-        return {
-            "added": len(added_ids),
-            "existing": 0,
-            "skipped": False,
-            "trace_path": str(trace_path),
-            **demo_result,
-        }
+        trace_path = report_path.parent / "knowledge_extract_trace.json"
+        trace_path.write_text(json.dumps({
+            "prompt_version": "local-knowledge-v2-effects", "model": "local-rule-engine",
+            "entry_count": len(payloads), "added": added_ids, "updated": updated_ids,
+            "entries": payloads, "created_at": datetime.now().isoformat(),
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        demo_entries = [{**payload, "__source_video_path": source_video_path} for payload in payloads]
+        demos = await asyncio.to_thread(_render_demo_entries, demo_entries) if render_demos else {}
+        return {"added": len(added_ids), "existing": len(all_ids) - len(added_ids),
+                "updated": len(updated_ids), "skipped": not added_ids and not updated_ids,
+                "trace_path": str(trace_path), **demos}
 
 
 async def reconcile_gene_knowledge() -> int:

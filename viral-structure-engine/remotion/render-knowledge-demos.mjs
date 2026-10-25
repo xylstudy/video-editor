@@ -12,9 +12,12 @@ async function main() {
   const outputDir = path.resolve(plan.output_dir);
   const expectedOutput = path.resolve(remotionDir, '../../web/backend/storage/knowledge_demos');
   if (outputDir !== expectedOutput) throw new Error('Unexpected demo output directory');
-  if (!Array.isArray(plan.entries) || plan.entries.some((entry) => !/^k_\d+$/.test(entry.id))) {
-    throw new Error('Batch rendering accepts built-in technique IDs only');
+  const idPattern = plan.personal === true ? /^k_u\d+_[A-Za-z0-9_]+$/ : /^k_\d+$/;
+  if (!Array.isArray(plan.entries) || plan.entries.some((entry) => !idPattern.test(entry.id))) {
+    throw new Error('Invalid knowledge-demo entry ID');
   }
+  const publicDir = plan.personal ? path.resolve(plan.asset_dir) : path.join(remotionDir, 'public');
+  if (plan.personal && publicDir !== path.join(expectedOutput, 'footage_assets')) throw new Error('Unexpected footage asset directory');
 
   const localDir = path.resolve(remotionDir, '../../.local');
   await fs.mkdir(localDir, { recursive: true });
@@ -25,21 +28,22 @@ async function main() {
 
   try {
     console.log(`Preparing shared teaching-demo bundle (${plan.entries.length} entries)`);
-    const serveUrl = await bundle({ entryPoint: path.join(remotionDir, 'src/index.ts'), outDir: bundleDir, publicDir: path.join(remotionDir, 'public'), enableCaching: true });
+    const serveUrl = await bundle({ entryPoint: path.join(remotionDir, 'src/index.ts'), outDir: bundleDir, publicDir, enableCaching: true });
     browser = await openBrowser('chrome', { logLevel: 'error' });
     await fs.mkdir(outputDir, { recursive: true });
     for (const [index, entry] of plan.entries.entries()) {
-      const output = path.join(outputDir, `${entry.id}.mp4`);
+      const output = path.join(outputDir, `${entry.id}${plan.personal ? '.teaching' : ''}.mp4`);
       const temporary = path.join(outputDir, `${entry.id}.${randomUUID()}.partial.mp4`);
       const began = Date.now();
       try {
-        const inputProps = { kind: entry.kind, tech_id: entry.tech_id, title: entry.title };
-        const composition = await selectComposition({ serveUrl, id: 'TechniqueDemo', inputProps, puppeteerInstance: browser, logLevel: 'error' });
+        const inputProps = plan.personal ? entry.input_props : { kind: entry.kind, tech_id: entry.tech_id, title: entry.title };
+        const composition = await selectComposition({ serveUrl, id: plan.personal ? 'PersonalKnowledgeDemo' : 'TechniqueDemo', inputProps, puppeteerInstance: browser, logLevel: 'error' });
         await renderMedia({ serveUrl, composition, inputProps, puppeteerInstance: browser, outputLocation: temporary, codec: 'h264', pixelFormat: 'yuv420p', imageFormat: 'jpeg', concurrency: 4, logLevel: 'error', overwrite: true });
         const stat = await fs.stat(temporary);
         if (!stat.size) throw new Error('Renderer produced an empty video');
         await fs.rename(temporary, output);
-        console.log(`[${index + 1}/${plan.entries.length}] OK ${entry.id} ${entry.title} (${entry.kind}/${entry.tech_id}) ${Math.round(stat.size / 1024)}KB ${((Date.now() - began) / 1000).toFixed(1)}s`);
+        if (plan.personal) await fs.writeFile(path.join(outputDir, `${entry.id}.teaching.json`), JSON.stringify({ status: 'ready', fingerprint: entry.fingerprint, mode: entry.mode, render_token: entry.render_token, materials: entry.materials, recipe: entry.input_props }));
+        console.log(`[${index + 1}/${plan.entries.length}] OK ${entry.id} ${entry.title} ${Math.round(stat.size / 1024)}KB ${((Date.now() - began) / 1000).toFixed(1)}s`);
       } catch (error) {
         failed += 1;
         await fs.unlink(temporary).catch(() => {});

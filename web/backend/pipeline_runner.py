@@ -19,7 +19,6 @@ from app_config import STORAGE_ROOT
 from database import engine
 from db_models import Gene, GeneStatus, KnowledgeOwnership, Material, MaterialType, Project, Task, User
 from gene_sync import sync_task_reference_gene
-from knowledge_sync import extract_gene_knowledge
 from model_runtime import get_user_model_env
 
 logger = logging.getLogger(__name__)
@@ -476,7 +475,6 @@ async def run_pipeline(
             if gene_id is not None:
                 active_gene_id = gene_id
                 emit_progress("gene_sync", f"分析结果已同步到基因库（#{gene_id}）", 98)
-        await _sync_knowledge_nonfatal(active_gene_id, user_id, emit_progress, 99)
         emit_progress("done", f"视频分析完成: {context.reference_report.name}", 100)
         return str(context.reference_report)
 
@@ -500,7 +498,6 @@ async def run_pipeline(
             await _run_editing_transfer(
                 task_id, video, project_topic, context, python_exe, emit_progress
             )
-            await _sync_knowledge_nonfatal(active_gene_id, user_id, emit_progress, 70)
             return str(context.scheme)
 
         if pipeline_mode == "agent_pipeline":
@@ -537,39 +534,10 @@ async def run_pipeline(
             await _run_agent_pipeline(
                 task_id, project, context, python_exe, emit_progress, model_env
             )
-            await _sync_knowledge_nonfatal(active_gene_id, user_id, emit_progress, 70)
             return str(context.scheme)
         raise ValueError(f"不支持的 pipeline 模式: {pipeline_mode}")
 
     raise ValueError(f"不支持的流水线任务类型: {task_type}")
-
-
-async def _sync_knowledge_nonfatal(
-    gene_id: int | None,
-    user_id: int,
-    emit_progress: Callable,
-    percent: int,
-) -> None:
-    """Update personal knowledge without discarding an otherwise valid task."""
-    if gene_id is None:
-        return
-    try:
-        result = await extract_gene_knowledge(gene_id, user_id)
-        if result.get("skipped"):
-            emit_progress("knowledge_sync", "该基因知识已入库，无需重复提炼", percent)
-        else:
-            emit_progress(
-                "knowledge_sync",
-                f"已自动提炼 {result.get('added', 0)} 条知识并同步到知识库",
-                percent,
-            )
-    except Exception as exc:
-        logger.warning("基因知识自动同步失败: gene=%s error=%s", gene_id, exc)
-        emit_progress(
-            "knowledge_sync",
-            f"知识库自动更新未完成，可稍后在基因详情重试：{exc}",
-            percent,
-        )
 
 
 def _require_model(model_env: dict[str, str], configured_key: str, purpose: str) -> None:

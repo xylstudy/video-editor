@@ -609,6 +609,15 @@ body {
 .vc-library-demo-button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; color: #7154df; font-size: 11px; font-weight: 600; white-space: nowrap; }
 .vc-library-demo-button:hover { color: #6246ce; }
 .vc-technique-demo-video { display: block; width: 100%; height: min(62vh, 620px); object-fit: contain; background: #17131f; }
+.vc-technique-demo-video.vc-real-edit-demo { display: block; width: auto; max-width: 100%; height: min(62vh,620px); aspect-ratio: 9 / 16; margin: 0 auto; }
+.vc-learning-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.vc-learning-steps > div { display: flex; flex-direction: column; gap: 8px; padding: 15px; border: 1px solid #e7e2eb; border-radius: 12px; background: #f8f6fb; font-size: 12px; }
+.vc-learning-steps span { color: #8b8195; }
+.vc-learning-steps [data-state="done"] { background: #eef7f1; border-color: #d4e8dc; }
+.vc-learning-steps [data-state="done"] span { color: #448361; }
+.vc-learning-steps [data-state="running"] { background: #eee8fc; border-color: #d8c9f3; }
+.vc-learning-steps [data-state="failed"] { background: #fff2ee; border-color: #f1d3c9; }
+@media (max-width: 640px) { .vc-learning-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .vc-library-dialog { position: fixed; inset: 0; width: min(660px, calc(100% - 32px)); height: calc(100% - 32px); max-width: none; max-height: none; margin: 16px 16px 16px auto; padding: 0; overflow: hidden; color: #494151; border: 1px solid #e7e2eb; border-radius: 20px; background: #fff; box-shadow: -14px 0 60px rgba(39,29,62,.18); }
 .vc-library-dialog[open] { display: flex; flex-direction: column; }
@@ -975,3 +984,7 @@ button[class~="hover:text-white"]:hover { color: #20243a; }
 .log-terminal [class~="text-[#8888a8]"],
 .log-terminal [class~="text-[#5a5a7a]"],
 [class~="bg-[#0d0d15]"][class~="text-[#5a5a7a]"] { color: #aab2c8; }
+.vc-demo-variants { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.vc-demo-variants button { border: 1px solid #e1d9ed; background: #fff; color: #766c83; border-radius: 9px; padding: 7px 13px; font-size: 12px; cursor: pointer; }
+.vc-demo-variants button[aria-pressed="true"] { background: #eee8fc; color: #7151bd; border-color: #d8c9f3; }
+.vc-demo-caption { font-size: 12px; color: #8b8195; line-height: 1.7; margin-bottom: 10px; }

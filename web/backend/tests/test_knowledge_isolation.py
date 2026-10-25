@@ -1,4 +1,7 @@
 import json
+import pytest
+from fastapi import HTTPException
+from starlette.requests import Request
 from types import SimpleNamespace
 
 from sqlmodel import Session, SQLModel, create_engine, select
@@ -35,6 +38,9 @@ class FakeStore:
 
     def get_entry(self, entry_id):
         return next((entry for entry in self.entries if entry.id == entry_id), None)
+
+    def remove_entry(self, entry_id):
+        self.entries = [entry for entry in self.entries if entry.id != entry_id]
 
 
 def make_session():
@@ -85,6 +91,52 @@ def test_knowledge_scopes_separate_system_and_personal_entries(monkeypatch):
     ]
     assert {item["id"] for item in visible} == {"k_0", "k_u1_private"}
     assert new_user_mine == []
+
+
+def test_teaching_variants_respect_ownership_and_keep_source_clips(monkeypatch, tmp_path):
+    session = make_session()
+    alice, bob, _ = seed_users_and_ownership(session)
+    monkeypatch.setattr(knowledge, "_load_store", lambda: FakeStore([FakeEntry("k_u1_private", "alice private")]))
+    monkeypatch.setattr(knowledge, "DEMO_DIR", tmp_path)
+    (tmp_path / "k_u1_private.mp4").write_bytes(b"example")
+    (tmp_path / "k_u1_private.teaching.mp4").write_bytes(b"teaching")
+    request = Request({"type": "http", "headers": [(b"range", b"bytes=0-2")]})
+    for old_mode in ("personal-teaching-v1", "personal-footage-v2", "personal-effect-v3"):
+        (tmp_path / "k_u1_private.teaching.json").write_text(json.dumps({"mode": old_mode, 'recipe': {'reference_recut': True}}))
+        legacy = knowledge.list_knowledge(scope="mine", current_user=alice, session=session)
+        assert legacy[0]["demos"] == [{"variant": "example", "label": "原片示例"}]
+        assert not legacy[0]["has_teaching_demo"]
+        with pytest.raises(HTTPException) as outdated:
+            knowledge.get_knowledge_demo("k_u1_private", request, variant="teaching", current_user=alice, session=session)
+        assert outdated.value.status_code == 404
+    for suffix in ("teaching.json", "mp4.source.json"):
+        (tmp_path / f"k_u1_private.{suffix}").write_text(json.dumps({"mode": "personal-effect-v3"}))
+    entries = knowledge.list_knowledge(scope="mine", current_user=alice, session=session)
+    assert [(demo['variant'], demo['label']) for demo in entries[0]["demos"]] == [('teaching', '效果示例'), ('example', '原片示例')]
+    assert entries[0]["has_teaching_demo"]
+    assert entries[0]['demos'][0]['version']
+    request = Request({"type": "http", "headers": [(b"range", b"bytes=0-2")]})
+    response = knowledge.get_knowledge_demo("k_u1_private", request, variant="teaching", current_user=alice, session=session)
+    assert response.status_code == 206
+    for variant in ("example", "teaching"):
+        with pytest.raises(HTTPException) as denied:
+            knowledge.get_knowledge_demo("k_u1_private", request, variant=variant, current_user=bob, session=session)
+        assert denied.value.status_code == 404
+    knowledge.delete_knowledge("k_u1_private", current_user=alice, session=session)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_pending_effects_do_not_expose_old_reference_teaching_files(monkeypatch, tmp_path):
+    session = make_session()
+    alice, _, _ = seed_users_and_ownership(session)
+    monkeypatch.setattr(knowledge, '_load_store', lambda: FakeStore([FakeEntry('k_u1_private', 'pending')]))
+    monkeypatch.setattr(knowledge, 'DEMO_DIR', tmp_path)
+    (tmp_path / 'k_u1_private.mp4').write_bytes(b'reference')
+    (tmp_path / 'k_u1_private.teaching.mp4').write_bytes(b'old duplicate')
+    (tmp_path / 'k_u1_private.teaching.json').write_text(json.dumps({'mode': 'personal-effect-v4', 'status': 'pending', 'reason': '缺少独立素材'}))
+    entry = knowledge.list_knowledge(scope='mine', current_user=alice, session=session)[0]
+    assert not entry['has_teaching_demo'] and entry['demo_pending_reason'] == '缺少独立素材'
+    assert entry['demos'] == [{'variant': 'example', 'label': '原片示例'}]
 
 
 def test_dashboard_count_excludes_system_knowledge(monkeypatch, tmp_path):

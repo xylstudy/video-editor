@@ -388,6 +388,44 @@ export const EchoStack: React.FC<MotionProps> = (props) => {
   );
 };
 
+const StructuredSticker: React.FC<{ sticker: Record<string, unknown>; duration: number }> = ({ sticker, duration }) => {
+  const frame = useCurrentFrame();
+  const { fps, width } = useVideoConfig();
+  const position = (sticker.position || {}) as Record<string, unknown>;
+  const nodes = (Array.isArray(sticker.path) ? sticker.path : []).filter((node): node is Record<string, unknown> => Boolean(node) && typeof node === "object");
+  const points: (Record<string, unknown> & { progress: number })[] = nodes.map((node, index) => ({ ...node, progress: Number(node.t ?? node.progress ?? index / Math.max(1, nodes.length - 1)) })).sort((a, b) => a.progress - b.progress).filter((node, index, values) => index === 0 || node.progress > values[index - 1].progress);
+  const progress = clamp(frame / Math.max(1, duration - 1));
+  const value = (key: string, fallback: number) => points.length > 1
+    ? interpolate(progress, points.map(point => point.progress), points.map(point => Number(point[key] ?? position[key] ?? fallback)), { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : Number(points[0]?.[key] ?? position[key] ?? fallback);
+  const pop = spring({ frame, fps, config: { damping: 12, stiffness: 240, mass: .45 } });
+  const kind = String(sticker.kind || "smiley");
+  const color = String(sticker.color || "#FFD93D");
+  const size = Math.max(64, Math.min(width * .65, Number(position.w ?? position.width ?? .22) * width));
+  const style: React.CSSProperties = { position: "absolute", left: `${value("x", .5) * 100}%`, top: `${value("y", .4) * 100}%`, width: size, transform: `translate(-50%,-50%) scale(${pop * value("scale", 1)})`, overflow: "visible", filter: "drop-shadow(0 5px 3px #0005)" };
+  return <svg viewBox="0 0 240 180" style={style}>
+    {kind === "smiley" && <>
+      <circle cx="120" cy="90" r="80" fill={color} stroke="#332719" strokeWidth="5" />
+      <path d="M75 68 Q86 42 97 68 M145 68 Q156 42 167 68" fill="none" stroke="#332719" strokeWidth="9" strokeLinecap="round" />
+      <path d="M65 91 Q120 161 175 91 Z" fill="white" stroke="#332719" strokeWidth="7" strokeLinejoin="round" />
+      <path d="M77 110 L162 110" stroke="#332719" strokeWidth="4" />
+    </>}
+    {kind === "eyes" && <>
+      {[68, 170].map((cx, index) => <g key={cx} transform={`rotate(${index ? 7 : -7} ${cx} 80)`}>
+        <ellipse cx={cx} cy="80" rx="40" ry="58" fill="white" stroke="#231c1a" strokeWidth="5" />
+        <ellipse cx={cx + Math.sin(frame / 5) * 9} cy="92" rx="16" ry="28" fill="#171310" />
+        <circle cx={cx + 7} cy="81" r="6" fill="white" />
+      </g>)}
+    </>}
+    {kind === "anger" && <>
+      <path d="M40 20 Q95 23 93 70 Q43 69 38 111 M197 20 Q143 25 145 72 Q193 73 198 114 M39 158 Q92 152 94 109 Q143 108 146 158" fill="none" stroke="#29201d" strokeWidth="19" strokeLinecap="round" />
+      <path d="M40 20 Q95 23 93 70 Q43 69 38 111 M197 20 Q143 25 145 72 Q193 73 198 114 M39 158 Q92 152 94 109 Q143 108 146 158" fill="none" stroke={color} strokeWidth="10" strokeLinecap="round" />
+    </>}
+    {kind === "burst" && [0, 1, 2, 3, 4].map(index => <path key={index} d="M120 20 L120 62" fill="none" stroke={color} strokeWidth="15" strokeLinecap="round" transform={`rotate(${-70 + index * 35} 120 155)`} />)}
+    {!["smiley", "eyes", "anger", "burst"].includes(kind) && <text x="120" y="135" textAnchor="middle" fontSize="130" fontWeight="900" fill={color} stroke="#201b18" strokeWidth="5" paintOrder="stroke">!!</text>}
+  </svg>;
+};
+
 export const DoodlePop: React.FC<MotionProps> = (props) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -408,6 +446,11 @@ export const DoodlePop: React.FC<MotionProps> = (props) => {
   const x = interpolate(pathProgress, [0, 1], [Number(firstPoint.x ?? .82), Number(lastPoint.x ?? firstPoint.x ?? .82)]);
   const y = interpolate(pathProgress, [0, 1], [Number(firstPoint.y ?? .18), Number(lastPoint.y ?? firstPoint.y ?? .18)]);
   if (!images[0]) return <EmptyHint />;
+  const stickers = Array.isArray(props.stickers) ? props.stickers.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object") : [];
+  if (stickers.length) return <AbsoluteFill style={{ background: "#080808", overflow: "hidden" }}>
+    <Media src={images[0]} />
+    {stickers.map((sticker, index) => <StructuredSticker key={index} sticker={sticker} duration={Number(props.durationInFrames || 30)} />)}
+  </AbsoluteFill>;
   return (
     <AbsoluteFill style={{ background: "#080808", overflow: "hidden" }}>
       <Media src={images[0]} style={{ transform: `scale(${1.06 + Math.sin(frame / 5) * .012})`, filter: "contrast(1.08) saturate(1.22)" }} />
@@ -512,6 +555,7 @@ const advancedComponents: Record<string, React.FC<MotionProps>> = {
   neon_light_rays: NeonLightRays,
   echo_stack: EchoStack,
   doodle_pop: DoodlePop,
+  sticker_doodle: DoodlePop,
   torn_paper_frame: TornPaperFrame,
   grid_memory: GridMemory,
   panel_fold_reveal: PanelFoldReveal,

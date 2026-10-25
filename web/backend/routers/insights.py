@@ -153,6 +153,10 @@ def get_insights(
     current_user: User = Depends(get_current_user),
 ):
     """挖掘结果 JSON（洞察列表 + 样本信息）。"""
+    from insight_cache import read_cached_insights
+    cached = read_cached_insights(current_user.id)
+    if cached is not None:
+        return cached
     try:
         mined, videos = _run_mining(current_user.id)
     except Exception as exc:
