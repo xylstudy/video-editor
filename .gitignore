@@ -69,3 +69,18 @@ get_video/frames_analysis/
 .workbuddy/
 .local/
 vc_proj.json
+
+# Local test workspaces
+**/.pytest-work/
+**/.chat-pytest-tmp/
+
+# Reproducible download and legacy render artifacts
+get_video/output/
+viral-structure-engine/remotion/temp_media/
+viral-structure-engine/test_aliyun_seg.png
+viral-structure-engine/test_foreground.png
+viral-structure-engine/test_foreground_grabcut.png
+viral-structure-engine/test_foreground_masked.png
+viral-structure-engine/test_result.json
+viral-structure-engine/20260607_162312_*_result.json
+viral-structure-engine/remotion/*-this-session-is-being-continued-*.txt
