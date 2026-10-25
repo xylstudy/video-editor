@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -91,6 +92,74 @@ async def run_pipeline(
 
     out.save_pipeline_summary(final_state)
 
+    # The storyboard Reviewer above judges the planned scheme.  The rendered
+    # MP4 needs a separate evidence-based review so CLI runs have the same
+    # technical and visual quality gate as the Web finalization path.
+    render_review = None
+    rendered_video_path = final_state.get("rendered_video_path", "")
+    scheme_obj = final_state.get("scheme")
+    scheme_dict = scheme_obj.to_dict() if hasattr(scheme_obj, "to_dict") else scheme_obj
+    if rendered_video_path and isinstance(scheme_dict, dict):
+        render_review_started = time.perf_counter()
+        render_usage = None
+        try:
+            from evaluation.run_evaluator import scheme_fingerprint
+            from evaluation.video_review import review_rendered_video
+
+            structures = final_state.get("source_structures", []) or []
+            reference_structure = structures[0] if structures else {}
+            if hasattr(reference_structure, "to_dict"):
+                reference_structure = reference_structure.to_dict()
+            if not isinstance(reference_structure, dict):
+                reference_structure = {}
+            render_review, render_usage = await review_rendered_video(
+                rendered_video_path,
+                scheme_dict,
+                reference_structure,
+                out.stage_dir("render_reviewer"),
+            )
+            render_review["scheme_fingerprint"] = scheme_fingerprint(scheme_dict)
+            out.save_json("render_reviewer", "render_review.json", render_review)
+            out.append_log("render_reviewer", {
+                "success": True,
+                "review_status": render_review.get("status"),
+                "score": (render_review.get("visual_review") or {}).get("total_score"),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+                "llm_usage": render_usage,
+            })
+        except Exception as exc:
+            render_review = {"status": "failed", "reason": f"成片评测初始化失败: {exc}"}
+            out.save_json("render_reviewer", "render_review.json", render_review)
+            out.append_log("render_reviewer", {
+                "success": True,
+                "review_status": "failed",
+                "error": str(exc),
+                "duration_seconds": round(time.perf_counter() - render_review_started, 3),
+                "llm_usage": render_usage,
+            })
+            logger.warning("成片评测失败: %s", exc)
+
+        skill_trace = final_state.get("skill_trace")
+        if isinstance(skill_trace, dict) and skill_trace.get("route_decisions"):
+            from skills.verifier import attach_skill_outcomes
+
+            attach_skill_outcomes(
+                skill_trace,
+                reviewer=final_state.get("review_result", {}),
+                render_review=render_review,
+            )
+            final_state["skill_trace"] = skill_trace
+            if hasattr(scheme_obj, "skill_evaluation"):
+                scheme_obj.skill_evaluation = skill_trace
+            elif isinstance(scheme_dict, dict):
+                scheme_dict["skill_evaluation"] = skill_trace
+            out.save_json("planner", "scheme_final.json", scheme_obj or scheme_dict)
+            out.save_json("evaluation", "skill_evaluation.json", skill_trace)
+
+        # Persist the enriched scheme/trace before the deterministic evaluator
+        # reads the run directory.
+        out.save_pipeline_summary(final_state)
+
     # The report is deterministic and reads only this run's saved artifacts;
     # failures in evaluation must not hide a completed generation result.
     try:
@@ -98,6 +167,7 @@ async def run_pipeline(
         evaluation = evaluate_run(out.run_dir)
         out.save_json("evaluation", "report.json", evaluation)
         result["evaluation"] = evaluation
+        result["render_review"] = render_review
     except Exception as exc:
         logger.warning("运行评测报告生成失败: %s", exc)
 

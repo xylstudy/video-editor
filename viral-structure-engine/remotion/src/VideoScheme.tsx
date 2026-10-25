@@ -4,6 +4,7 @@ import type { RenderInput, StoryboardFrame } from "./types/schema";
 import { FrameLayer } from "./components/FrameLayer";
 import { DualTransitionLayer, getRequiredOverlap } from "./components/DualTransitions";
 import { AudioLayer } from "./components/AudioLayer";
+import { ReferenceEffectTracks } from "./components/ReferenceEffects";
 
 /** 预加载时长（秒）—— 确保素材提前加载，避免掉帧 */
 const PREMOUNT_SECONDS = 1;
@@ -76,8 +77,11 @@ export const VideoSchemeComposition: React.FC<RenderInput> = ({
       {/* BGM / 音轨 — 传入 totalDuration 以支持淡出对齐音频长度 */}
       <AudioLayer bgm={{
         src: scheme.bgm?.audio_path ? (material_map?.[scheme.bgm.audio_path] ?? scheme.bgm.audio_path) : "",
-        volume: 0.3,
-        loop: scheme.bgm?.loop ?? true,
+        volume: scheme.audio_config?.volume ?? scheme.bgm?.volume ?? 0.3,
+        loop: scheme.audio_config?.loop ?? scheme.bgm?.loop ?? true,
+        trimBefore: scheme.audio_config?.trim_before ?? scheme.bgm?.trim_before ?? 0,
+        trimAfter: scheme.audio_config?.trim_after ?? scheme.bgm?.trim_after ?? undefined,
+        fadeFrames: scheme.audio_config?.fade_frames ?? 15,
         totalDuration,
       }} />
 
@@ -117,6 +121,8 @@ export const VideoSchemeComposition: React.FC<RenderInput> = ({
           </Sequence>
         );
       })}
+
+      <ReferenceEffectTracks tracks={scheme.effect_tracks} />
 
       {/* 全局 fade out（最后 0.5 秒 -> 黑场） */}
       <AbsoluteFill

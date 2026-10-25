@@ -30,6 +30,9 @@ api.interceptors.response.use(
 
 export default api
 
+export const getTaskLearning = (id) => api.get(`/tasks/${id}/learning`)
+export const retryTaskLearning = (id) => api.post(`/tasks/${id}/learning/retry`)
+
 /**
  * 构造带鉴权 token 的媒体 URL。
  * <video> / <a download> 无法携带 Authorization 头，媒体端点支持 ?token= 查询参数。
@@ -77,10 +80,11 @@ export function listMaterials(projectId) {
   return api.get(`/materials/project/${projectId}`)
 }
 
-export function uploadMaterial(projectId, file, type) {
+export function uploadMaterial(projectId, file, type, role = '') {
   const form = new FormData()
   form.append('project_id', projectId)
   form.append('type', type)
+  if (role) form.append('role', role)
   form.append('file', file)
   return api.post('/materials/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },

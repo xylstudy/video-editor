@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mat_12",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_12.mp4",
+    "description": "Summer Avenue in Berclair, Memphis, Tennessee. Driving west from Perkins Road to Waring Road.",
+    "tags": [
+      "street",
+      "city",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Berclair_Memphis_TN_Summer_Ave_from_Perkins_Rd_to_Waring_Rd.theora.ogv",
+    "license": "CC BY-SA 3.0"
+  },
+  {
+    "id": "mat_13",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_13.mp4",
+    "description": "Newsreels in which Dutch subjects of a certain week are presented.; Appeal to the viewers to be extremely careful when passing an unguarded railway crossing. SHOTS: - newspaper reports mention traffic accidents at railway crossings; - various shots of trains which pass various overpass and level railway crossings; the last category is divided into guarded (with railroad barriers), protected (flashing light installations) and ungaurded; - various road traffic and pedestrians pass various level railway crossings; - a viaduct near the station of Leiden is under construction; - at Heiloo installations with half (instead of whole) railroad barriers are submitted to a trial run; - a few shots of cars which drove into railroad barriers; - various shots show how it shouldn't be done.",
+    "tags": [
+      "railway",
+      "transport",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Weggebruikers_attentie...._onbewaakte_overweg-524524.ogv",
+    "license": "CC BY-SA 3.0 nl"
+  },
+  {
+    "id": "mat_15",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_15.mp4",
+    "description": "Video of Vivekanand Bridge over Hoogly River in Kolkata taken from a moving car",
+    "tags": [
+      "bridge",
+      "car",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:VID_View_Of_Vivekanand_Bridge_From_Moving_Car.ogv",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_17",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_17.mp4",
+    "description": "Video of a Highway in Nepal on the way to Bhairahawa",
+    "tags": [
+      "bus",
+      "highway",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:View_From_Bus_Of_Nepali_Highway_To_Bhairahawa.ogv",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_21",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_21.mp4",
+    "description": "Fonte: https://www.youtube.com/channel/UCH_lKz2VXlfLPgYOE3biySg",
+    "tags": [
+      "cable_car",
+      "city",
+      "landscape"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Telef%C3%A9rico_do_Funchal_-_Holidays_Madeira.webm",
+    "license": "CC BY 3.0"
+  }
+]

@@ -1,0 +1,1562 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "travel_vlog_batch_v1",
+  "purpose": "functional and Skill-lifecycle evaluation; not a virality benchmark",
+  "source": "Wikimedia Commons",
+  "source_policy": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia",
+  "asset_count": 30,
+  "reference_count": 5,
+  "material_count": 25,
+  "assets": [
+    {
+      "id": "ref_01",
+      "role": "reference",
+      "theme": "nature",
+      "tags": [
+        "landscape",
+        "mountain",
+        "cinematic"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+      "relative_path": "media/references/ref_01.mp4",
+      "sha256": "10e8900383cada1901f19038a24e2c4ffdbd9812908213bb491abfe9c181a659",
+      "bytes": 2715227,
+      "clip_start_seconds": 4.0,
+      "clip_duration_seconds": 45.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:CZECH SWITZERLAND - 4K TRAVEL VIDEO.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:CZECH_SWITZERLAND_-_4K_TRAVEL_VIDEO.webm",
+      "author": "Danny Rest",
+      "credit": "YouTube: CZECH SWITZERLAND | 4K TRAVEL VIDEO – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Support me on Patreon! https://www.patreon.com/DannyRest_My equipment:My main camera: Sony a6300My second camera: Canon 6D Mark iiMy drones: Mavic Pro | Phan...",
+      "attribution_required": "true",
+      "original_duration": 115.901,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "60/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "45.000000",
+          "size": "2715227"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "ref_02",
+      "role": "reference",
+      "theme": "nature",
+      "tags": [
+        "landscape",
+        "travel",
+        "dynamic"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+      "relative_path": "media/references/ref_02.mp4",
+      "sha256": "5976fe53a4a7ff657ccaeda277ba626e732bd62bc6b2353ecc27c426a85eebb4",
+      "bytes": 5945347,
+      "clip_start_seconds": 2.0,
+      "clip_duration_seconds": 45.0,
+      "selected_derivative": "480p.vp9.webm",
+      "source_title": "File:Jujuy es magia pura, Jujuy, Argentina.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Jujuy_es_magia_pura%2C_Jujuy%2C_Argentina.webm",
+      "author": "Ojos del mundo",
+      "credit": "YouTube: #jujuy Alto verano es #magiapura – View/save archived versions on archive.org",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "description": "Contactos: www.luciasant.com Instagram: @ojosdelmundo_ Facebook: Ojos del Mundo",
+      "attribution_required": "true",
+      "original_duration": 93.848,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 854,
+            "height": 480,
+            "r_frame_rate": "24/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "45.000000",
+          "size": "5945347"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "ref_03",
+      "role": "reference",
+      "theme": "city",
+      "tags": [
+        "japan",
+        "city",
+        "journey"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+      "relative_path": "media/references/ref_03.mp4",
+      "sha256": "da921cbf4495f1bb1a67403681a25740cc18b549d21da86a2a7073be80e99f69",
+      "bytes": 5185910,
+      "clip_start_seconds": 5.0,
+      "clip_duration_seconds": 45.0,
+      "selected_derivative": "480p.vp9.webm",
+      "source_title": "File:Japan- from the North to the South - 北から南へ -.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Japan-_from_the_North_to_the_South_-_%E5%8C%97%E3%81%8B%E3%82%89%E5%8D%97%E3%81%B8_-.webm",
+      "author": "Nomadik Footprints",
+      "credit": "Vimeo: Japan: from the North to the South - 北から南へ - (view archived source)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "#Japan #Hokkaido # #Nomadikfootprints #AlexandrePajaud #Tokyo Hi everyone, Today, I am taking you to The Land of the Rising Sun: Japan! A fantastic country divided into different prefectures, which are divided into 8 different regions. I will show a quick view of what you can find and expect: Hokkaido in winter, Tokyo in summer and Nagasaki in autumn. I started my journey in the northernmost part of the archipelago, in the freezing winter of Hokkaido. Small fishing towns, lovely people there, with amazing ramen, this island is magic by its scenery. I then moved to Tokyo, temples and neon streets at nights, Tokyo is a mix of future and past, within the same city. Tokyo has so much to offers, whatever you are looking for. Nagasaki, in the very south of the country, just before the Okinawa islands is full of history and little streets, that will satisfy your taste buds. I hope you will enjoy this quick over look of Japan! - Itinerary: Wakkanai, Asahikawa, Haboro (Hokkaido) Tokyo, Kamakura, (Kanto) Nagasaki (Kyushu) - Filmed with DJI Osmo Pocket & DJI Mavic Pro Drone - Edited with FCPX Follow me on Instagram and Vimeo @Nomadik_Footprints",
+      "attribution_required": "true",
+      "original_duration": 135.917,
+      "original_width": 3840,
+      "original_height": 2160,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 854,
+            "height": 480,
+            "r_frame_rate": "24/1"
+          }
+        ],
+        "format": {
+          "duration": "45.000000",
+          "size": "5185910"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "ref_04",
+      "role": "reference",
+      "theme": "architecture",
+      "tags": [
+        "italy",
+        "architecture",
+        "cinematic"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+      "relative_path": "media/references/ref_04.mp4",
+      "sha256": "e7da7ca5eb493ecff4666e4f1c67506fb0421e74622ea6fef5b363d6ffec083c",
+      "bytes": 5035056,
+      "clip_start_seconds": 5.0,
+      "clip_duration_seconds": 45.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:2 Weeks In Italy - A Cinematic Travel Film.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:2_Weeks_In_Italy_-_A_Cinematic_Travel_Film.webm",
+      "author": "DreamDuo Films",
+      "credit": "YouTube: 2 Weeks In Italy : A Cinematic Travel Film – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "So we went to Italy again which is my favorite place in the entire world. Love the mix between the classic narrow streets and the glorious mountains, and eve...",
+      "attribution_required": "true",
+      "original_duration": 270.407,
+      "original_width": 3840,
+      "original_height": 2160,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "45.000000",
+          "size": "5035056"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "ref_05",
+      "role": "reference",
+      "theme": "road_trip",
+      "tags": [
+        "road",
+        "journey",
+        "people"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+      "relative_path": "media/references/ref_05.mp4",
+      "sha256": "49cb9013400d4ed6917099db75261c027b09ad2fb6141f24b492c61b8a447e5e",
+      "bytes": 8692163,
+      "clip_start_seconds": 3.0,
+      "clip_duration_seconds": 45.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:The last day of our road trip to Iran in 2 minutes.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:The_last_day_of_our_road_trip_to_Iran_in_2_minutes.webm",
+      "author": "AsuhsWorld",
+      "credit": "YouTube: The last day of our road trip to Iran in 2 minutes – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Hyperlapse of the last day driving from Switzerland to Iran",
+      "attribution_required": "true",
+      "original_duration": 125.76,
+      "original_width": 1280,
+      "original_height": 720,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "45.000000",
+          "size": "8692163"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_01",
+      "role": "material",
+      "theme": "interior",
+      "tags": [
+        "hotel",
+        "interior"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_01.mp4",
+      "relative_path": "media/materials/mat_01.mp4",
+      "sha256": "1d82cb0803a705582ac88f5718ae85870891f20d2cb93e86db40011248b2fdd5",
+      "bytes": 928350,
+      "clip_start_seconds": 1.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Hotel in Sudan.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Sudan.webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Atbara (city)",
+      "attribution_required": "true",
+      "original_duration": 13.483,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30000/1001"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.008000",
+          "size": "928350"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_02",
+      "role": "material",
+      "theme": "nature",
+      "tags": [
+        "waterfall",
+        "landscape",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_02.mp4",
+      "relative_path": "media/materials/mat_02.mp4",
+      "sha256": "ee24ab7a89f36dec760a9809e46d59dfcbea54815a5bc43542261cf99f169d98",
+      "bytes": 989426,
+      "clip_start_seconds": 3.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Водоспад Лоцій.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BE%D0%B4%D0%BE%D1%81%D0%BF%D0%B0%D0%B4_%D0%9B%D0%BE%D1%86%D1%96%D0%B9.webm",
+      "author": "Gudyma s",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Водоспад Лоцій",
+      "attribution_required": "true",
+      "original_duration": 32.5,
+      "original_width": 721,
+      "original_height": 1280,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 202,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "989426"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_03",
+      "role": "material",
+      "theme": "interior",
+      "tags": [
+        "hotel",
+        "room"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_03.mp4",
+      "relative_path": "media/materials/mat_03.mp4",
+      "sha256": "a7ce063f67d9dfa31cb5842b9baecd2705daa30f2a321140f9f07eadba150ad4",
+      "bytes": 775956,
+      "clip_start_seconds": 1.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Hotel in Afghanistan-2.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan-2.webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Hotel in Afghanistan",
+      "attribution_required": "true",
+      "original_duration": 14.936,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "775956"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_04",
+      "role": "material",
+      "theme": "interior",
+      "tags": [
+        "hotel",
+        "room"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_04.mp4",
+      "relative_path": "media/materials/mat_04.mp4",
+      "sha256": "be21ad3de8f2e66eebcafd8843379abdfac67bf0d481c7bee0f535cc58b6fadb",
+      "bytes": 748655,
+      "clip_start_seconds": 2.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Quadruple Room in Damascus.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Quadruple_Room_in_Damascus.webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Hotel in Syria",
+      "attribution_required": "true",
+      "original_duration": 15.469000000000001,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000208",
+          "size": "748655"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_05",
+      "role": "material",
+      "theme": "architecture",
+      "tags": [
+        "acropolis",
+        "architecture",
+        "landmark"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_05.mp4",
+      "relative_path": "media/materials/mat_05.mp4",
+      "sha256": "de19c40e20f534ca7b22227ca69f8a19191fc48a9c20dde559372fbb8d856261",
+      "bytes": 2139080,
+      "clip_start_seconds": 3.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Acropolis.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Acropolis.webm",
+      "author": "Yair-haklai",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Acropolis",
+      "attribution_required": "true",
+      "original_duration": 20.425,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30000/1001"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.010000",
+          "size": "2139080"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_06",
+      "role": "material",
+      "theme": "interior",
+      "tags": [
+        "hotel",
+        "travel"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_06.mp4",
+      "relative_path": "media/materials/mat_06.mp4",
+      "sha256": "cb3d61b8b2f349a27141ed5f3d5676f188767c6ca4e4fc7dab77d3c2daf17510",
+      "bytes": 788779,
+      "clip_start_seconds": 5.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Hotel in Afghanistan.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Hotel_in_Afghanistan.webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Hotel in Afghanistan",
+      "attribution_required": "true",
+      "original_duration": 41.736000000000004,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "788779"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_07",
+      "role": "material",
+      "theme": "architecture",
+      "tags": [
+        "building",
+        "city"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_07.mp4",
+      "relative_path": "media/materials/mat_07.mp4",
+      "sha256": "54e91924ef27fbb44e640b8b99ce8f8ab6ec664fbd16cdf614ba58bcb2235deb",
+      "bytes": 559011,
+      "clip_start_seconds": 3.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Недострой в Бандар-Сери-Бегаване.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B5%D0%B4%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B9_%D0%B2_%D0%91%D0%B0%D0%BD%D0%B4%D0%B0%D1%80-%D0%A1%D0%B5%D1%80%D0%B8-%D0%91%D0%B5%D0%B3%D0%B0%D0%B2%D0%B0%D0%BD%D0%B5.webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Unfinished building in the capital of Brunei",
+      "attribution_required": "true",
+      "original_duration": 26.008,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "559011"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_08",
+      "role": "material",
+      "theme": "people",
+      "tags": [
+        "people",
+        "local",
+        "culture"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_08.mp4",
+      "relative_path": "media/materials/mat_08.mp4",
+      "sha256": "ddf590b789dde7d9313b3c572ffd28aa8a16f85f9391ed6987287e5decd719f0",
+      "bytes": 908043,
+      "clip_start_seconds": 4.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:В гостях у брунейца (г. Пекан-Тутонг).webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92_%D0%B3%D0%BE%D1%81%D1%82%D1%8F%D1%85_%D1%83_%D0%B1%D1%80%D1%83%D0%BD%D0%B5%D0%B9%D1%86%D0%B0_(%D0%B3._%D0%9F%D0%B5%D0%BA%D0%B0%D0%BD-%D0%A2%D1%83%D1%82%D0%BE%D0%BD%D0%B3).webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "In the dwelling of the Bruneians (Pekan-Tutong, Brunei) Backup copy: https://www.youtube.com/watch?v=2ufLsWC8VKk",
+      "attribution_required": "true",
+      "original_duration": 24.008,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "908043"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_09",
+      "role": "material",
+      "theme": "people",
+      "tags": [
+        "kyoto",
+        "people",
+        "indoor"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_09.mp4",
+      "relative_path": "media/materials/mat_09.mp4",
+      "sha256": "6278c14603d469d37607775fc6f26619b8b31f958a43f1a1e6b0ff5b422e3263",
+      "bytes": 897988,
+      "clip_start_seconds": 5.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Ночлег в холле студенческого общежития (Киото).webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%BE%D1%87%D0%BB%D0%B5%D0%B3_%D0%B2_%D1%85%D0%BE%D0%BB%D0%BB%D0%B5_%D1%81%D1%82%D1%83%D0%B4%D0%B5%D0%BD%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B3%D0%BE_%D0%BE%D0%B1%D1%89%D0%B5%D0%B6%D0%B8%D1%82%D0%B8%D1%8F_(%D0%9A%D0%B8%D0%BE%D1%82%D0%BE).webm",
+      "author": "Виктор Пинчук",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Overnight in the lobby of a student dormitory (Kyoto, Japan) Backup copy: https://www.youtube.com/watch?v=-pJPaOtAhoo",
+      "attribution_required": "true",
+      "original_duration": 36.008,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.000000",
+          "size": "897988"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_10",
+      "role": "material",
+      "theme": "culture",
+      "tags": [
+        "culture",
+        "landmark",
+        "outdoor"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_10.mp4",
+      "relative_path": "media/materials/mat_10.mp4",
+      "sha256": "5011aaadda7452eb33ba37f0ff9641af0fdb0b3b16393088e92e4246c1ebefab",
+      "bytes": 1559907,
+      "clip_start_seconds": 8.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Cimitirul Vesel de la Sapanta.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Cimitirul_Vesel_de_la_Sapanta.webm",
+      "author": "Stan Ioan Ovidiu",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Cimitirul Vesel de la Sapanta, jud. Maramures",
+      "attribution_required": "true",
+      "original_duration": 124.04,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "25/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1559907"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_11",
+      "role": "material",
+      "theme": "road_trip",
+      "tags": [
+        "road",
+        "landscape",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_11.mp4",
+      "relative_path": "media/materials/mat_11.mp4",
+      "sha256": "16a020fc93e1ae3280b015408380f32d13f7a0295d7613afee39de7d9f059c99",
+      "bytes": 273475,
+      "clip_start_seconds": 5.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:RoadToSalineValley.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:RoadToSalineValley.ogv",
+      "author": "Traveling12feet",
+      "credit": "Own work",
+      "license": "Public domain",
+      "license_url": "",
+      "description": "Driving south on the Saline Valley Road, from the Inyo National Forest towards the washboard road of Waucoba Wash in the eastern Inyo Mountains to the Saline Valley and Death Valley National Park.",
+      "attribution_required": "false",
+      "original_duration": 49.215833333333336,
+      "original_width": 320,
+      "original_height": 240,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 320,
+            "height": 240,
+            "r_frame_rate": "29/1"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "273475"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_12",
+      "role": "material",
+      "theme": "city",
+      "tags": [
+        "street",
+        "city",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_12.mp4",
+      "relative_path": "media/materials/mat_12.mp4",
+      "sha256": "8669ae7cb69e68ce8a6b529eb254536190e818bd68ed47879bc2d11dd5070ab1",
+      "bytes": 860437,
+      "clip_start_seconds": 4.0,
+      "clip_duration_seconds": 8.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Berclair Memphis TN Summer Ave from Perkins Rd to Waring Rd.theora.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Berclair_Memphis_TN_Summer_Ave_from_Perkins_Rd_to_Waring_Rd.theora.ogv",
+      "author": "Thomas R Machnitzki",
+      "credit": "Own work",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "description": "Summer Avenue in Berclair, Memphis, Tennessee. Driving west from Perkins Road to Waring Road.",
+      "attribution_required": "true",
+      "original_duration": 37.233333333333334,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "65521/2184"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "8.032875",
+          "size": "860437"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_13",
+      "role": "material",
+      "theme": "transport",
+      "tags": [
+        "railway",
+        "transport",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_13.mp4",
+      "relative_path": "media/materials/mat_13.mp4",
+      "sha256": "f300565f3ef33cf991020a7d04c10c96c2c3eedff26254c858d794b93f6328cb",
+      "bytes": 703060,
+      "clip_start_seconds": 12.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Weggebruikers attentie.... onbewaakte overweg-524524.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Weggebruikers_attentie...._onbewaakte_overweg-524524.ogv",
+      "author": "Polygoon-Profilti (producent) / Nederlands Instituut voor Beeld en Geluid (beheerder)",
+      "credit": "This media file is from the Open Images project, an initiative from the Netherlands Institute for Sound and Vision and Kennisland.",
+      "license": "CC BY-SA 3.0 nl",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/nl/deed.en",
+      "description": "Newsreels in which Dutch subjects of a certain week are presented.; Appeal to the viewers to be extremely careful when passing an unguarded railway crossing. SHOTS: - newspaper reports mention traffic accidents at railway crossings; - various shots of trains which pass various overpass and level railway crossings; the last category is divided into guarded (with railroad barriers), protected (flashing light installations) and ungaurded; - various road traffic and pedestrians pass various level railway crossings; - a viaduct near the station of Leiden is under construction; - at Heiloo installations with half (instead of whole) railroad barriers are submitted to a trial run; - a few shots of cars which drove into railroad barriers; - various shots show how it shouldn't be done.",
+      "attribution_required": "true",
+      "original_duration": 146.4,
+      "original_width": 384,
+      "original_height": 288,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 384,
+            "height": 288,
+            "r_frame_rate": "25/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "703060"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_14",
+      "role": "material",
+      "theme": "road_trip",
+      "tags": [
+        "road",
+        "island",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_14.mp4",
+      "relative_path": "media/materials/mat_14.mp4",
+      "sha256": "a3bc9f9246a69926307d545229681845375b6dbd4d4fa9f1a31e27634621f2c5",
+      "bytes": 2560429,
+      "clip_start_seconds": 15.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "480p.vp9.webm",
+      "source_title": "File:La Palma - Road LP-109 from west to east 15 ies.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:La_Palma_-_Road_LP-109_from_west_to_east_15_ies.webm",
+      "author": "Frank Vincentz",
+      "credit": "Own work",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "description": "Ride on road LP-109 from west to east (from Garafía to Barlovento) in La Palma, Canary Island, Spain. A slow journey in 33:45 minutes - due to file size restrictions in 17 parts.",
+      "attribution_required": "true",
+      "original_duration": 120.04,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 854,
+            "height": 480,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "2560429"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_15",
+      "role": "material",
+      "theme": "transport",
+      "tags": [
+        "bridge",
+        "car",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_15.mp4",
+      "relative_path": "media/materials/mat_15.mp4",
+      "sha256": "7ad18d1a0102bef0e347bbaad42baa3cc353f357583573c6ebeead40fabe11f4",
+      "bytes": 1729122,
+      "clip_start_seconds": 10.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:VID View Of Vivekanand Bridge From Moving Car.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:VID_View_Of_Vivekanand_Bridge_From_Moving_Car.ogv",
+      "author": "Gulshan Asia",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Video of Vivekanand Bridge over Hoogly River in Kolkata taken from a moving car",
+      "attribution_required": "true",
+      "original_duration": 81.06652083333333,
+      "original_width": 1280,
+      "original_height": 720,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1729122"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_16",
+      "role": "material",
+      "theme": "road_trip",
+      "tags": [
+        "bike",
+        "road",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_16.mp4",
+      "relative_path": "media/materials/mat_16.mp4",
+      "sha256": "6e8bd5fa21f1d654da95ad8a13449683291c963c84f9ff1af1891bc67bc5f200",
+      "bytes": 1690515,
+      "clip_start_seconds": 12.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Bike ride on the outskirt of Janakpur 20161011 165931.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Bike_ride_on_the_outskirt_of_Janakpur_20161011_165931.ogv",
+      "author": "Gulshan Asia",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Bike ride on the outskirt of Janakpur showing the road condition",
+      "attribution_required": "true",
+      "original_duration": 90.26133333333334,
+      "original_width": 1280,
+      "original_height": 720,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1690515"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_17",
+      "role": "material",
+      "theme": "transport",
+      "tags": [
+        "bus",
+        "highway",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_17.mp4",
+      "relative_path": "media/materials/mat_17.mp4",
+      "sha256": "a2d73e5b9a9d7d85d9462156d4924ce2cebc5e7900445759075837eb47545db4",
+      "bytes": 3251631,
+      "clip_start_seconds": 10.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:View From Bus Of Nepali Highway To Bhairahawa.ogv",
+      "source_page": "https://commons.wikimedia.org/wiki/File:View_From_Bus_Of_Nepali_Highway_To_Bhairahawa.ogv",
+      "author": "Gulshan Asia",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Video of a Highway in Nepal on the way to Bhairahawa",
+      "attribution_required": "true",
+      "original_duration": 60.1,
+      "original_width": 1280,
+      "original_height": 720,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.007854",
+          "size": "3251631"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_18",
+      "role": "material",
+      "theme": "transport",
+      "tags": [
+        "horse",
+        "carriage",
+        "people"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_18.mp4",
+      "relative_path": "media/materials/mat_18.mp4",
+      "sha256": "d26b40e85af7f4c51235c4d674296cf873c98714ae287205354b0ab97560ef08",
+      "bytes": 959511,
+      "clip_start_seconds": 20.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Horse-carriage.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Horse-carriage.webm",
+      "author": "Aimty17",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "The horse rides and carriage ride is still available in Aswan. It's cool way to start your road trip.",
+      "attribution_required": "true",
+      "original_duration": 364.16700000000003,
+      "original_width": 854,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "2997/100"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.010010",
+          "size": "959511"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_19",
+      "role": "material",
+      "theme": "nature",
+      "tags": [
+        "mountain",
+        "bus",
+        "motion"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_19.mp4",
+      "relative_path": "media/materials/mat_19.mp4",
+      "sha256": "5666580141080f9515f3f7b8d51eccca63d2ef6ffcf13053998c06a61ca72b31",
+      "bytes": 1083181,
+      "clip_start_seconds": 2.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Amazing Mountain bus ride from Monte in Funchal, Madeira, Portugal - No Copyright.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Amazing_Mountain_bus_ride_from_Monte_in_Funchal%2C_Madeira%2C_Portugal_-_No_Copyright.webm",
+      "author": "NoCopyrightNature",
+      "credit": "YouTube: Amazing Mountain bus ride from Monte in Funchal, Madeira, Portugal - No Copyright – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Amazing Mountain bus ride from Monte in Funchal, Madeira, Portugal Website: https://therelaxingadventurer.wordpress.com/27-2/ Instagram: https://www.instagram.com/the_vagabond_captain/ This video is royalty-free and can be used for monetized YouTube videos. All material in this video is original and personally recorded by myself. Licensing You don’t need any special license to use the footage presented in this video. This footage is free for personal and commercial use. No attribution is required, but a reference link back to this video is always appreciated. Enjoy! If you have any questions, just comment below. Support the channel: If you enjoy my videos and would like to support my work, You can send a small tip via PayPal. Or, you can simply LIKE & SHARE the videos with your relatives and friends. It's a great support to me. • PayPal Tips: paypal.me/BotondRatonyi Tags: nature video no copyright, copyright free nature video, no copyright nature videos, no copyright video nature, nature footage no copyright, nature no copyright, stock footage nature, free nature video background – hd, nature video cinematic, landscape video, nature background video no copyright, nature stock footage, nature videos no copyright, background video no copyright nature, video no copyright nature, nature no copyright video, nature footage, background video nature no copyright, cinematic nature video no copyright, free nature video no copyright, free stock footage nature, free footage no copyright, no copyright nature video, nature background video, free nature background video no copyright, no copyright background video nature, footage no copyright, natural background video no copyright, nature video background, free footage nature, no copyright nature video background, background video nature, background nature video, nature landscapes, nature video clips without music, footage video cinematic no copyright, stock video nature, backgro",
+      "attribution_required": "true",
+      "original_duration": 20.421,
+      "original_width": 3840,
+      "original_height": 2160,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "7019/250"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.008549",
+          "size": "1083181"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_20",
+      "role": "material",
+      "theme": "architecture",
+      "tags": [
+        "resort",
+        "garden",
+        "architecture"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_20.mp4",
+      "relative_path": "media/materials/mat_20.mp4",
+      "sha256": "2102618ce19f0a975d209812c49507a9f569adc798febba6ec94e998e32185df",
+      "bytes": 2064458,
+      "clip_start_seconds": 12.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Resort VILA PORTO MARE - Madeira -- Portugal.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Resort_VILA_PORTO_MARE_-_Madeira_--_Portugal.webm",
+      "author": "PortoBay",
+      "credit": "YouTube: resort VILA PORTO MARE - Madeira // Portugal – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Resort Vila Porto Mare * * * * // The ideal resort for families . ..Funchal | Madeira | PortugalPortoBay Hotels & Resorts Learn more at https://www.portobay....",
+      "attribution_required": "true",
+      "original_duration": 168.341,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "25/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "2064458"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_21",
+      "role": "material",
+      "theme": "transport",
+      "tags": [
+        "cable_car",
+        "city",
+        "landscape"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_21.mp4",
+      "relative_path": "media/materials/mat_21.mp4",
+      "sha256": "fdb31bc6315fb725fe7d0780ad442218816a2d36dd07cb3baa8655afe713986f",
+      "bytes": 867496,
+      "clip_start_seconds": 15.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Teleférico do Funchal - Holidays Madeira.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Telef%C3%A9rico_do_Funchal_-_Holidays_Madeira.webm",
+      "author": "Holidays Madeira",
+      "credit": "YouTube: Teleférico do Funchal - Holidays Madeira – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Fonte: https://www.youtube.com/channel/UCH_lKz2VXlfLPgYOE3biySg",
+      "attribution_required": "true",
+      "original_duration": 273.321,
+      "original_width": 1280,
+      "original_height": 720,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "25/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "867496"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_22",
+      "role": "material",
+      "theme": "people",
+      "tags": [
+        "cafe",
+        "local",
+        "people"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_22.mp4",
+      "relative_path": "media/materials/mat_22.mp4",
+      "sha256": "c2cd100db9abb2012de84d688ec0d8e9fa8ac7c940d888abe7d5f8790cd153c7",
+      "bytes": 1381872,
+      "clip_start_seconds": 12.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:CAFE OWNER, FUNCHAL- \"The Levadas is THE -1 Attraction On Madeira\" -- Top Travel Tips From Locals.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:CAFE_OWNER%2C_FUNCHAL-_%22The_Levadas_is_THE_-1_Attraction_On_Madeira%22_--_Top_Travel_Tips_From_Locals.webm",
+      "author": "Top Travel Tips From Locals",
+      "credit": "YouTube: CAFE OWNER, FUNCHAL: \"The Levadas is THE #1 Attraction On Madeira\" // Top Travel Tips From Locals – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "This nice cafe owner in Santa Catarina park in Funchal, Madeira is clear: His BEST travel tip is to walk the Levadas. (The Levadas are channels of water originally created to transport the water of the north of the Island, with a humid climate and more precipitation, to the south where the climate is drier.) Forget the travel gurus. It's the locals that know their area best. On this channel, you get top travel tips from... you guessed it; The locals. Local know-how to: What to do, what to see, where to sleep, what to eat. And how to get there. What would you recommend from your city? Please write in the comments below. TerjeNordkvelle TopTravelTipsFromLocals",
+      "attribution_required": "true",
+      "original_duration": 145.02100000000002,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1381872"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_23",
+      "role": "material",
+      "theme": "city",
+      "tags": [
+        "funchal",
+        "city",
+        "street"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_23.mp4",
+      "relative_path": "media/materials/mat_23.mp4",
+      "sha256": "ed05a3fa6e76862b3f91c7fba057f6374e1e0ab23916887f90a9065d329664d3",
+      "bytes": 1629097,
+      "clip_start_seconds": 20.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Funchal, Madeira, Portugal - City Tour - Impressionen 2017.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Funchal%2C_Madeira%2C_Portugal_-_City_Tour_-_Impressionen_2017.webm",
+      "author": "Matt B",
+      "credit": "YouTube: Funchal, Madeira, Portugal - City Tour - Impressionen 2017 – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Dieses Video soll Euch eine City Tour (per Sightseeing Bus sowie auch zu Fuss) durch die Inselhauptstadt Funchal, der Blumeninsel Madeira.Die Insel Madeira ...",
+      "attribution_required": "true",
+      "original_duration": 472.681,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30000/1001"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.010000",
+          "size": "1629097"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_24",
+      "role": "material",
+      "theme": "culture",
+      "tags": [
+        "dance",
+        "people",
+        "culture"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_24.mp4",
+      "relative_path": "media/materials/mat_24.mp4",
+      "sha256": "c52cb5dbb83301f60361f8c42a9a4ae454eb873e0bbcc726756cfa3480c2a3ab",
+      "bytes": 1054688,
+      "clip_start_seconds": 8.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Danco en Po Nagar.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Danco_en_Po_Nagar.webm",
+      "author": "RG72",
+      "credit": "Own work",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "description": "Danco en Po Nagar. Nha Trang, Vjetnamio.",
+      "attribution_required": "true",
+      "original_duration": 85.537,
+      "original_width": 640,
+      "original_height": 480,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 480,
+            "height": 360,
+            "r_frame_rate": "15/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1054688"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    },
+    {
+      "id": "mat_25",
+      "role": "material",
+      "theme": "architecture",
+      "tags": [
+        "great_wall",
+        "landmark",
+        "people"
+      ],
+      "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_25.mp4",
+      "relative_path": "media/materials/mat_25.mp4",
+      "sha256": "b335e008a825b344443b64f7764eece048269aec0809cc05228b6d983e4147e8",
+      "bytes": 1928197,
+      "clip_start_seconds": 18.0,
+      "clip_duration_seconds": 10.0,
+      "selected_derivative": "360p.mpeg4.mov",
+      "source_title": "File:Visita la Muralla China en 4 horas.webm",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Visita_la_Muralla_China_en_4_horas.webm",
+      "author": "La Vida en China",
+      "credit": "YouTube: Visita la Muralla China en 4 horas ! 🇨🇳 ⛄️ – View/save archived versions on archive.org",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "description": "Un día en la Muralla China! A una hora al norte de Beijing. En la zona de Mutianyu, esta vez no hubo hiking simplemente subimos por cable car y bajamos por tobogán! por lo que el recorrido total lo hicimos en 4 horas",
+      "attribution_required": "true",
+      "original_duration": 200.442,
+      "original_width": 1920,
+      "original_height": 1080,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 640,
+            "height": 360,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000",
+          "size": "1928197"
+        }
+      },
+      "transformation": "Short excerpt transcoded to H.264/AAC MP4, max width 854 px."
+    }
+  ],
+  "failures": []
+}

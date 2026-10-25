@@ -3,6 +3,8 @@ import { useCurrentFrame, useVideoConfig, interpolate, Easing, AbsoluteFill, Img
 import { jsx, jsxs } from "react/jsx-runtime";
 var SlowLifeMontage = ({
   source_material_ids = [],
+  imagePath = "",
+  imageUrls = [],
   animation = "zoom_in_slow",
   color_grade = "warm",
   ambient_sound = true,
@@ -11,7 +13,7 @@ var SlowLifeMontage = ({
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
-  const imageSrc = "beijing_8.jpg";
+  const imageSrc = imageUrls[0] || imagePath;
   const zoomScale = interpolate(frame, [0, durationInFrames], [1, 1.08], {
     easing: Easing.inOut(Easing.ease),
     extrapolateLeft: "clamp",
@@ -131,7 +133,7 @@ var SlowLifeMontage = ({
     })
   };
   return /* @__PURE__ */ jsxs(AbsoluteFill, { style: containerStyle, children: [
-    /* @__PURE__ */ jsx(Img, { src: imageSrc, style: imageStyle }),
+    imageSrc && /* @__PURE__ */ jsx(Img, { src: imageSrc, style: imageStyle }),
     /* @__PURE__ */ jsx("div", { style: warmOverlayStyle }),
     /* @__PURE__ */ jsx("div", { style: vignetteStyle }),
     /* @__PURE__ */ jsx("div", { style: lightGlowStyle }),

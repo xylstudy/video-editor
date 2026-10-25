@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mat_02",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_02.mp4",
+    "description": "Водоспад Лоцій",
+    "tags": [
+      "waterfall",
+      "landscape",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BE%D0%B4%D0%BE%D1%81%D0%BF%D0%B0%D0%B4_%D0%9B%D0%BE%D1%86%D1%96%D0%B9.webm",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_12",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_12.mp4",
+    "description": "Summer Avenue in Berclair, Memphis, Tennessee. Driving west from Perkins Road to Waring Road.",
+    "tags": [
+      "street",
+      "city",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Berclair_Memphis_TN_Summer_Ave_from_Perkins_Rd_to_Waring_Rd.theora.ogv",
+    "license": "CC BY-SA 3.0"
+  },
+  {
+    "id": "mat_19",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_19.mp4",
+    "description": "Amazing Mountain bus ride from Monte in Funchal, Madeira, Portugal Website: https://therelaxingadventurer.wordpress.com/27-2/ Instagram: https://www.instagram.com/the_vagabond_captain/ This video is royalty-free and can be used for monetized YouTube videos. All material in this video is original and personally recorded by myself. Licensing You don’t need any special license to use the footage presented in this video. This footage is free for personal and commercial use. No attribution is required, but a reference link back to this video is always appreciated. Enjoy! If you have any questions, just comment below. Support the channel: If you enjoy my videos and would like to support my work, You can send a small tip via PayPal. Or, you can simply LIKE & SHARE the videos with your relatives and friends. It's a great support to me. • PayPal Tips: paypal.me/BotondRatonyi Tags: nature video no copyright, copyright free nature video, no copyright nature videos, no copyright video nature, nature footage no copyright, nature no copyright, stock footage nature, free nature video background – hd, nature video cinematic, landscape video, nature background video no copyright, nature stock footage, nature videos no copyright, background video no copyright nature, video no copyright nature, nature no copyright video, nature footage, background video nature no copyright, cinematic nature video no copyright, free nature video no copyright, free stock footage nature, free footage no copyright, no copyright nature video, nature background video, free nature background video no copyright, no copyright background video nature, footage no copyright, natural background video no copyright, nature video background, free footage nature, no copyright nature video background, background video nature, background nature video, nature landscapes, nature video clips without music, footage video cinematic no copyright, stock video nature, backgro",
+    "tags": [
+      "mountain",
+      "bus",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Amazing_Mountain_bus_ride_from_Monte_in_Funchal%2C_Madeira%2C_Portugal_-_No_Copyright.webm",
+    "license": "CC BY 3.0"
+  },
+  {
+    "id": "mat_20",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_20.mp4",
+    "description": "Resort Vila Porto Mare * * * * // The ideal resort for families . ..Funchal | Madeira | PortugalPortoBay Hotels & Resorts Learn more at https://www.portobay....",
+    "tags": [
+      "resort",
+      "garden",
+      "architecture"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Resort_VILA_PORTO_MARE_-_Madeira_--_Portugal.webm",
+    "license": "CC BY 3.0"
+  },
+  {
+    "id": "mat_23",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_23.mp4",
+    "description": "Dieses Video soll Euch eine City Tour (per Sightseeing Bus sowie auch zu Fuss) durch die Inselhauptstadt Funchal, der Blumeninsel Madeira.Die Insel Madeira ...",
+    "tags": [
+      "funchal",
+      "city",
+      "street"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Funchal%2C_Madeira%2C_Portugal_-_City_Tour_-_Impressionen_2017.webm",
+    "license": "CC BY 3.0"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-10-20T06:33:28.681Z",
+  "checks": [
+    "login and live backend health indicator",
+    "mobile dashboard: no horizontal overflow",
+    "mobile menu labels, logout visibility, and navigation close",
+    "mobile project list: no horizontal overflow",
+    "tablet project list: no horizontal overflow",
+    "collapsed tablet sidebar retains logout action",
+    "desktop project detail: no horizontal overflow",
+    "project media selection switches preview",
+    "mobile project detail: no horizontal overflow",
+    "reference and generated videos decode; reference playback advances",
+    "desktop works: no horizontal overflow",
+    "mobile works: no horizontal overflow",
+    "storyboard selection, editing, reorder, removal, failed-save recovery, save payload, and save-before-confirm (mock requests only)",
+    "mobile storyboard: no horizontal overflow",
+    "unavailable backend health changes indicator to offline",
+    "Ctrl+K opens assistant"
+  ],
+  "runtime_errors": []
+}

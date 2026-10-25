@@ -1,0 +1,17 @@
+{
+  "case_id": "case_01",
+  "target_topic": "自然风光快节奏开场",
+  "reference_id": "ref_01",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_01\\materials.json",
+  "material_ids": [
+    "mat_02",
+    "mat_11",
+    "mat_14",
+    "mat_19",
+    "mat_21"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

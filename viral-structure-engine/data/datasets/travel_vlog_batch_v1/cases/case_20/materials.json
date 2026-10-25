@@ -1,0 +1,28 @@
+[
+  {
+    "id": "mat_12",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_12.mp4",
+    "description": "Summer Avenue in Berclair, Memphis, Tennessee. Driving west from Perkins Road to Waring Road.",
+    "tags": [
+      "street",
+      "city",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Berclair_Memphis_TN_Summer_Ave_from_Perkins_Rd_to_Waring_Rd.theora.ogv",
+    "license": "CC BY-SA 3.0"
+  },
+  {
+    "id": "mat_02",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_02.mp4",
+    "description": "Водоспад Лоцій",
+    "tags": [
+      "waterfall",
+      "landscape",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BE%D0%B4%D0%BE%D1%81%D0%BF%D0%B0%D0%B4_%D0%9B%D0%BE%D1%86%D1%96%D0%B9.webm",
+    "license": "CC BY-SA 4.0"
+  }
+]

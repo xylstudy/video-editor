@@ -94,8 +94,9 @@ def build_review_prompt(
 
 ────────────────────────
 
-每个维度给出 0-10 分 + 一句话理由。fidelity 与 quality 分别汇总为两个 overall 分（0-10），
-并给出 feedback_type（本次最需要改哪一类）。
+请把上述观察归并为下面固定的 10 个评分维度，每个维度给出 0-10 分和一句话理由。
+fidelity 与 quality 只做 overall 汇总，不要再次展开重复子维度。所有 reason 不超过
+40 个汉字，issues/highlights 各最多 2 条，suggestions 最多 3 条，总输出不超过 4000 tokens。
 
 {{
   "scores": {{
@@ -112,34 +113,18 @@ def build_review_prompt(
   }},
   "fidelity": {{
     "overall": 0,
-    "issues": ["结构保真相关问题1", "问题2"],
-    "dimensions": {{
-      "hook_preserved": {{"score": 0, "reason": "一句话理由"}},
-      "shot_rhythm_ratio": {{"score": 0, "reason": "一句话理由"}},
-      "rhythm_curve": {{"score": 0, "reason": "一句话理由"}},
-      "emotion_arc": {{"score": 0, "reason": "一句话理由"}},
-      "climax_ending": {{"score": 0, "reason": "一句话理由"}},
-      "core_functions": {{"score": 0, "reason": "一句话理由"}}
-    }}
+    "issues": ["结构保真相关问题1", "问题2"]
   }},
   "quality": {{
     "overall": 0,
-    "issues": ["适配质量相关问题1", "问题2"],
-    "dimensions": {{
-      "material_matching": {{"score": 0, "reason": "一句话理由"}},
-      "transition_fit": {{"score": 0, "reason": "一句话理由"}},
-      "rhythm_naturalness": {{"score": 0, "reason": "一句话理由"}},
-      "emotion_coherence": {{"score": 0, "reason": "一句话理由"}},
-      "subtitle_packaging": {{"score": 0, "reason": "一句话理由"}},
-      "material_coverage": {{"score": 0, "reason": "一句话理由"}}
-    }}
+    "issues": ["适配质量相关问题1", "问题2"]
   }},
   "total_score": 0,
   "pass": false,
   "force_iterate": false,
   "feedback_type": "fidelity/quality/mixed",
-  "top_3_issues": ["问题1", "问题2", "问题3"],
-  "top_3_highlights": ["亮点1", "亮点2", "亮点3"],
+  "top_3_issues": ["问题1", "问题2"],
+  "top_3_highlights": ["亮点1", "亮点2"],
   "suggestions": [
     {{
       "category": "fidelity/quality",
@@ -151,6 +136,10 @@ def build_review_prompt(
   ],
   "one_line_verdict": "一句话总评"
 }}
+
+计分口径：scores 中每项是 0-10 分；fidelity.overall、quality.overall 和 total_score
+全部是 0-100 分。total_score 必须按 scores 的权重计算百分制加权平均，禁止输出 0-10 的小数。
+total_score >= 75 且不存在必须迭代的问题时 pass=true，否则 pass=false。
 
 判定口径：
 - 若主要问题是"结构没迁移过来"（hook 丢了/高潮位置错了/核心功能被换掉）→ feedback_type="fidelity"。

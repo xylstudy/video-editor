@@ -1,0 +1,204 @@
+{
+  "previews": [
+    {
+      "file": "sticker-face.gif",
+      "title": "卡通五官贴纸",
+      "caption": "眼睛与嘴巴附着在苹果上，随主体移动。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_742f9ee0fdf0",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "01-fresh-red-apples.mp4"
+      ]
+    },
+    {
+      "file": "paper-outline.gif",
+      "title": "撕纸轮廓",
+      "caption": "樱桃抠像外沿出现白色撕纸描边。定格主体合成。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_260bb5cf8acf",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "09-cherries-pink-splash.mp4"
+      ]
+    },
+    {
+      "file": "sticker-reaction.gif",
+      "title": "手绘反应贴纸",
+      "caption": "狗狗头顶的手绘符号随时间弹动。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_ba8a50c5ea00",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "12-smiling-dog.mp4"
+      ]
+    },
+    {
+      "file": "sticker-pop.gif",
+      "title": "弹入文字贴纸",
+      "caption": "骑行画面中弹出“停”字贴纸，形成视觉强调。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_7b7b6cef045f",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "05-city-cyclist-vertical.mp4"
+      ]
+    },
+    {
+      "file": "subject-clone.gif",
+      "title": "主体复制增殖",
+      "caption": "樱桃主体分身叠加，数量逐渐增加。定格主体合成。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_02865c3d0afb",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "09-cherries-pink-splash.mp4"
+      ]
+    },
+    {
+      "file": "subject-echo.gif",
+      "title": "多层残影",
+      "caption": "半透明樱桃错位叠加，形成拖尾。定格主体合成。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_a27f736a56fe",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "09-cherries-pink-splash.mp4"
+      ]
+    },
+    {
+      "file": "glitch-overlay.gif",
+      "title": "RGB 故障叠层",
+      "caption": "城市实拍画面中反复出现错位色块与扫描线。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_65403bf685a8",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "01-city-bus-vertical.mp4"
+      ]
+    },
+    {
+      "file": "music-player.gif",
+      "title": "悬浮音乐播放器",
+      "caption": "倾斜播放器浮层叠在城市视频上，进度条持续移动。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_4c7fd59bf2bd",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "01-city-bus-vertical.mp4"
+      ]
+    },
+    {
+      "file": "sticker-arrow.gif",
+      "title": "指示箭头贴纸",
+      "caption": "白色指针在饮品画面中引导注意力。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_5263dd269a41",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "04-red-drink-pour.mp4"
+      ]
+    },
+    {
+      "file": "grid-overlay.gif",
+      "title": "九宫格线叠层",
+      "caption": "骑行视频上覆盖随时间出现的九宫格分割线。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_ae61721b7e03",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "05-city-cyclist-vertical.mp4"
+      ]
+    },
+    {
+      "file": "foreground-silhouette.gif",
+      "title": "前景剪影",
+      "caption": "黑色图形剪影掠过实拍城市，增加前景层次。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_49a43c2e8d1f",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "01-city-bus-vertical.mp4"
+      ]
+    },
+    {
+      "file": "search-outro.gif",
+      "title": "搜索引导片尾",
+      "caption": "从实拍画面切入搜索引导界面，展示片尾包装。",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_0ef351e4fb49",
+      "start_seconds": 0.4,
+      "duration_seconds": 3.6,
+      "width": 320,
+      "fps": 10,
+      "footage_roles": [
+        "01-city-bus-vertical.mp4"
+      ]
+    },
+    {
+      "file": "generated-edit.gif",
+      "title": "自动生成成片节选",
+      "kind": "pipeline_output",
+      "task": 16,
+      "start_seconds": 1.45,
+      "duration_seconds": 7.5,
+      "width": 320,
+      "fps": 10
+    },
+    {
+      "file": "travel-transitions.gif",
+      "title": "城市日记连续剪辑",
+      "kind": "independent_footage_teaching",
+      "knowledge_id": "k_u3_7bac327d",
+      "start_seconds": 0.4,
+      "duration_seconds": 9.5,
+      "width": 320,
+      "fps": 10
+    }
+  ],
+  "overview": {
+    "file": "effects-overview.gif",
+    "examples": [
+      "sticker-face",
+      "paper-outline",
+      "glitch-overlay",
+      "music-player"
+    ],
+    "width": 704,
+    "fps": 10,
+    "duration_seconds": 3.6
+  }
+}

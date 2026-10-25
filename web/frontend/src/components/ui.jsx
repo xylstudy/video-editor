@@ -7,20 +7,20 @@ const btnBase =
   'disabled:opacity-40 disabled:cursor-not-allowed select-none cursor-pointer'
 
 const btnSizes = {
-  sm: 'text-xs px-3 py-1.5 rounded-lg',
-  md: 'text-sm px-4 py-2 rounded-lg',
-  lg: 'text-sm px-5 py-2.5 rounded-lg',
+  sm: 'text-xs px-3 py-1.5 rounded-[9px]',
+  md: 'text-sm px-4 py-2 rounded-[10px]',
+  lg: 'text-sm px-5 py-2.5 rounded-[11px]',
 }
 
 const btnVariants = {
   primary:
-    'bg-[#7c5cfc] text-white hover:bg-[#9478ff] shadow-[0_0_16px_rgba(124,92,252,0.25)] hover:shadow-[0_0_24px_rgba(124,92,252,0.35)]',
+    'bg-[#7154df] text-white hover:bg-[#6246ce] shadow-[0_8px_20px_rgba(101,74,205,0.20)] hover:shadow-[0_10px_24px_rgba(101,74,205,0.28)]',
   secondary:
-    'bg-[#1c1c2b] text-[#c8c8e0] border border-[#2a2a42] hover:bg-[#24243a] hover:text-white hover:border-[#35355a]',
+    'bg-white text-[#40485e] border border-[#dde1eb] shadow-sm hover:bg-[#f7f8fc] hover:text-[#20243a] hover:border-[#cbd1de]',
   danger:
-    'bg-[#1c1c2b] text-[#f87171] border border-[rgba(248,113,113,0.2)] hover:bg-[rgba(248,113,113,0.08)] hover:border-[rgba(248,113,113,0.35)]',
+    'bg-white text-[#c2414d] border border-[rgba(194,65,77,0.22)] hover:bg-[#fff5f5] hover:border-[rgba(194,65,77,0.36)]',
   ghost:
-    'text-[#8888a8] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#e8e8f0]',
+    'text-[#667085] hover:bg-[#f0f2f8] hover:text-[#20243a]',
 }
 
 export function Button({
@@ -54,8 +54,8 @@ export function Card({ className = '', hover = false, ...props }) {
   return (
     <div
       className={
-        `bg-[#14141f] rounded-2xl border border-[#2a2a42] shadow-[var(--shadow-sm)] ` +
-        `${hover ? 'transition-all duration-300 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 hover:border-[#35355a]' : ''} ${className}`
+        `bg-white rounded-[18px] border border-[rgba(45,35,69,0.08)] shadow-[var(--shadow-sm)] ` +
+        `${hover ? 'transition-all duration-300 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 hover:border-[#d8cff5]' : ''} ${className}`
       }
       {...props}
     />
@@ -64,13 +64,13 @@ export function Card({ className = '', hover = false, ...props }) {
 
 /* ---------- Badge ---------- */
 const badgeColors = {
-  gray:   'bg-[rgba(255,255,255,0.06)] text-[#8888a8]',
-  indigo: 'bg-[rgba(124,92,252,0.12)] text-[#b49aff]',
-  blue:   'bg-[rgba(0,212,255,0.12)] text-[#66e0ff]',
-  green:  'bg-[rgba(52,211,153,0.12)] text-[#6ee7b7]',
-  red:    'bg-[rgba(248,113,113,0.12)] text-[#fca5a5]',
-  amber:  'bg-[rgba(251,191,36,0.12)] text-[#fcd34d]',
-  purple: 'bg-[rgba(168,85,247,0.12)] text-[#c084fc]',
+  gray:   'bg-[#f1eef3] text-[#766e80]',
+  indigo: 'bg-[#eee9ff] text-[#654cc2]',
+  blue:   'bg-[#e5f5f8] text-[#257e90]',
+  green:  'bg-[#e8f7f0] text-[#267e5d]',
+  red:    'bg-[#fff0f1] text-[#b9505c]',
+  amber:  'bg-[#fff4dd] text-[#9a6b22]',
+  purple: 'bg-[#f3eaff] text-[#7951ad]',
 }
 
 export function Badge({ color = 'gray', className = '', children }) {
@@ -85,12 +85,12 @@ export function Badge({ color = 'gray', className = '', children }) {
 
 /* ---------- StatusPill ---------- */
 const statusMeta = {
-  pending:   { label: '排队中', dot: 'bg-[#5a5a7a]',       text: 'text-[#8888a8]', bg: 'bg-[rgba(255,255,255,0.06)]' },
-  running:   { label: '运行中', dot: 'bg-[#7c5cfc]',       text: 'text-[#b49aff]', bg: 'bg-[rgba(124,92,252,0.12)]' },
-  awaiting_confirmation: { label: '等待确认', dot: 'bg-[#fbbf24]', text: 'text-[#fcd34d]', bg: 'bg-[rgba(251,191,36,0.12)]' },
-  success:   { label: '成功',   dot: 'bg-[#34d399]',       text: 'text-[#6ee7b7]', bg: 'bg-[rgba(52,211,153,0.12)]' },
-  failed:    { label: '失败',   dot: 'bg-[#f87171]',       text: 'text-[#fca5a5]', bg: 'bg-[rgba(248,113,113,0.12)]' },
-  cancelled: { label: '已取消', dot: 'bg-[#5a5a7a]',       text: 'text-[#8888a8]', bg: 'bg-[rgba(255,255,255,0.06)]' },
+  pending:   { label: '排队中', dot: 'bg-[#9b94a4]', text: 'text-[#766e80]', bg: 'bg-[#f1eef3]' },
+  running:   { label: '运行中', dot: 'bg-[#7154df]', text: 'text-[#654cc2]', bg: 'bg-[#eee9ff]' },
+  awaiting_confirmation: { label: '等待确认', dot: 'bg-[#d39c45]', text: 'text-[#9a6b22]', bg: 'bg-[#fff4dd]' },
+  success:   { label: '成功', dot: 'bg-[#32ad7c]', text: 'text-[#267e5d]', bg: 'bg-[#e8f7f0]' },
+  failed:    { label: '失败', dot: 'bg-[#d95c6a]', text: 'text-[#b9505c]', bg: 'bg-[#fff0f1]' },
+  cancelled: { label: '已取消', dot: 'bg-[#9b94a4]', text: 'text-[#766e80]', bg: 'bg-[#f1eef3]' },
 }
 
 export function StatusPill({ status }) {
@@ -110,9 +110,9 @@ export function StatusPill({ status }) {
 /* ---------- ProgressBar ---------- */
 export function ProgressBar({ value = 0, className = '' }) {
   return (
-    <div className={`h-2 w-full overflow-hidden rounded-full bg-[#1c1c2b] ${className}`}>
+    <div className={`h-2 w-full overflow-hidden rounded-full bg-[#ebe7ee] ${className}`}>
       <div
-        className="h-full rounded-full bg-gradient-to-r from-[#7c5cfc] to-[#00d4ff] transition-all duration-500"
+        className="h-full rounded-full bg-gradient-to-r from-[#7154df] to-[#42a6b7] transition-all duration-500"
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
@@ -124,12 +124,12 @@ export function EmptyState({ icon: Icon, title, description, children }) {
   return (
     <div className="flex flex-col items-center justify-center py-14 text-center">
       {Icon && (
-        <div className="mb-3 rounded-2xl bg-[rgba(255,255,255,0.04)] p-3.5">
-          <Icon size={24} className="text-[#5a5a7a]" />
+        <div className="mb-3 rounded-2xl bg-[#f1eef8] p-3.5">
+          <Icon size={24} className="text-[#7154df]" />
         </div>
       )}
-      <p className="text-sm font-medium text-[#c8c8e0]">{title}</p>
-      {description && <p className="mt-1 text-sm text-[#5a5a7a]">{description}</p>}
+      <p className="text-sm font-medium text-[#494151]">{title}</p>
+      {description && <p className="mt-1 text-sm text-[#8b8495]">{description}</p>}
       {children && <div className="mt-4">{children}</div>}
     </div>
   )
@@ -151,13 +151,13 @@ export function SectionHeader({ title, description, actions, backTo }) {
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div className="flex min-w-0 items-start gap-3">
         {backTo && (
           <button
             type="button"
             onClick={handleBack}
-            className="mt-0.5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a42] bg-[#14141f] px-2.5 py-1.5 text-xs font-medium text-[#8888a8] transition-colors hover:border-[#35355a] hover:bg-[#1c1c2b] hover:text-[#e8e8f0]"
+            className="mt-0.5 inline-flex shrink-0 items-center gap-1.5 rounded-[10px] border border-[#e2dee7] bg-white px-2.5 py-1.5 text-xs font-medium text-[#766e80] shadow-sm transition-colors hover:border-[#cfc5eb] hover:bg-[#f7f4ff] hover:text-[#654cc2]"
             aria-label="返回上一页"
           >
             <ArrowLeft size={14} />
@@ -165,8 +165,9 @@ export function SectionHeader({ title, description, actions, backTo }) {
           </button>
         )}
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-[#e8e8f0]">{title}</h1>
-          {description && <p className="mt-1 text-sm text-[#8888a8]">{description}</p>}
+          <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.16em] text-[#8d78c9]">Workspace</span>
+          <h1 className="text-[26px] font-semibold tracking-[-0.035em] text-[#211d34]">{title}</h1>
+          {description && <p className="mt-1 text-sm text-[#8b8495]">{description}</p>}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -176,18 +177,18 @@ export function SectionHeader({ title, description, actions, backTo }) {
 
 /* ---------- Field ---------- */
 const inputCls =
-  'w-full rounded-lg border border-[#2a2a42] bg-[#1c1c2b] px-3 py-2 text-sm text-[#e8e8f0] ' +
-  'placeholder:text-[#5a5a7a] focus:border-[#7c5cfc] focus:outline-none focus:ring-1 focus:ring-[rgba(124,92,252,0.35)] ' +
+  'w-full rounded-[10px] border border-[#ded9eb] bg-[#fcfbfd] px-3 py-2 text-sm text-[#332a4b] shadow-sm ' +
+  'placeholder:text-[#a49dac] focus:border-[#8065de] focus:outline-none focus:ring-2 focus:ring-[rgba(113,84,223,0.14)] ' +
   'transition-colors duration-200'
 
 export function Field({ label, hint, children, className = '' }) {
   return (
     <div className={className}>
       {label && (
-        <label className="mb-1.5 block text-xs font-medium text-[#8888a8]">{label}</label>
+        <label className="mb-1.5 block text-xs font-medium text-[#655e6e]">{label}</label>
       )}
       {children}
-      {hint && <p className="mt-1 text-xs text-[#5a5a7a]">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-[#9991a1]">{hint}</p>}
     </div>
   )
 }
@@ -202,10 +203,10 @@ export function SelectInput(props) {
 
 /* ---------- InfoBar ---------- */
 const infoColors = {
-  info:    'bg-[rgba(0,212,255,0.08)] text-[#66e0ff] border-[rgba(0,212,255,0.15)]',
-  warn:    'bg-[rgba(251,191,36,0.08)] text-[#fcd34d] border-[rgba(251,191,36,0.15)]',
-  error:   'bg-[rgba(248,113,113,0.08)] text-[#fca5a5] border-[rgba(248,113,113,0.15)]',
-  success: 'bg-[rgba(52,211,153,0.08)] text-[#6ee7b7] border-[rgba(52,211,153,0.15)]',
+  info:    'bg-[#eef8fa] text-[#257e90] border-[#cce9ee]',
+  warn:    'bg-[#fff8e9] text-[#9a6b22] border-[#f1dfba]',
+  error:   'bg-[#fff0f1] text-[#b9505c] border-[#f3cfd4]',
+  success: 'bg-[#ecf8f3] text-[#267e5d] border-[#ccebdd]',
 }
 
 export function InfoBar({ type = 'info', children }) {

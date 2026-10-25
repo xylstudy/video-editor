@@ -26,6 +26,9 @@ get_video/output/**/*.mp4
 # Temp / cache
 .pytest_cache/
 *.pytest_cache*
+test-output/
+**/pytest-cache-files-*/
+**/.test-*/
 .ipynb_checkpoints/
 
 # Node
@@ -50,9 +53,14 @@ web/backend/app.db
 viral-structure-engine/data/runs/
 viral-structure-engine/data/temp/
 viral-structure-engine/data/output/
+viral-structure-engine/data/cache/
 viral-structure-engine/data/*.sqlite3
 viral-structure-engine/data/*.sqlite3-wal
 viral-structure-engine/data/*.sqlite3-shm
+viral-structure-engine/data/datasets/**/media/
+viral-structure-engine/data/datasets/**/cases/**/ffmpeg_fallback_work/
+viral-structure-engine/data/datasets/**/cases/**/pipeline_result.json
+viral-structure-engine/data/datasets/**/cases/**/mock_pipeline_result.json
 
 # 采样/帧分析缓存
 get_video/frames_analysis/

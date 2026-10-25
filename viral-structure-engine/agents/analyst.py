@@ -1,12 +1,13 @@
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Optional
 
 from agents.base import BaseAgent, AgentRole, AgentResult, AgentStep
 from prompts.analyst_prompts import build_shot_analysis_prompt, build_structure_analysis_prompt
 from models.video_structure import (
-    VideoStructure, ShotInfo, ShotType, TransitionType,
+    VideoStructure, ShotInfo, ShotType, TransitionType, EffectEvent,
     RhythmPoint, PackagingStyle, SubtitleStyle, BGMInfo, VlogMeta,
 )
 from models.gene import build_gene as build_gene_from_analyses
@@ -62,7 +63,7 @@ class AnalystAgent(BaseAgent):
     async def _get_video_info(self, video_path: str) -> dict:
         return self.video.get_video_info(video_path)
 
-    async def _detect_scenes(self, video_path: str, threshold: float = 0.3) -> list:
+    async def _detect_scenes(self, video_path: str, threshold: float = 0.30) -> list:
         return self.video.detect_scene_changes(video_path, threshold)
 
     async def _extract_frame(self, video_path: str, time_sec: float) -> str:
@@ -82,25 +83,42 @@ class AnalystAgent(BaseAgent):
                              total_duration: float, prev_frame_desc: str = "",
                              video_path: str = "",
                              motion_intensity: float = 0.0,
-                             color_stats: dict | None = None) -> dict:
-        """用 Qwen3-OMNI-Flash 分析镜头 clip（画面+音频），替代原来的单帧图片分析"""
-        # 切出镜头 clip（含音频）
-        clip_path = self.video.extract_shot_clip(video_path, start_time, end_time, shot_index)
-        # 提取一帧用于人脸检测（保留兼容）
-        frame_path = self.video.extract_frame(video_path, (start_time + end_time) / 2)
-        has_face = self.face.has_face(frame_path)
+                             color_stats: dict | None = None,
+                             frame_paths: list[str] | None = None) -> dict:
+        """Analyse ordered representative frames from one shot.
+
+        OpenAI-compatible vision endpoints commonly accept ``image_url`` but
+        not inline ``video_url`` payloads.  Multiple ordered frames preserve
+        motion/context cues while remaining portable across providers.
+        """
+        frames = [str(path) for path in (frame_paths or []) if Path(path).is_file()]
+        if not frames:
+            shot_duration = max(0.0, end_time - start_time)
+            sample_times = [
+                min(max(total_duration - 0.05, 0.0), start_time + shot_duration * ratio)
+                for ratio in (0.08, 0.28, 0.5, 0.72, 0.92)
+            ]
+            for sample_time in sample_times:
+                try:
+                    frames.append(str(self.video.extract_frame(video_path, sample_time)))
+                except Exception:
+                    continue
+        if not frames:
+            raise RuntimeError(f"shot {shot_index} has no representative frames")
+        has_face = any(self.face.has_face(frame_path) for frame_path in frames)
 
         prompt = build_shot_analysis_prompt(
             shot_index, start_time, end_time,
             total_duration, prev_frame_desc,
             motion_intensity=motion_intensity,
             color_stats=color_stats,
+            visual_samples_only=True,
         )
 
         # 重试 2 次：先用 json 格式，失败后降级为普通格式
         for attempt in range(2):
             fmt = "json" if attempt == 0 else ""
-            response = await self.llm.chat_with_video(prompt, clip_path, response_format=fmt)
+            response = await self.llm.chat_with_images(prompt, frames, response_format=fmt)
             try:
                 result = self.llm.parse_json(response)
                 result["has_face"] = has_face
@@ -156,6 +174,15 @@ class AnalystAgent(BaseAgent):
     def build_video_structure(self, video_path: str, duration: float, width: int, height: int,
                                shot_analyses: list[dict], structure_analysis: dict,
                                transcript: str = "") -> VideoStructure:
+        profile_path = (
+            Path(__file__).resolve().parent.parent
+            / "data/reference_profiles"
+            / f"{Path(video_path).stem}.json"
+        )
+        try:
+            local_profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.is_file() else {}
+        except (OSError, json.JSONDecodeError):
+            local_profile = {}
         shot_type_map = {
             "hook": ShotType.HOOK, "scene_establish": ShotType.SCENE_ESTABLISH,
             "daily_moment": ShotType.DAILY_MOMENT, "emotion_peak": ShotType.EMOTION_PEAK,
@@ -181,8 +208,30 @@ class AnalystAgent(BaseAgent):
             else:
                 audio_type = "silence"
 
+            start_time = float(a.get("start_time", 0.0) or 0.0)
+            end_time = float(a.get("end_time", start_time) or start_time)
+            shot_duration = float(a.get("duration", end_time - start_time) or (end_time - start_time))
+            raw_transition = str(a.get("transition_in", "cut") or "cut")
+            try:
+                transition_in = TransitionType(raw_transition)
+            except ValueError:
+                transition_in = TransitionType.CUT
+
+            effect_events = [
+                EffectEvent.from_dict(
+                    event,
+                    default_id=f"shot_{i:03d}_effect_{event_index:02d}",
+                )
+                for event_index, event in enumerate(a.get("effect_events", []) or [])
+                if isinstance(event, dict) and (event.get("type") or event.get("effect_type"))
+            ]
+
             shots.append(ShotInfo(
-                index=i, start_time=0, end_time=0, duration=0, shot_type=st,
+                index=i,
+                start_time=start_time,
+                end_time=end_time,
+                duration=max(0.0, shot_duration),
+                shot_type=st,
                 visual_description=content.get("main_subject", ""),
                 camera_movement=tech.get("camera_movement", ""),
                 shot_size=tech.get("shot_size", ""),
@@ -195,6 +244,9 @@ class AnalystAgent(BaseAgent):
                 color_stats=a.get("color_stats", {}),
                 audio_type=audio_type,
                 bgm_sync=a.get("audio_video_match", "") in ("perfect", "good"),
+                transition_in=transition_in,
+                effect_events=effect_events,
+                match_cut_to_next=dict(a.get("match_cut_to_next") or {}),
             ))
 
         sa = structure_analysis
@@ -216,15 +268,38 @@ class AnalystAgent(BaseAgent):
             for p in rhythm.get("curve_points", [])
         ]
 
-        packaging = sa.get("packaging_analysis", {})
+        packaging = {
+            **(sa.get("packaging_analysis", {}) or {}),
+            **(local_profile.get("packaging_signature", {}) or {}),
+        }
+        transitions_used = packaging.get("transitions_used", []) or []
+        preferred_transitions = [
+            str(item.get("type", "")) if isinstance(item, dict) else str(item)
+            for item in transitions_used
+            if (isinstance(item, dict) and item.get("type")) or isinstance(item, str)
+        ]
         structure.packaging = PackagingStyle(
             subtitle_style=SubtitleStyle(
                 font_family=packaging.get("subtitle_font_guess", ""),
+                color=packaging.get("subtitle_color_and_stroke", ""),
                 position=packaging.get("subtitle_position", "bottom"),
                 animation=packaging.get("subtitle_animation", "none"),
             ),
+            title_card_style=packaging.get("title_card_style", ""),
+            preferred_transitions=preferred_transitions,
             color_grade=packaging.get("color_grade", ""),
+            filter_style=packaging.get("filter_style", ""),
+            visual_mood=packaging.get("visual_mood", ""),
+            title_cards=packaging.get("title_cards", []) or [],
+            transitions_used=transitions_used,
+            stickers_effects=packaging.get("stickers_effects", ""),
+            color_grade_detail=packaging.get("color_grade_detail", ""),
         )
+        observed_tracks = list(sa.get("effect_tracks", []) or [])
+        profiled_tracks = list(local_profile.get("effect_tracks", []) or [])
+        structure.effect_tracks = [*observed_tracks, *profiled_tracks]
+        divisor = math.gcd(max(1, width), max(1, height))
+        structure.aspect_ratio = str(local_profile.get("source_aspect_ratio") or f"{width // divisor}:{height // divisor}")
 
         st = sa.get("structure_type", {})
         structure.vlog_meta = VlogMeta(
@@ -240,6 +315,15 @@ class AnalystAgent(BaseAgent):
             structure.audio_analysis = audio_analysis
 
         # 提取结构基因（结构功能迁移的核心输入）
-        structure.gene = self.build_gene(video_path, duration, shot_analyses, structure_analysis)
+        structure.gene = build_gene_from_analyses(
+            shot_analyses=shot_analyses,
+            structure_analysis=structure_analysis,
+            source_id=str(Path(video_path).stem),
+            source_path=str(video_path),
+            duration=duration,
+            effect_tracks=structure.effect_tracks,
+            source_aspect_ratio=structure.aspect_ratio,
+            reference_cut_points=local_profile.get("reference_cut_points"),
+        )
 
         return structure

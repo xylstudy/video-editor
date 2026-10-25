@@ -1,0 +1,58 @@
+{
+  "items": [
+  {
+    "id": "city_night_01",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\08-rooftop-silhouette.mp4",
+    "description": "屋顶人物剪影与城市灯光，适合情绪开场",
+    "tags": ["city", "night", "rooftop", "silhouette", "opening"],
+    "source_page": "https://www.pexels.com/video/man-looking-at-night-view-of-city-5658049/",
+    "license": "Pexels License"
+  },
+  {
+    "id": "city_night_02",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\04-shanghai-night-skyline-4k.mp4",
+    "description": "上海浦东夜景与江面倒影，适合城市建立镜头",
+    "tags": ["city", "night", "shanghai", "skyline", "establishing"],
+    "source_page": "https://www.pexels.com/video/stunning-night-view-of-shanghai-city-skyline-33009785/",
+    "license": "Pexels License"
+  },
+  {
+    "id": "city_night_03",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\07-metro-city-night-4k.mp4",
+    "description": "高架轻轨穿过城市建筑，适合运动转场和节奏段落",
+    "tags": ["city", "night", "metro", "motion", "transition"],
+    "source_page": "https://www.pexels.com/video/metro-train-at-night-5057510/",
+    "license": "Pexels License"
+  },
+  {
+    "id": "city_night_04",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\05-tokyo-rainy-walk.mp4",
+    "description": "东京雨夜街头跟随镜头，适合沉浸式行走段落",
+    "tags": ["city", "night", "tokyo", "rain", "walking"],
+    "source_page": "https://www.pexels.com/video/walking-in-a-street-in-asia-3941990/",
+    "license": "Pexels License"
+  },
+  {
+    "id": "city_night_05",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\06-tokyo-crowd-neon.mp4",
+    "description": "东京霓虹人群与街区入口，适合高潮和快切",
+    "tags": ["city", "night", "tokyo", "crowd", "neon", "climax"],
+    "source_page": "https://www.pexels.com/video/vibrant-nightlife-in-tokyo-s-bustling-streets-32284502/",
+    "license": "Pexels License"
+  },
+  {
+    "id": "city_night_06",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\data\\curated-city-night-v2\\02-night-drive-rain-vertical-4k.mp4",
+    "description": "竖屏雨夜车内视角，适合氛围过渡或结尾",
+    "tags": ["city", "night", "rain", "drive", "vertical", "ending"],
+    "source_page": "https://www.pexels.com/video/moody-night-drive-in-rain-with-neon-lights-35170756/",
+    "license": "Pexels License"
+  }
+  ]
+}

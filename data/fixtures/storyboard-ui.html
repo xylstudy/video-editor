@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>分镜界面验证</title></head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import React, { useState } from 'react'
+      import { createRoot } from 'react-dom/client'
+      import StoryboardEditor from '/src/components/StoryboardEditor.jsx'
+      import api, { listMaterials, listProjects } from '/src/api.js'
+      import '/src/index.css'
+
+      const projects = (await listProjects()).data
+      const project = projects.at(-1)
+      const available = project ? (await listMaterials(project.id)).data.filter((material) => material.meta?.role !== 'reference').slice(0, 3) : []
+      const materials = available.map((material) => ({ id: String(material.id), filename: material.filename, description: material.filename, preview_url: `/materials/${material.id}/media` }))
+      const initialDraft = {
+        revision: 1,
+        title: '本地界面验证样例',
+        storyboard: [0, 1, 2].map((index) => ({ draft_id: `preview-${index}`, material_id: materials[index]?.id || '', duration: index + 1, subtitle_text: `字幕 ${index + 1}`, transition: 'cut' })),
+        materials,
+      }
+      window.__storyboardPreview = { requests: [], confirmed: false, rejectNextSave: false }
+      api.defaults.adapter = async (config) => {
+        const body = config.data ? JSON.parse(config.data) : null
+        window.__storyboardPreview.requests.push({ method: config.method, url: config.url, body })
+        if (config.method === 'put' && window.__storyboardPreview.rejectNextSave) {
+          window.__storyboardPreview.rejectNextSave = false
+          throw { response: { data: { detail: '验证保存失败时保留当前修改' } } }
+        }
+        const data = config.method === 'put' ? { ...initialDraft, ...body, revision: body.revision + 1 } : { id: 'ui-preview', status: 'running' }
+        return { data, status: 200, statusText: 'OK', headers: {}, config }
+      }
+      function Preview() {
+        const [draft, setDraft] = useState(initialDraft)
+        return React.createElement('main', { style: { maxWidth: 1196, margin: '0 auto', padding: 20 } },
+          React.createElement('p', { style: { color: '#918a99', fontSize: 12, marginBottom: 15 } }, '本地界面验证 · 保存与渲染请求均为模拟，不会修改项目'),
+          React.createElement(StoryboardEditor, { taskId: 'ui-preview', draft, onDraftChange: setDraft, onConfirmed: () => { window.__storyboardPreview.confirmed = true } }),
+        )
+      }
+      createRoot(document.getElementById('root')).render(React.createElement(Preview))
+    </script>
+  </body>
+</html>

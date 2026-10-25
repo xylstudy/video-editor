@@ -71,18 +71,30 @@ class MaterialManagerAgent(BaseAgent):
     async def _analyze_video_material(self, material_id: str, video_path: str,
                                        target_topic: str) -> dict:
         info = self.video.get_video_info(video_path)
-        frames = []
-        for t in [i * 2 for i in range(int(info["duration"] / 2) + 1)]:
+        duration = max(0.0, float(info.get("duration") or 0.0))
+        # Five evenly-spaced frames are enough for inventory-level semantic
+        # understanding and keep vision cost bounded for batch runs.
+        if duration > 0:
+            sample_times = [min(duration - 0.05, duration * ratio) for ratio in (0.0, 0.25, 0.5, 0.75, 0.98)]
+        else:
+            sample_times = [0.0]
+        frames: list[str] = []
+        frame_times: list[float] = []
+        for t in sample_times:
             try:
                 fp = self.video.extract_frame(video_path, t)
-                frames.append(f"{t}s: (frame at {fp})")
+                frames.append(str(fp))
+                frame_times.append(round(t, 2))
             except Exception:
                 continue
+        if not frames:
+            raise RuntimeError(f"视频素材 {material_id} 未能提取代表帧")
         prompt = build_video_analysis_prompt(material_id, target_topic,
-                                             info["duration"], "\n".join(frames[:20]))
-        response = await self.llm.chat(prompt, response_format="json")
+                                             duration, f"已上传 {len(frames)} 帧，对应秒数：{frame_times}")
+        response = await self.llm.chat_with_images(prompt, frames, response_format="json")
         result = self.llm.parse_json(response)
         result["_video_info"] = info
+        result["_sampled_frame_times"] = frame_times
         return result
 
     async def _analyze_text(self, target_topic: str, text_content: str) -> dict:
@@ -102,7 +114,10 @@ class MaterialManagerAgent(BaseAgent):
                              analysis: dict) -> MaterialItem:
         quality_map = {"high": MaterialQuality.HIGH, "medium": MaterialQuality.MEDIUM,
                        "low": MaterialQuality.LOW, "unusable": MaterialQuality.UNUSABLE}
-        q = quality_map.get(analysis.get("quality", {}).get("overall", "medium"), MaterialQuality.MEDIUM)
+        quality_value = analysis.get("quality", {}).get("overall", "medium")
+        if mat_type == MaterialType.VIDEO:
+            quality_value = analysis.get("overall_assessment", {}).get("quality", quality_value)
+        q = quality_map.get(quality_value, MaterialQuality.MEDIUM)
 
         if mat_type == MaterialType.IMAGE:
             content = analysis.get("content", {})
@@ -117,14 +132,26 @@ class MaterialManagerAgent(BaseAgent):
             )
         elif mat_type == MaterialType.VIDEO:
             info = analysis.get("_video_info", {})
+            segments = analysis.get("content_segments", [])
+            highlights = analysis.get("highlight_clips", [])
+            descriptions = [
+                segment.get("description", "")
+                for segment in segments
+                if isinstance(segment, dict) and segment.get("description")
+            ]
+            assessment = analysis.get("overall_assessment", {})
             return MaterialItem(
                 id=mat_id, type=mat_type, path=path,
-                description=analysis.get("description", ""),
+                description=analysis.get("description", "") or "；".join(descriptions[:3]),
                 tags=analysis.get("tags", []), quality=q,
                 duration=info.get("duration", 0),
                 width=info.get("width", 0), height=info.get("height", 0),
                 emotion_label=analysis.get("emotion_label", ""),
-                highlight_clips=analysis.get("highlight_clips", []),
+                highlight_clips=highlights,
+                content_segments=segments,
+                has_usable_audio=assessment.get("audio_to_keep", "none") != "none",
+                vlog_value=analysis.get("overall_vlog_value", "medium"),
+                metadata={"sampled_frame_times": analysis.get("_sampled_frame_times", [])},
             )
         else:
             return MaterialItem(

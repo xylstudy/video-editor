@@ -1,0 +1,71 @@
+{
+  "reference": "4e231786d448bd8f13b2009065c7ad58.mp4",
+  "model": "deepseek-flash",
+  "source_videos_downloaded": 23,
+  "source_videos_used": 22,
+  "distinct_video_hashes": 22,
+  "video_duration_seconds": 23.7,
+  "container_duration_seconds": 23.8,
+  "technical": {
+    "valid": true,
+    "full_decode_valid": true,
+    "duration_seconds": 23.7,
+    "width": 1080,
+    "height": 1920,
+    "fps": 30.0,
+    "has_audio": true,
+    "audio_silent": false,
+    "black_segments": [],
+    "freeze_segments": [],
+    "sample_count": 48,
+    "issues": []
+  },
+  "scheme_review_score": 71.8,
+  "scheme_review_pass": false,
+  "visual_review_score": 34,
+  "visual_review_pass": false,
+  "knowledge_count": 12,
+  "editing_examples": 8,
+  "pending_examples": [
+    {
+      "id": "k_u3_d718b5dd0ee5",
+      "reason": "该技法尚无重建实现，保留原片参考，效果示例待实现"
+    },
+    {
+      "id": "k_u3_841baf6109fd",
+      "reason": "该技法尚无重建实现，保留原片参考，效果示例待实现"
+    },
+    {
+      "id": "k_u3_1625bf271b23",
+      "reason": "尚未得到可靠的主体抠像，不能用整幅画面替代主体描边或残影"
+    },
+    {
+      "id": "k_u3_6f27cbc973fd",
+      "reason": "尚未得到可靠的主体抠像，不能用整幅画面替代主体描边或残影"
+    }
+  ],
+  "render_component_gaps": [
+    {
+      "shot_index": 11,
+      "from": "custom:hand_drawn_outline",
+      "reason": "custom component is image-only while the selected material is video"
+    },
+    {
+      "shot_index": 16,
+      "from": "custom:subject_echo",
+      "reason": "custom component is image-only while the selected material is video"
+    },
+    {
+      "shot_index": 18,
+      "from": "custom:subject_echo",
+      "reason": "custom component is image-only while the selected material is video"
+    },
+    {
+      "shot_index": 19,
+      "from": "custom:hand_drawn_outline",
+      "reason": "custom component is image-only while the selected material is video"
+    }
+  ],
+  "run_date": "2026-10-23",
+  "scope": "Single local end-to-end demonstration, not a benchmark or quality guarantee"
+}

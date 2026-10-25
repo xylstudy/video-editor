@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Clapperboard } from 'lucide-react'
 import { register } from '../api.js'
+import AuthShell from '../components/AuthShell.jsx'
 import { Button, Field, InfoBar, TextInput } from '../components/ui.jsx'
 
 export default function Register() {
@@ -27,24 +27,11 @@ export default function Register() {
   }
 
   return (
-    <div className="vc-bg-hero flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm vc-fade-in">
-        {/* 品牌区 */}
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7c5cfc] to-[#00d4ff] text-white shadow-[0_0_24px_rgba(124,92,252,0.3)]">
-            <Clapperboard size={26} />
-          </div>
-          <h1 className="mt-4 text-xl font-bold tracking-tight text-white">Video Claw</h1>
-          <p className="mt-1 text-sm text-[#8888a8]">爆款 Vlog 结构迁移引擎</p>
-        </div>
-
-        {/* 表单卡片 */}
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(20,20,31,0.85)] p-6 shadow-[var(--shadow-lg)] backdrop-blur-xl"
-        >
-          <h2 className="mb-1 text-base font-semibold text-white">创建账号</h2>
-          <p className="mb-5 text-sm text-[#5a5a7a]">开始生成属于你的 Vlog</p>
+    <AuthShell>
+      <form onSubmit={handleSubmit} className="vc-auth-form vc-fade-in">
+          <span className="vc-auth-form-kicker">GET STARTED</span>
+          <h2>创建账号</h2>
+          <p>建立你的专属视频创作工作区</p>
 
           {error && (
             <div className="mb-4">
@@ -84,18 +71,17 @@ export default function Register() {
             </Field>
           </div>
 
-          <Button type="submit" loading={loading} className="mt-6 w-full">
+          <Button type="submit" loading={loading} size="lg" className="mt-6 w-full">
             注册
           </Button>
 
-          <p className="mt-4 text-center text-sm text-[#5a5a7a]">
+          <p className="vc-auth-switch">
             已有账号？{' '}
-            <Link to="/login" className="font-medium text-[#b49aff] hover:text-[#9478ff] transition-colors">
+            <Link to="/login">
               登录
             </Link>
           </p>
         </form>
-      </div>
-    </div>
+    </AuthShell>
   )
 }

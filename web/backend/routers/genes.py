@@ -157,7 +157,7 @@ async def extract_knowledge(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    """从基因报告中幂等提炼知识；已提炼过时直接返回已有结果。"""
+    """从基因报告中增量补齐知识与独立特效；保留已有条目。"""
     _get_owned_gene(gene_id, current_user.id, session)
     try:
         return await extract_gene_knowledge_service(gene_id, current_user.id)

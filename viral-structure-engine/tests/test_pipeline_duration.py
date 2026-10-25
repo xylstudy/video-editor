@@ -35,3 +35,10 @@ def test_short_video_preferences_do_not_request_long_form_output():
     preferences = build_preferences("15秒城市夜游短片", 15)
     assert preferences["shot_count_target"] == "6-10个分镜"
     assert preferences["total_duration_guide"] == "严格控制为 15 秒"
+
+
+def test_reference_shot_count_preserves_fast_cut_structure():
+    preferences = build_preferences("俏皮生活手账", 23.7, reference_shot_count=22)
+    assert preferences["shot_count_target"] == "22个分镜"
+    assert preferences["total_duration_guide"] == "严格控制为 23.7 秒"
+    assert "禁止重复" in preferences["material_usage"]

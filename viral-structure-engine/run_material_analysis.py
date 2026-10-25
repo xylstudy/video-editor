@@ -73,8 +73,11 @@ async def main():
             if mtype == MaterialType.IMAGE:
                 analysis = await manager._analyze_image(mat_id, mat_path, target_topic)
                 item = manager.build_material_item(mat_id, mtype, mat_path, analysis)
+            elif mtype == MaterialType.VIDEO:
+                analysis = await manager._analyze_video_material(mat_id, mat_path, target_topic)
+                item = manager.build_material_item(mat_id, mtype, mat_path, analysis)
             else:
-                logger.warning(f"    跳过非图片素材: {mat_type_str}")
+                logger.warning(f"    跳过不支持的素材: {mat_type_str}")
                 continue
 
             items.append(item)

@@ -1,0 +1,17 @@
+{
+  "case_id": "case_15",
+  "target_topic": "城市自然混合素材",
+  "reference_id": "ref_02",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_15\\materials.json",
+  "material_ids": [
+    "mat_02",
+    "mat_12",
+    "mat_19",
+    "mat_20",
+    "mat_23"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

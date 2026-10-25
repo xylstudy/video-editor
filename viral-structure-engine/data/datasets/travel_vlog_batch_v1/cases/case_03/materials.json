@@ -1,0 +1,67 @@
+[
+  {
+    "id": "mat_11",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_11.mp4",
+    "description": "Driving south on the Saline Valley Road, from the Inyo National Forest towards the washboard road of Waucoba Wash in the eastern Inyo Mountains to the Saline Valley and Death Valley National Park.",
+    "tags": [
+      "road",
+      "landscape",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:RoadToSalineValley.ogv",
+    "license": "Public domain"
+  },
+  {
+    "id": "mat_14",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_14.mp4",
+    "description": "Ride on road LP-109 from west to east (from Garafía to Barlovento) in La Palma, Canary Island, Spain. A slow journey in 33:45 minutes - due to file size restrictions in 17 parts.",
+    "tags": [
+      "road",
+      "island",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:La_Palma_-_Road_LP-109_from_west_to_east_15_ies.webm",
+    "license": "CC BY-SA 3.0"
+  },
+  {
+    "id": "mat_16",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_16.mp4",
+    "description": "Bike ride on the outskirt of Janakpur showing the road condition",
+    "tags": [
+      "bike",
+      "road",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Bike_ride_on_the_outskirt_of_Janakpur_20161011_165931.ogv",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_17",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_17.mp4",
+    "description": "Video of a Highway in Nepal on the way to Bhairahawa",
+    "tags": [
+      "bus",
+      "highway",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:View_From_Bus_Of_Nepali_Highway_To_Bhairahawa.ogv",
+    "license": "CC BY-SA 4.0"
+  },
+  {
+    "id": "mat_19",
+    "type": "video",
+    "path": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\materials\\mat_19.mp4",
+    "description": "Amazing Mountain bus ride from Monte in Funchal, Madeira, Portugal Website: https://therelaxingadventurer.wordpress.com/27-2/ Instagram: https://www.instagram.com/the_vagabond_captain/ This video is royalty-free and can be used for monetized YouTube videos. All material in this video is original and personally recorded by myself. Licensing You don’t need any special license to use the footage presented in this video. This footage is free for personal and commercial use. No attribution is required, but a reference link back to this video is always appreciated. Enjoy! If you have any questions, just comment below. Support the channel: If you enjoy my videos and would like to support my work, You can send a small tip via PayPal. Or, you can simply LIKE & SHARE the videos with your relatives and friends. It's a great support to me. • PayPal Tips: paypal.me/BotondRatonyi Tags: nature video no copyright, copyright free nature video, no copyright nature videos, no copyright video nature, nature footage no copyright, nature no copyright, stock footage nature, free nature video background – hd, nature video cinematic, landscape video, nature background video no copyright, nature stock footage, nature videos no copyright, background video no copyright nature, video no copyright nature, nature no copyright video, nature footage, background video nature no copyright, cinematic nature video no copyright, free nature video no copyright, free stock footage nature, free footage no copyright, no copyright nature video, nature background video, free nature background video no copyright, no copyright background video nature, footage no copyright, natural background video no copyright, nature video background, free footage nature, no copyright nature video background, background video nature, background nature video, nature landscapes, nature video clips without music, footage video cinematic no copyright, stock video nature, backgro",
+    "tags": [
+      "mountain",
+      "bus",
+      "motion"
+    ],
+    "source_page": "https://commons.wikimedia.org/wiki/File:Amazing_Mountain_bus_ride_from_Monte_in_Funchal%2C_Madeira%2C_Portugal_-_No_Copyright.webm",
+    "license": "CC BY 3.0"
+  }
+]

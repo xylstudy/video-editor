@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Bot, Download, Trash2 } from 'lucide-react'
-import { deleteTask, downloadTaskResult, getStoryboard, getTask, getTaskEvaluation, mediaUrl } from '../api.js'
+import { deleteTask, downloadTaskResult, getStoryboard, getTask, getTaskEvaluation, getTaskLearning, retryTaskLearning, mediaUrl } from '../api.js'
 import {
   Button,
   Card,
@@ -60,7 +60,11 @@ export default function TaskDetail() {
   const [draftError, setDraftError] = useState('')
   const [evaluation, setEvaluation] = useState(null)
   const [wsStatus, setWsStatus] = useState('connecting')
+  const [learning, setLearning] = useState(null)
+  const [learningError, setLearningError] = useState('')
+  const [learningLoaded, setLearningLoaded] = useState(false)
   const wsRef = useRef(null)
+  useEffect(() => { setLearning(null); setLearningLoaded(false); setLearningError('') }, [id])
 
   const fetchTask = useCallback(async () => {
     try {
@@ -86,6 +90,8 @@ export default function TaskDetail() {
         setLogs((prev) => [...prev, msg.data])
       } else if (msg.type === 'status') {
         fetchTask()
+      } else if (msg.type === 'learning') {
+        setLearning(msg.data)
       }
     }
     ws.onclose = () => setWsStatus('disconnected')
@@ -100,6 +106,26 @@ export default function TaskDetail() {
       ws.close()
     }
   }, [fetchTask, id])
+
+  useEffect(() => {
+    if (task?.status !== 'success' || !['end_to_end', 'analyze_video'].includes(task?.type)) return
+    if (['completed', 'failed'].includes(learning?.status)) return
+    let cancelled = false
+    const poll = async () => {
+      try {
+        const response = await getTaskLearning(id)
+        if (!cancelled) { setLearning(response.data); setLearningLoaded(true); setLearningError('') }
+      } catch { if (!cancelled) setLearningError('资产生成状态暂时无法加载') }
+    }
+    poll()
+    const timer = setInterval(poll, 2500)
+    return () => { cancelled = true; clearInterval(timer) }
+  }, [id, task?.status, task?.type, learning?.status])
+
+  const retryLearning = async () => {
+    try { const response = await retryTaskLearning(id); setLearning(response.data); setLearningError('') }
+    catch (error) { setLearningError(error.response?.data?.detail || '资产生成重试失败') }
+  }
 
   useEffect(() => {
     if (task?.status !== 'awaiting_confirmation') {
@@ -203,6 +229,19 @@ export default function TaskDetail() {
       </Card>
 
       {/* 错误信息 */}
+      {task.status === 'success' && ['end_to_end', 'analyze_video'].includes(task.type) && <Card className="mb-6 p-5 vc-task-learning">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><h3 className="font-semibold">任务资产自动更新</h3><span className="text-xs text-[#766e80]">{learning?.status === 'completed' && learning?.result?.pending_examples?.length ? '部分效果示例待补齐' : { pending: '等待生成', running: '正在生成', retrying: '正在自动重试', completed: '已全部更新', failed: '部分资产待补齐' }[learning?.status] || (learningLoaded ? '历史任务暂无更新记录' : '正在读取状态')}</span></div>
+        <p className="mb-4 text-xs text-[#766e80]">任务完成后自动更新基因、个人知识、实拍剪辑示例和统计洞察。</p>
+        <div className="vc-learning-steps">{[['gene', '视频基因'], ['knowledge', '个人知识'], ['examples', '实拍剪辑示例'], ['insights', '统计洞察']].map(([key, label]) => <div key={key} data-state={learning?.steps?.[key]?.status || 'pending'}><strong>{label}</strong><span>{{ done: '已完成', partial: '部分待补齐', running: '生成中', failed: '待重试', pending: '等待中' }[learning?.steps?.[key]?.status] || '等待中'}</span></div>)}</div>
+        {learning?.result?.knowledge_count > 0 && <p className="mt-3 text-xs text-[#766e80]">知识 {learning.result.knowledge_count} 条 · 剪辑示例 {learning.result.editing_examples || 0} 个 · 原片示例 {learning.result.source_examples || 0} 个</p>}
+        {learning?.result?.pending_examples?.length > 0 && <p className="mt-2 text-xs text-[#8a6a39]">{learning.result.pending_examples.length} 个效果示例待补齐；原片参考已保留。</p>}
+        {(learning?.error || learningError) && <div className="mt-3"><InfoBar type="error">{learningError || learning.error}</InfoBar></div>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {learning?.gene_id && <Button variant="secondary" onClick={() => navigate(`/genes/${learning.gene_id}`)}>查看基因</Button>}
+          <Button variant="secondary" onClick={() => navigate('/knowledge')}>查看知识与示例</Button><Button variant="secondary" onClick={() => navigate('/insights')}>查看统计洞察</Button>
+          {(learning?.status === 'failed' || (learningLoaded && !learning)) && <Button onClick={retryLearning}>{learning ? '重试未完成资产' : '补齐历史任务资产'}</Button>}
+        </div>
+      </Card>}
       {task.error_message && (
         <div className="mb-6">
           <InfoBar type="error">{task.error_message}</InfoBar>

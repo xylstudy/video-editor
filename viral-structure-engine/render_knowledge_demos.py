@@ -8,14 +8,18 @@
     python render_knowledge_demos.py              # 渲染全部（跳过已存在）
     python render_knowledge_demos.py --only k_0   # 只渲染指定条目
     python render_knowledge_demos.py --force      # 全部重渲
+    python render_knowledge_demos.py --built-in   # 仅补齐内置技法，不处理个人知识
+    python render_knowledge_demos.py --personal   # 为已有个人知识补齐独立教学演示
 """
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
 from pathlib import Path
+from uuid import uuid4
 
 VSE_DIR = Path(__file__).resolve().parent
 REMOTION_DIR = VSE_DIR / "remotion"
@@ -101,6 +105,17 @@ def _source_fingerprint(path: Path) -> str:
     return f"{stat.st_size}:{stat.st_mtime_ns}"
 
 
+def source_demo_window(entry: dict) -> dict:
+    if entry.get("type") == "effect_type":
+        from knowledge.effects import effect_example_windows
+        windows = effect_example_windows(entry)
+        if not windows:
+            raise ValueError("特效缺少可定位的原片证据")
+        return windows[0]
+    start = {"rhythm_pattern": 2., "emotion_design": 5., "packaging_style": 8.}.get(entry.get("type"), 0.)
+    return {"start": start, "duration": 3. if entry.get("type") == "hook_technique" else 5.}
+
+
 def render_source_demo(
     entry: dict,
     source_video: Path,
@@ -113,20 +128,17 @@ def render_source_demo(
     if not source_video.is_file():
         return False, f"源视频不存在: {source_video}"
     kind = entry.get("type", "")
-    start_by_type = {
-        "structure_template": 0.0,
-        "hook_technique": 0.0,
-        "rhythm_pattern": 2.0,
-        "emotion_design": 5.0,
-        "packaging_style": 8.0,
-    }
-    start = start_by_type.get(kind, 0.0)
-    duration = 3.0 if kind == "hook_technique" else 5.0
+    try:
+        window = source_demo_window(entry)
+    except ValueError as error:
+        return False, str(error)
+    start, duration = window["start"], window["duration"]
+    framing = "scale=540:960:force_original_aspect_ratio=decrease,pad=540:960:(ow-iw)/2:(oh-ih)/2" if kind == "effect_type" else "scale=540:960:force_original_aspect_ratio=increase,crop=540:960"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         _find_ffmpeg(), "-y", "-ss", str(start), "-i", str(source_video),
         "-t", str(duration), "-an",
-        "-vf", "scale=540:960:force_original_aspect_ratio=increase,crop=540:960",
+        "-vf", framing,
         "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
         str(output_path),
     ]
@@ -140,7 +152,7 @@ def render_source_demo(
         # Very short references do not have an eight-second packaging window.
         # Retry from the beginning so every extracted knowledge item still
         # receives a clip from the user's actual video.
-        if (result.returncode != 0 or not output_path.is_file()) and start > 0:
+        if (result.returncode != 0 or not output_path.is_file()) and start > 0 and kind != "effect_type":
             output_path.unlink(missing_ok=True)
             retry_cmd = list(cmd)
             retry_cmd[retry_cmd.index("-ss") + 1] = "0"
@@ -157,6 +169,7 @@ def render_source_demo(
                     "entry_id": entry.get("id"),
                     "source_video": str(source_video.resolve()),
                     "source_fingerprint": _source_fingerprint(source_video),
+                    "source_window": window,
                 }, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
@@ -167,28 +180,78 @@ def render_source_demo(
         return False, f"渲染超时（>{timeout}s）"
 
 
+def select_demo_entries(entries: list[dict], only: str | None = None, built_in: bool = False) -> list[dict]:
+    """Keep built-in teaching renders separate from source-specific personal clips."""
+    return [
+        entry for entry in entries
+        if (not only or entry.get("id") == only)
+        and (not built_in or re.fullmatch(r"k_\d+", str(entry.get("id", ""))))
+    ]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--only", help="只渲染指定条目 id（如 k_0）")
     parser.add_argument("--force", action="store_true", help="已存在也重渲")
+    parser.add_argument("--built-in", action="store_true", help="仅渲染内置技法（k_数字），保留个人知识的源视频示例")
+    parser.add_argument("--personal", action="store_true", help="补齐已有归属记录的个人知识教学演示，保留原片示例")
     args = parser.parse_args()
 
     entries = json.loads(KNOWLEDGE_JSON.read_text(encoding="utf-8"))
     if isinstance(entries, dict):
         entries = list(entries.get("entries", entries).values())
 
+    if args.personal:
+        if args.built_in:
+            parser.error("--personal 与 --built-in 不能同时使用")
+        import sqlite3
+        from personal_knowledge_demos import render_personal_teaching_demos
+
+        db_path = VSE_DIR.parent / "web/backend/app.db"
+        if not db_path.is_file():
+            parser.error("找不到 Web 数据库，无法确认个人知识归属")
+        with sqlite3.connect(f"{db_path.as_uri()}?mode=ro", uri=True) as connection:
+            owned = {row[0] for row in connection.execute("SELECT entry_id FROM knowledgeownership")}
+        selected = [entry for entry in entries if entry.get("id") in owned and (not args.only or entry.get("id") == args.only)]
+        result = render_personal_teaching_demos(selected, force=args.force)
+        print(json.dumps(result, ensure_ascii=False))
+        if result["teaching_demo_failures"]:
+            sys.exit(1)
+        return
+
     DEMO_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     todo = []
-    for e in entries:
-        if args.only and e["id"] != args.only:
-            continue
+    for e in select_demo_entries(entries, only=args.only, built_in=args.built_in):
         out = DEMO_OUT_DIR / f"{e['id']}.mp4"
-        if out.exists() and not args.force:
+        if out.is_file() and out.stat().st_size > 0 and not args.force:
             continue
         todo.append(e)
 
     print(f"共 {len(entries)} 条知识，待渲染 {len(todo)} 条")
+    if args.built_in:
+        if not todo:
+            print("内置技法演示已齐全，无需渲染")
+            return
+        plan_path = REMOTION_DIR / f"demo_batch_{uuid4().hex}.json"
+        plan_path.write_text(json.dumps({
+            "output_dir": str(DEMO_OUT_DIR.resolve()),
+            "entries": [
+                {"id": entry["id"], "title": entry.get("title", ""),
+                 "kind": demo_spec(entry)[0], "tech_id": demo_spec(entry)[1]}
+                for entry in todo
+            ],
+        }, ensure_ascii=False), encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["node", str(REMOTION_DIR / "render-knowledge-demos.mjs"), str(plan_path)],
+                cwd=str(REMOTION_DIR),
+            )
+            if result.returncode:
+                sys.exit(result.returncode)
+        finally:
+            plan_path.unlink(missing_ok=True)
+        return
     ok, fail = 0, []
     t0 = time.time()
     for i, e in enumerate(todo, 1):

@@ -32,6 +32,7 @@ export type TransitionType =
   | "wipe_right"
   | "wipe_up"
   | "wipe_down"
+  | "slice_wipe"
   | "blur_in"
   | "rotate_in"
   | "whip"
@@ -129,6 +130,11 @@ export interface StoryboardFrame {
 
   // ===== FFmpeg 粗剪 =====
   ffmpeg_segment?: FFmpegSegment;
+  effect_event_ids?: string[];
+  effect_mapping?: Record<
+    string,
+    { status?: "mapped" | "degraded" | "unresolved"; component?: string; reason?: string }
+  >;
 }
 
 export interface KenBurnsConfig {
@@ -170,10 +176,24 @@ export interface BGMInfo {
   key_transitions?: Array<{ time: number; intensity: number }>;
   role?: "background" | "emphasis" | "transition";
   audio_path?: string;
+  volume?: number;
   // 音频裁切（帧单位）
   trim_before?: number;
   trim_after?: number;
   loop?: boolean;
+}
+
+export interface AudioConfig {
+  source?: "reference" | "custom" | "none";
+  volume?: number;
+  loop?: boolean;
+  trim_before?: number;
+  trim_after?: number | null;
+  fade_frames?: number;
+  original_audio_mode?: "mute" | "selected" | "all";
+  normalize?: boolean;
+  target_lufs?: number;
+  true_peak?: number;
 }
 
 export interface VideoScheme {
@@ -186,8 +206,18 @@ export interface VideoScheme {
   hook_strategy?: string;
   overall_emotion?: string;
   storyboard: StoryboardFrame[];
+  effect_tracks?: Array<{
+    start: number;
+    end: number;
+    type: string;
+    component?: string;
+    priority?: string;
+    parameters?: Record<string, unknown>;
+  }>;
   packaging?: PackagingStyle;
   bgm?: BGMInfo;
+  audio_source_id?: string;
+  audio_config?: AudioConfig;
   script_blocks?: Array<{
     index: number;
     purpose: string;

@@ -1,0 +1,15 @@
+{
+  "case_id": "case_08",
+  "target_topic": "建筑素材严重不足",
+  "reference_id": "ref_04",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_08\\materials.json",
+  "material_ids": [
+    "mat_05",
+    "mat_07",
+    "mat_03"
+  ],
+  "material_count": 3,
+  "target_duration": 30,
+  "status": "ready"
+}

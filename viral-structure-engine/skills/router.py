@@ -16,6 +16,7 @@
 """
 from __future__ import annotations
 
+import asyncio
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -352,7 +353,16 @@ class SkillRouter:
         )
         self._last_semantic_error = ""
         try:
-            resp = await llm.chat(prompt, temperature=0.0, max_tokens=128)
+            # Reasoning-capable providers may spend their token budget before
+            # emitting the tiny final ID list. Starting at 128 caused several
+            # duplicate requests through the client's length retry ladder.
+            # Semantic routing is optional. Do not let a slow provider block
+            # the whole video pipeline; deterministic Gene routing is already
+            # complete and is the safe fallback.
+            resp = await asyncio.wait_for(
+                llm.chat(prompt, temperature=0.0, max_tokens=4096),
+                timeout=90,
+            )
             if not isinstance(resp, str) or resp.strip().upper() == "NONE":
                 return []
             # Providers occasionally wrap the requested IDs in JSON, bullets,

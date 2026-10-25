@@ -1,0 +1,17 @@
+{
+  "case_id": "case_03",
+  "target_topic": "山路与交通旅行",
+  "reference_id": "ref_02",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_03\\materials.json",
+  "material_ids": [
+    "mat_11",
+    "mat_14",
+    "mat_16",
+    "mat_17",
+    "mat_19"
+  ],
+  "material_count": 5,
+  "target_duration": 30,
+  "status": "ready"
+}

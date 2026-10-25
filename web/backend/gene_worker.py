@@ -220,6 +220,8 @@ async def run_gene_extraction(gene_id: int, user_id: int):
             gene.hook_method = vlog_meta.get("hook_method") or ""
             gene.progress = 100
             session.add(gene)
+            from learning_service import ensure_gene_learning
+            ensure_gene_learning(session, gene, user_id)
             session.commit()
             shot_count = gene.shot_count
         logger.info(f"Gene {gene_id} 提取完成: {shot_count} 个镜头")

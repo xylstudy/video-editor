@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "travel_vlog_batch_v1",
+  "case_count": 20,
+  "cases": [
+    {
+      "case_id": "case_01",
+      "target_topic": "自然风光快节奏开场",
+      "reference_id": "ref_01",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_01\\materials.json",
+      "material_ids": [
+        "mat_02",
+        "mat_11",
+        "mat_14",
+        "mat_19",
+        "mat_21"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_02",
+      "target_topic": "自然素材不足的结构迁移",
+      "reference_id": "ref_01",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_02\\materials.json",
+      "material_ids": [
+        "mat_02",
+        "mat_19",
+        "mat_01"
+      ],
+      "material_count": 3,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_03",
+      "target_topic": "山路与交通旅行",
+      "reference_id": "ref_02",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_03\\materials.json",
+      "material_ids": [
+        "mat_11",
+        "mat_14",
+        "mat_16",
+        "mat_17",
+        "mat_19"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_04",
+      "target_topic": "自然参考迁移到城市素材",
+      "reference_id": "ref_02",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_04\\materials.json",
+      "material_ids": [
+        "mat_12",
+        "mat_15",
+        "mat_21",
+        "mat_23"
+      ],
+      "material_count": 4,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_05",
+      "target_topic": "日本城市人物旅行",
+      "reference_id": "ref_03",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_05\\materials.json",
+      "material_ids": [
+        "mat_08",
+        "mat_09",
+        "mat_12",
+        "mat_22",
+        "mat_24"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_06",
+      "target_topic": "无人城市交通素材",
+      "reference_id": "ref_03",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_06\\materials.json",
+      "material_ids": [
+        "mat_12",
+        "mat_13",
+        "mat_15",
+        "mat_17",
+        "mat_21"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_07",
+      "target_topic": "意大利建筑结构迁移",
+      "reference_id": "ref_04",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_07\\materials.json",
+      "material_ids": [
+        "mat_05",
+        "mat_07",
+        "mat_10",
+        "mat_20",
+        "mat_25"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_08",
+      "target_topic": "建筑素材严重不足",
+      "reference_id": "ref_04",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_08\\materials.json",
+      "material_ids": [
+        "mat_05",
+        "mat_07",
+        "mat_03"
+      ],
+      "material_count": 3,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_09",
+      "target_topic": "公路旅行运动素材",
+      "reference_id": "ref_05",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_09\\materials.json",
+      "material_ids": [
+        "mat_11",
+        "mat_14",
+        "mat_15",
+        "mat_16",
+        "mat_17",
+        "mat_18"
+      ],
+      "material_count": 6,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_10",
+      "target_topic": "公路参考迁移到人物文化",
+      "reference_id": "ref_05",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_10\\materials.json",
+      "material_ids": [
+        "mat_08",
+        "mat_09",
+        "mat_22",
+        "mat_24"
+      ],
+      "material_count": 4,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_11",
+      "target_topic": "住宿探店叙事",
+      "reference_id": "ref_03",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_11\\materials.json",
+      "material_ids": [
+        "mat_01",
+        "mat_03",
+        "mat_04",
+        "mat_06",
+        "mat_22"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_12",
+      "target_topic": "室内素材的快节奏适配",
+      "reference_id": "ref_01",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_12\\materials.json",
+      "material_ids": [
+        "mat_01",
+        "mat_03",
+        "mat_04",
+        "mat_06"
+      ],
+      "material_count": 4,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_13",
+      "target_topic": "地标与当地文化",
+      "reference_id": "ref_04",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_13\\materials.json",
+      "material_ids": [
+        "mat_05",
+        "mat_10",
+        "mat_24",
+        "mat_25"
+      ],
+      "material_count": 4,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_14",
+      "target_topic": "交通方式混剪",
+      "reference_id": "ref_05",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_14\\materials.json",
+      "material_ids": [
+        "mat_13",
+        "mat_15",
+        "mat_16",
+        "mat_17",
+        "mat_18",
+        "mat_21"
+      ],
+      "material_count": 6,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_15",
+      "target_topic": "城市自然混合素材",
+      "reference_id": "ref_02",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_15\\materials.json",
+      "material_ids": [
+        "mat_02",
+        "mat_12",
+        "mat_19",
+        "mat_20",
+        "mat_23"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_16",
+      "target_topic": "人物素材稀缺的情绪迁移",
+      "reference_id": "ref_03",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_03.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_16\\materials.json",
+      "material_ids": [
+        "mat_08",
+        "mat_22",
+        "mat_02"
+      ],
+      "material_count": 3,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_17",
+      "target_topic": "纯运动镜头节奏测试",
+      "reference_id": "ref_01",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_01.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_17\\materials.json",
+      "material_ids": [
+        "mat_11",
+        "mat_13",
+        "mat_14",
+        "mat_15",
+        "mat_16",
+        "mat_17",
+        "mat_19"
+      ],
+      "material_count": 7,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_18",
+      "target_topic": "纯静态感建筑节奏测试",
+      "reference_id": "ref_04",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_04.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_18\\materials.json",
+      "material_ids": [
+        "mat_05",
+        "mat_07",
+        "mat_10",
+        "mat_20",
+        "mat_25"
+      ],
+      "material_count": 5,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_19",
+      "target_topic": "跨地域结构泛化",
+      "reference_id": "ref_05",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_19\\materials.json",
+      "material_ids": [
+        "mat_02",
+        "mat_05",
+        "mat_09",
+        "mat_17",
+        "mat_23",
+        "mat_24"
+      ],
+      "material_count": 6,
+      "target_duration": 30,
+      "status": "ready"
+    },
+    {
+      "case_id": "case_20",
+      "target_topic": "极少素材降级策略",
+      "reference_id": "ref_02",
+      "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+      "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_20\\materials.json",
+      "material_ids": [
+        "mat_12",
+        "mat_02"
+      ],
+      "material_count": 2,
+      "target_duration": 30,
+      "status": "ready"
+    }
+  ],
+  "failures": []
+}

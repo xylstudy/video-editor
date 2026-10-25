@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Clapperboard } from 'lucide-react'
 import { login } from '../api.js'
 import { useAuth } from '../context/auth-context.js'
+import AuthShell from '../components/AuthShell.jsx'
 import { Button, Field, InfoBar, TextInput } from '../components/ui.jsx'
 
 export default function Login() {
@@ -29,24 +29,11 @@ export default function Login() {
   }
 
   return (
-    <div className="vc-bg-hero flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm vc-fade-in">
-        {/* 品牌区 */}
-        <div className="mb-8 flex flex-col items-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7c5cfc] to-[#00d4ff] text-white shadow-[0_0_24px_rgba(124,92,252,0.3)]">
-            <Clapperboard size={26} />
-          </div>
-          <h1 className="mt-4 text-xl font-bold tracking-tight text-white">Video Claw</h1>
-          <p className="mt-1 text-sm text-[#8888a8]">爆款 Vlog 结构迁移引擎</p>
-        </div>
-
-        {/* 表单卡片 — glassmorphism */}
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(20,20,31,0.85)] p-6 shadow-[var(--shadow-lg)] backdrop-blur-xl"
-        >
-          <h2 className="mb-1 text-base font-semibold text-white">欢迎回来</h2>
-          <p className="mb-5 text-sm text-[#5a5a7a]">登录以继续你的创作</p>
+    <AuthShell>
+      <form onSubmit={handleSubmit} className="vc-auth-form vc-fade-in">
+          <span className="vc-auth-form-kicker">WELCOME BACK</span>
+          <h2>欢迎回来</h2>
+          <p>登录后继续你的视频创作工作流</p>
 
           {error && (
             <div className="mb-4">
@@ -77,18 +64,17 @@ export default function Login() {
             </Field>
           </div>
 
-          <Button type="submit" loading={loading} className="mt-6 w-full">
+          <Button type="submit" loading={loading} size="lg" className="mt-6 w-full">
             登录
           </Button>
 
-          <p className="mt-4 text-center text-sm text-[#5a5a7a]">
+          <p className="vc-auth-switch">
             还没有账号？{' '}
-            <Link to="/register" className="font-medium text-[#b49aff] hover:text-[#9478ff] transition-colors">
+            <Link to="/register">
               注册
             </Link>
           </p>
         </form>
-      </div>
-    </div>
+    </AuthShell>
   )
 }

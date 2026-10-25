@@ -14,6 +14,13 @@ from enum import Enum
 from typing import Optional
 
 
+def _safe_float(value, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 class ConstraintKind(str, Enum):
     HARD = "hard"       # 硬约束：迁移时必须保持，否则结构失真
     SOFT = "soft"       # 软偏好：尽量保持，可用 Skill / 素材条件放宽
@@ -54,6 +61,8 @@ class ShotGene:
 
     hard_constraints: list[str] = field(default_factory=list)
     soft_preferences: list[str] = field(default_factory=list)
+    effect_events: list[dict] = field(default_factory=list)
+    match_cut_to_next: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -70,6 +79,8 @@ class ShotGene:
             "importance": self.importance,
             "hard_constraints": self.hard_constraints,
             "soft_preferences": self.soft_preferences,
+            "effect_events": self.effect_events,
+            "match_cut_to_next": self.match_cut_to_next,
         }
 
 
@@ -91,6 +102,10 @@ class StructureGene:
     hard_constraints: list[str] = field(default_factory=list)
     soft_preferences: list[str] = field(default_factory=list)
     migration_notes: str = ""
+    reference_cut_points: list[float] = field(default_factory=list)
+    effect_tracks: list[dict] = field(default_factory=list)
+    packaging_signature: dict = field(default_factory=dict)
+    source_aspect_ratio: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -108,6 +123,10 @@ class StructureGene:
             "hard_constraints": self.hard_constraints,
             "soft_preferences": self.soft_preferences,
             "migration_notes": self.migration_notes,
+            "reference_cut_points": self.reference_cut_points,
+            "effect_tracks": self.effect_tracks,
+            "packaging_signature": self.packaging_signature,
+            "source_aspect_ratio": self.source_aspect_ratio,
         }
 
     # ---- 便捷查询 ----
@@ -181,6 +200,9 @@ def build_gene(
     source_id: str = "",
     source_path: str = "",
     duration: float = 0.0,
+    effect_tracks: list[dict] | None = None,
+    source_aspect_ratio: str = "",
+    reference_cut_points: list[float] | None = None,
 ) -> StructureGene:
     """纯函数：把逐镜头分析 + 全局结构分析映射为 StructureGene。
 
@@ -190,6 +212,8 @@ def build_gene(
     rhythm = sa.get("rhythm_analysis", {}) or {}
     hook = sa.get("hook_strategy", {}) or {}
     st = sa.get("structure_type", {}) or {}
+    packaging = sa.get("packaging_analysis", {}) or {}
+    effect_tracks = list(effect_tracks or sa.get("effect_tracks", []) or [])
 
     shot_genes: list[ShotGene] = []
     total_shots = max(len(shot_analyses), 1)
@@ -220,6 +244,40 @@ def build_gene(
         emotion = a.get("emotion", "") or ""
         tech = a.get("technique", {}) or {}
 
+        raw_effects = a.get("effect_events", []) or []
+        normalized_effects = []
+        shot_start = _safe_float(a.get("start_time"))
+        shot_end = _safe_float(a.get("end_time"), shot_start)
+        shot_duration = max(0.0, shot_end - shot_start)
+        for event_index, raw_event in enumerate(raw_effects):
+            if not isinstance(raw_event, dict):
+                continue
+            event = dict(raw_event)
+            event_id = str(event.get("id") or f"shot_{i:03d}_effect_{event_index:02d}")
+            start_offset = min(
+                shot_duration,
+                max(0.0, _safe_float(event.get("start_offset"))),
+            )
+            raw_end = event.get("end_offset", shot_duration)
+            end_offset = min(
+                shot_duration,
+                max(start_offset, _safe_float(raw_end, shot_duration)),
+            )
+            event.update({
+                "id": event_id,
+                "start_offset": round(start_offset, 3),
+                "end_offset": round(end_offset, 3),
+                "anchor": str(event.get("anchor") or "frame"),
+                "priority": str(event.get("priority") or "medium"),
+            })
+            normalized_effects.append(event)
+            effect_tracks.append({
+                **event,
+                "start": round(shot_start + start_offset, 3),
+                "end": round(shot_start + end_offset, 3),
+                "source_shot_index": i,
+            })
+
         shot_genes.append(ShotGene(
             index=i,
             source_shot_index=i,
@@ -233,16 +291,53 @@ def build_gene(
                 else "continue"
             ),
             visual_requirement=_FUNCTION_VISUAL_REQUIREMENT.get(function, ""),
-            duration_ratio=(a.get("end_time", 0.0) - a.get("start_time", 0.0)) / duration if duration else 0.0,
+            duration_ratio=(shot_end - shot_start) / duration if duration else 0.0,
             importance=importance,
             hard_constraints=hard,
             soft_preferences=soft + ([tech.get("camera_movement", "")] if tech.get("camera_movement") else []),
+            effect_events=normalized_effects,
+            match_cut_to_next=dict(a.get("match_cut_to_next") or {}),
         ))
+
+    deduped_tracks: list[dict] = []
+    seen_track_keys: set[tuple] = set()
+    for track in effect_tracks:
+        if not isinstance(track, dict):
+            continue
+        key = (
+            str(track.get("id") or ""),
+            str(track.get("type") or ""),
+            round(_safe_float(track.get("start")), 3),
+            round(_safe_float(track.get("end")), 3),
+        )
+        if key in seen_track_keys:
+            continue
+        seen_track_keys.add(key)
+        deduped_tracks.append(track)
+    effect_tracks = deduped_tracks
 
     hard_constraints = [
         f"保持 {len(shot_genes)} 镜的结构骨架与顺序",
         f"保持高潮位置约为全片 {rhythm.get('climax_position_percent', 0)}% 处",
     ]
+    if reference_cut_points is None:
+        reference_cut_points = [
+            float(item.get("end_time", 0) or 0)
+            for item in shot_analyses[:-1]
+            if isinstance(item, dict) and float(item.get("end_time", 0) or 0) > 0
+        ]
+    reference_cut_points = sorted({round(float(value), 3) for value in reference_cut_points if float(value) > 0})
+    expected_shot_count = len(reference_cut_points) + 1 if reference_cut_points else len(shot_genes)
+    hard_constraints[0] = f"Preserve the {expected_shot_count}-shot structure and ordering"
+    signature_effects = [
+        item for item in effect_tracks
+        if isinstance(item, dict) and item.get("priority", "high") in {"critical", "high"}
+    ]
+    if reference_cut_points:
+        hard_constraints.append("Preserve the relative positions of the reference cut points and beat sync")
+    if signature_effects:
+        hard_constraints.append("Transfer all critical/high effect_tracks as signature packaging")
+
     if hook.get("method"):
         hard_constraints.append(f"保持 Hook 策略：{hook['method']}")
 
@@ -265,5 +360,15 @@ def build_gene(
         shot_genes=shot_genes,
         hard_constraints=hard_constraints,
         soft_preferences=soft_preferences,
+        reference_cut_points=reference_cut_points,
+        effect_tracks=effect_tracks,
+        packaging_signature={
+            "title_cards": packaging.get("title_cards", []) or [],
+            "transitions_used": packaging.get("transitions_used", []) or [],
+            "stickers_effects": packaging.get("stickers_effects", ""),
+            "color_grade": packaging.get("color_grade", ""),
+            "color_grade_detail": packaging.get("color_grade_detail", ""),
+        },
+        source_aspect_ratio=source_aspect_ratio,
         migration_notes="结构功能迁移，非内容复制：按'功能/节奏/情绪'迁移，而非复制原片物体。",
     )

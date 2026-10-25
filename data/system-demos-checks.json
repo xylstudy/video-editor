@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-20T08:06:42.330Z",
+  "system_entries": 53,
+  "playable_builtin_demos": 52,
+  "entries_without_demo": [
+    {
+      "id": "k_u3_8f2d_effect_contract",
+      "title": "节拍型城市短片的跨镜头特效契约"
+    }
+  ],
+  "checks": [
+    "all 52 built-in demos exist and serve video/mp4 with HTTP Range support",
+    "transition_type: direct card action opens the correct demo and playback advances",
+    "effect_type: direct card action opens the correct demo and playback advances",
+    "editing_technique: direct card action opens the correct demo and playback advances",
+    "packaging_style: direct card action opens the correct demo and playback advances",
+    "normal detail opens without autoplay; in-detail play action still works; mobile layouts fit"
+  ],
+  "runtime_errors": []
+}

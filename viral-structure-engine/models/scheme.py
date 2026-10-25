@@ -78,6 +78,8 @@ class StoryboardFrame:
     gene_shot_index: int = -1        # 对应参考 Gene 的 shot_gene index（-1 为自由发挥）
     skill_refs: list[str] = field(default_factory=list)   # 本镜头用到的 Skill reference 名
     adaptation: dict = field(default_factory=dict)        # {preserved, reason, original_function}
+    effect_event_ids: list[str] = field(default_factory=list)
+    effect_mapping: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if not self.material_id and self.source_material_id:
@@ -116,6 +118,10 @@ class StoryboardFrame:
             "has_face": self.has_face,
             "bgm_sync": self.bgm_sync,
             "motion_effect": self.motion_effect,
+            "packaging_note": self.packaging_note,
+            "rhythm_intensity": self.rhythm_intensity,
+            "ken_burns_config": self.ken_burns_config,
+            "speed_change": self.speed_change,
             "gap_filled": self.gap_filled,
             # 前景/背景合成
             "fg_source_id": self.fg_source_id,
@@ -123,6 +129,8 @@ class StoryboardFrame:
             "composite_mode": self.composite_mode,
             # 字幕配置
             "subtitle_config": self.subtitle_config,
+            "text_card_style": self.text_card_style,
+            "text_card_config": self.text_card_config,
             # 扩展字段
             "render_component": self.render_component,
             "custom_render_config": self.custom_render_config,
@@ -134,6 +142,8 @@ class StoryboardFrame:
             "gene_shot_index": self.gene_shot_index,
             "skill_refs": self.skill_refs,
             "adaptation": self.adaptation,
+            "effect_event_ids": self.effect_event_ids,
+            "effect_mapping": self.effect_mapping,
         }
 
 
@@ -206,6 +216,8 @@ class VideoScheme:
     audio_config: dict = field(default_factory=dict)
     # 结构: { "volume": 0.3, "loop": true, "trim_before": 0, "trim_after": null }
     render_pipeline: str = "remotion"    # "remotion" / "ffmpeg" / "hybrid"
+    # Absolute timeline effects can persist across several storyboard shots.
+    effect_tracks: list[dict] = field(default_factory=list)
     render_hints: dict = field(default_factory=dict)  # 对 Renderer Agent 的提示
 
     # ===== 画布尺寸（Planner 传入） =====
@@ -260,5 +272,6 @@ class VideoScheme:
             "canvas_height": self.canvas_height,
             "render_pipeline": self.render_pipeline,
             "render_hints": self.render_hints,
+            "effect_tracks": self.effect_tracks,
             "ffmpeg_timeline": self.ffmpeg_timeline,
         }

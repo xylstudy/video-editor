@@ -10,6 +10,8 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
+SCENE_DETECTOR_VERSION = "frame-histogram-v2"
+
 # 自动查找 ffmpeg（通过 imageio_ffmpeg 或 PATH）
 _FFMPEG_PATH: str | None = None
 
@@ -23,6 +25,17 @@ def _imwrite(image_path: str, image) -> None:
     if not ok:
         raise ValueError(f"Cannot encode image: {image_path}")
     encoded.tofile(str(target))
+
+
+def _imread(image_path: str):
+    """Read an image through NumPy so Windows Unicode paths work reliably."""
+    try:
+        encoded = np.fromfile(str(Path(image_path)), dtype=np.uint8)
+    except OSError:
+        return None
+    if encoded.size == 0:
+        return None
+    return cv2.imdecode(encoded, cv2.IMREAD_COLOR)
 
 
 def _find_ffmpeg() -> str:
@@ -59,14 +72,35 @@ class VideoTools:
 
         return {"width": width, "height": height, "fps": fps, "total_frames": total_frames, "duration": duration}
 
-    def detect_scene_changes(self, video_path: str, threshold: float = 0.3) -> list[dict]:
+    def detect_scene_changes(
+        self,
+        video_path: str,
+        threshold: float = 0.30,
+        min_scene_duration: float = 0.35,
+    ) -> list[dict]:
+        """Detect hard cuts and short montage shots at frame precision.
+
+        ``threshold`` is a normalized 0-1 change score. The detector combines
+        grayscale pixel change with HSV histogram distance so that visually
+        distinct cuts are retained even when both shots have similar average
+        brightness. A short cooldown prevents fades from producing several
+        adjacent boundaries.
+        """
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise ValueError(f"Cannot open video: {video_path}")
 
         fps = cap.get(cv2.CAP_PROP_FPS)
+        if fps <= 0:
+            cap.release()
+            raise ValueError(f"Cannot determine FPS: {video_path}")
+        if threshold > 1:
+            logger.warning("scene threshold %.3f uses legacy percent units; normalizing", threshold)
+            threshold /= 100.0
+        threshold = min(1.0, max(0.0, float(threshold)))
         scenes = []
-        prev_frame = None
+        prev_gray = None
+        prev_hist = None
         frame_idx = 0
         scene_start = 0.0
 
@@ -75,23 +109,46 @@ class VideoTools:
             if not ret:
                 break
 
-            if frame_idx % int(fps) == 0:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                gray = cv2.resize(gray, (160, 90))
+            sample = cv2.resize(frame, (160, 90))
+            gray = cv2.cvtColor(sample, cv2.COLOR_BGR2GRAY)
+            hsv = cv2.cvtColor(sample, cv2.COLOR_BGR2HSV)
+            histogram = cv2.calcHist([hsv], [0, 1], None, [32, 32], [0, 180, 0, 256])
+            cv2.normalize(histogram, histogram)
 
-                if prev_frame is not None:
-                    diff = cv2.absdiff(gray, prev_frame).mean()
-                    if diff > threshold:
-                        scene_end = frame_idx / fps
-                        scenes.append({"start": scene_start, "end": scene_end, "duration": scene_end - scene_start})
-                        scene_start = scene_end
+            if prev_gray is not None and prev_hist is not None:
+                pixel_change = float(cv2.absdiff(gray, prev_gray).mean() / 255.0)
+                histogram_change = float(
+                    cv2.compareHist(prev_hist, histogram, cv2.HISTCMP_BHATTACHARYYA)
+                )
+                change_score = max(pixel_change, histogram_change)
+                scene_end = frame_idx / fps
+                if (
+                    change_score > threshold
+                    and scene_end - scene_start >= min_scene_duration
+                ):
+                    scenes.append({
+                        "start": scene_start,
+                        "end": scene_end,
+                        "duration": scene_end - scene_start,
+                    })
+                    scene_start = scene_end
 
-                prev_frame = gray
+            prev_gray = gray
+            prev_hist = histogram
             frame_idx += 1
 
         cap.release()
         total_duration = frame_idx / fps
-        scenes.append({"start": scene_start, "end": total_duration, "duration": total_duration - scene_start})
+        tail_duration = total_duration - scene_start
+        if scenes and tail_duration < min_scene_duration:
+            scenes[-1]["end"] = total_duration
+            scenes[-1]["duration"] = total_duration - scenes[-1]["start"]
+        else:
+            scenes.append({
+                "start": scene_start,
+                "end": total_duration,
+                "duration": tail_duration,
+            })
         return scenes
 
     def extract_frame(self, video_path: str, time_sec: float) -> str:
@@ -120,9 +177,27 @@ class VideoTools:
         subprocess.run(cmd, capture_output=True, check=True)
         return output_path
 
-    def extract_multiple_frames(self, video_path: str, scenes: list[dict], frames_per_shot: int = 3) -> dict[int, list[str]]:
+    @staticmethod
+    def shot_sample_ratios(duration: float, frames_per_shot: int = 5) -> list[float]:
+        """Return interior sample positions without touching cut boundaries."""
+        requested = max(1, int(frames_per_shot or 1))
+        if requested == 1:
+            return [0.5]
+        # Very short shots do not contain enough distinct evidence for five
+        # useful samples. Three interior frames also avoid duplicate seeks.
+        count = min(requested, 3) if duration < 0.6 else requested
+        if count == 3:
+            return [0.12, 0.5, 0.88]
+        if count == 5:
+            return [0.08, 0.28, 0.5, 0.72, 0.92]
+        step = 0.84 / max(1, count - 1)
+        return [round(0.08 + step * index, 6) for index in range(count)]
+
+    def extract_multiple_frames(self, video_path: str, scenes: list[dict], frames_per_shot: int = 5) -> dict[int, list[str]]:
         """抽取每个镜头的多帧图像（头/中/尾）"""
         cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
         fps = cap.get(cv2.CAP_PROP_FPS)
         result: dict[int, list[str]] = {}
 
@@ -131,10 +206,8 @@ class VideoTools:
             duration = end - start
             paths = []
 
-            for i in range(frames_per_shot):
-                t = start + (duration * i) / max(frames_per_shot - 1, 1)
-                if t > end:
-                    t = end - 0.01
+            for i, ratio in enumerate(self.shot_sample_ratios(duration, frames_per_shot)):
+                t = start + duration * ratio
                 target_frame = max(0, int(t * fps))
                 cap.set(cv2.CAP_PROP_POS_FRAMES, target_frame)
                 ret, frame = cap.read()
@@ -192,7 +265,7 @@ class VideoTools:
         all_pixels = []
 
         for img_path in image_paths:
-            img = cv2.imread(img_path)
+            img = _imread(img_path)
             if img is None:
                 continue
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -413,7 +486,7 @@ class VideoTools:
         return output_path
 
     def crop_image(self, image_path: str, region: tuple[int, int, int, int]) -> str:
-        img = cv2.imread(image_path)
+        img = _imread(image_path)
         if img is None:
             raise ValueError(f"Cannot read image: {image_path}")
         x, y, w, h = region

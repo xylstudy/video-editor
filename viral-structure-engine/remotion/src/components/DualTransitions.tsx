@@ -35,6 +35,7 @@ export function getRequiredOverlap(type: TransitionType): number {
     case "wipe_right":
     case "wipe_up":
     case "wipe_down":
+    case "slice_wipe":
       return 10;
     case "zoom_in":
     case "zoom_out":
@@ -729,6 +730,38 @@ export const DualTransitionLayer: React.FC<DualTransitionLayerProps> = ({
   const inTransition = frame < overlapFrames;
 
   // 无过渡（cut/none 或首个分镜）
+  if (transitionType === "slice_wipe" && outgoingContent && overlapFrames > 0) {
+    const slices = 6;
+    return (
+      <AbsoluteFill>
+        {inTransition && <AbsoluteFill>{outgoingContent}</AbsoluteFill>}
+        {Array.from({ length: slices }).map((_, index) => {
+          const stagger = index * 0.55;
+          const progress = interpolate(
+            frame,
+            [stagger, Math.max(stagger + 1, overlapFrames - (slices - 1 - index) * 0.25)],
+            [0, 1],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) },
+          );
+          const left = (index * 100) / slices;
+          const right = 100 - ((index + 1) * 100) / slices;
+          const direction = index % 2 === 0 ? -1 : 1;
+          return (
+            <AbsoluteFill
+              key={index}
+              style={{
+                clipPath: `inset(0 ${right}% 0 ${left}%)`,
+                transform: inTransition ? `translateY(${direction * (1 - progress) * 100}%)` : undefined,
+              }}
+            >
+              {currentContent}
+            </AbsoluteFill>
+          );
+        })}
+      </AbsoluteFill>
+    );
+  }
+
   if (overlapFrames === 0 || !outgoingContent) {
     return <AbsoluteFill>{currentContent}</AbsoluteFill>;
   }

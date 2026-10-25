@@ -20,13 +20,37 @@ from websocket_manager import ws_manager
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
+
+@router.get("/{task_id}/learning")
+def task_learning(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    from db_models import LearningJob
+    from learning_service import job_payload
+    _owned_task(task_id, current_user.id, session)
+    job = session.exec(select(LearningJob).where(LearningJob.task_id == task_id, LearningJob.user_id == current_user.id)).first()
+    return job_payload(job) if job else None
+
+
+@router.post("/{task_id}/learning/retry")
+def retry_task_learning(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    from learning_service import ensure_task_learning, job_payload
+    task, _ = _owned_task(task_id, current_user.id, session)
+    job = ensure_task_learning(session, task, current_user.id)
+    if not job:
+        raise HTTPException(status_code=409, detail="只有已完成的参考视频分析或成片任务可以更新资产")
+    if job.status not in ("pending", "running", "retrying"):
+        job.status, job.attempts, job.next_retry_at, job.error = "pending", 0, 0, None
+        session.add(job)
+    session.commit()
+    return job_payload(job)
+
 ALLOWED_TRANSITIONS = {
     "cut", "fade", "dissolve", "zoom_in", "zoom_out", "flash_white",
     "flash_black", "slide", "slide_left", "slide_right", "slide_up",
     "slide_down", "wipe_left", "wipe_right", "wipe_up", "wipe_down",
     "blur_in", "rotate_in", "whip", "mask", "circle_reveal", "zoom_flash",
     "glitch", "spin", "zoom_heavy", "light_leak", "freeze_frame", "flip_3d",
-    "radial_wipe", "zoom_through", "liquid_warp", "chromatic_aberration", "none",
+    "radial_wipe", "zoom_through", "liquid_warp", "chromatic_aberration",
+    "slice_wipe", "none",
 }
 
 
@@ -147,14 +171,23 @@ def create_task(
 
     from db_models import Material
     materials = session.exec(select(Material).where(Material.project_id == project_id)).all()
-    has_video = any(m.type == MaterialType.VIDEO for m in materials)
-    has_photo = any(m.type == MaterialType.IMAGE for m in materials)
-    if task_in.type == TaskType.ANALYZE_VIDEO and not has_video:
+    videos = [m for m in materials if m.type == MaterialType.VIDEO]
+    reference = next(
+        (m for m in videos if m.get_metadata().get("role") == "reference"),
+        videos[0] if videos else None,
+    )
+    has_target = any(
+        m.id != getattr(reference, "id", None)
+        and m.type in (MaterialType.IMAGE, MaterialType.VIDEO)
+        and m.get_metadata().get("role") != "reference"
+        for m in materials
+    )
+    if task_in.type == TaskType.ANALYZE_VIDEO and reference is None:
         raise HTTPException(status_code=400, detail="分析参考视频需要至少一个视频素材")
-    if task_in.type == TaskType.MATERIAL_ANALYSIS and not has_photo:
-        raise HTTPException(status_code=400, detail="分析素材需要至少一张图片")
-    if task_in.type == TaskType.END_TO_END and (not has_video or not has_photo):
-        raise HTTPException(status_code=400, detail="完整生成需要至少一个参考视频和一张图片")
+    if task_in.type == TaskType.MATERIAL_ANALYSIS and not has_target:
+        raise HTTPException(status_code=400, detail="分析素材需要至少一张图片或一段视频")
+    if task_in.type == TaskType.END_TO_END and (reference is None or not has_target):
+        raise HTTPException(status_code=400, detail="完整生成需要一个参考视频和至少一个图片/视频素材")
 
     task = Task(
         project_id=project_id,

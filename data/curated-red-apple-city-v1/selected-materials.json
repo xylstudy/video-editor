@@ -1,0 +1,27 @@
+{
+  "reference_video": "../7438bfb654d11319e6bc2c319357d565.mp4",
+  "theme": "red apple city lifestyle beverage ad",
+  "selection_strategy": [
+    "red object and color match cuts",
+    "apple wash-cut-drink process",
+    "urban movement and premium lifestyle",
+    "vertical-first shots where available",
+    "night light trails for energy transitions"
+  ],
+  "license": {
+    "provider": "Mixkit",
+    "name": "Mixkit Video Free License",
+    "url": "https://mixkit.co/license/#videoFree",
+    "verified": true
+  },
+  "materials": [
+    {"file": "01-fresh-red-apples.mp4", "mixkit_id": 42946, "role": "apple_macro", "orientation": "landscape", "source_page": "https://mixkit.co/free-stock-video/fresh-apples-in-a-row-on-a-natural-background-42946/"},
+    {"file": "02-slicing-red-apple.mp4", "mixkit_id": 43902, "role": "apple_cutting", "orientation": "landscape", "source_page": "https://mixkit.co/free-stock-video/slicing-an-apple-43902/"},
+    {"file": "03-rinsing-fruit.mp4", "mixkit_id": 10434, "role": "fruit_washing", "orientation": "landscape", "source_page": "https://mixkit.co/free-stock-video/rinsing-strawberries-apples-and-grapes-holding-hands-10434/"},
+    {"file": "04-red-drink-pour.mp4", "mixkit_id": 5096, "role": "drink_pour", "orientation": "portrait", "source_page": "https://mixkit.co/free-stock-video/filling-a-glass-with-soda-from-a-bottle-5096/"},
+    {"file": "05-city-cyclist-vertical.mp4", "mixkit_id": 41894, "role": "urban_cycling", "orientation": "portrait", "source_page": "https://mixkit.co/free-stock-video/skilled-cyclist-doing-a-wheelie-on-a-bicycle-41894/"},
+    {"file": "06-red-sports-car.mp4", "mixkit_id": 74, "role": "red_sports_car", "orientation": "landscape", "source_page": "https://mixkit.co/free-stock-video/red-sports-car-74/"},
+    {"file": "07-red-balloons-vertical.mp4", "mixkit_id": 3565, "role": "red_balloon", "orientation": "portrait", "source_page": "https://mixkit.co/free-stock-video/urban-girl-holding-birthday-balloons-3565/"},
+    {"file": "08-night-fair-motion.mp4", "mixkit_id": 4098, "role": "night_fair_motion", "orientation": "landscape", "source_page": "https://mixkit.co/free-stock-video/ride-at-a-fair-at-night-4098/"}
+  ]
+}

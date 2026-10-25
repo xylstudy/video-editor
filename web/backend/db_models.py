@@ -30,6 +30,25 @@ class TaskStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class LearningJob(SQLModel, table=True):
+    """Durable post-task asset generation, separate from video render success."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    source_key: str = Field(unique=True, index=True)
+    user_id: int = Field(index=True)
+    task_id: Optional[int] = Field(default=None, index=True)
+    project_id: Optional[int] = None
+    gene_id: Optional[int] = Field(default=None, index=True)
+    status: str = Field(default="pending", index=True)
+    attempts: int = 0
+    next_retry_at: float = 0
+    steps: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    result: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    inputs: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    error: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class Provider(str, enum.Enum):
     DEEPSEEK = "deepseek"
     ZHIPU = "zhipu"

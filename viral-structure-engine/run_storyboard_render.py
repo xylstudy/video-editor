@@ -3,12 +3,15 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import subprocess
 import time
 from pathlib import Path
 
 from tools.remotion_renderer import render_with_remotion
 from tools.video_tools import _find_ffmpeg
+from tools.render_components import resolve_render_component
+from config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -53,6 +56,45 @@ def extract_reference_audio(reference_video: str, output_dir: Path) -> str:
     return str(audio_path)
 
 
+def normalize_output_audio(output_path: Path, audio_config: dict) -> None:
+    """Normalize the final mix while copying the rendered video stream."""
+    if not audio_config.get("normalize", True):
+        return
+    ffmpeg = Path(_find_ffmpeg())
+    ffprobe = ffmpeg.with_name("ffprobe.exe" if ffmpeg.suffix.lower() == ".exe" else "ffprobe")
+    probe = subprocess.run(
+        [
+            str(ffprobe), "-v", "error", "-select_streams", "a:0",
+            "-show_entries", "stream=index", "-of", "csv=p=0", str(output_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if probe.returncode != 0 or not probe.stdout.strip():
+        if str(audio_config.get("source", "none")).lower() != "none":
+            raise RuntimeError("渲染结果缺少预期音轨")
+        return
+
+    target_lufs = max(-24.0, min(-8.0, float(audio_config.get("target_lufs", -14.0))))
+    true_peak = max(-3.0, min(-0.1, float(audio_config.get("true_peak", -1.0))))
+    normalized = output_path.with_name(f"{output_path.stem}.normalized{output_path.suffix}")
+    command = [
+        str(ffmpeg), "-y", "-i", str(output_path),
+        "-map", "0:v:0", "-map", "0:a:0",
+        "-c:v", "copy",
+        "-af", f"loudnorm=I={target_lufs}:LRA=11:TP={true_peak}",
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+        "-movflags", "+faststart",
+        str(normalized),
+    ]
+    try:
+        subprocess.run(command, capture_output=True, check=True)
+        normalized.replace(output_path)
+    finally:
+        normalized.unlink(missing_ok=True)
+
+
 def main():
     args = parse_args()
     render_started = time.perf_counter()
@@ -74,21 +116,65 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         scheme = json.loads(scheme_path.read_text(encoding="utf-8"))
+        if not settings.ENABLE_DYNAMIC_COMPONENTS:
+            for frame in scheme.get("storyboard", []):
+                frame["render_component"], _ = resolve_render_component(
+                    frame.get("render_component", "auto"),
+                    frame.get("custom_render_config", {}),
+                    dynamic_enabled=False,
+                )
         materials = load_inventory(args.materials)
         if not materials:
             raise RuntimeError("素材库存为空，无法渲染")
 
-        bgm = scheme.get("bgm", {})
-        if bgm.get("audio_path") == "_viral_audio":
+        bgm = dict(scheme.get("bgm") or {})
+        audio_config = dict(scheme.get("audio_config") or {})
+        # New plans explicitly request reference audio through the audio
+        # contract. Legacy/user-authored schemes without audio fields should
+        # remain renderable and silent instead of requiring a missing source.
+        default_audio_source = "reference" if bgm.get("audio_path") == "_viral_audio" else "none"
+        audio_config.setdefault("source", default_audio_source)
+        audio_config.setdefault("volume", 0.3)
+        audio_config.setdefault("loop", True)
+        audio_config.setdefault("trim_before", 0)
+        audio_config.setdefault("trim_after", None)
+        audio_config.setdefault("fade_frames", 15)
+        audio_config.setdefault("original_audio_mode", "mute")
+        audio_config.setdefault("normalize", True)
+        audio_config.setdefault("target_lufs", -14.0)
+        audio_config.setdefault("true_peak", -1.0)
+        scheme["audio_config"] = audio_config
+
+        use_reference_audio = (
+            bgm.get("audio_path") == "_viral_audio"
+            or (
+                str(audio_config.get("source", "none")).lower() == "reference"
+                and not bgm.get("audio_path")
+            )
+        )
+        if use_reference_audio:
             if not args.reference_video or not Path(args.reference_video).is_file():
                 raise RuntimeError("该分镜需要参考视频音频，但参考视频不存在")
             audio_path = extract_reference_audio(args.reference_video, output_path.parent)
             materials.append({"id": "_viral_audio", "path": audio_path})
+            bgm["audio_path"] = "_viral_audio"
+            bgm.setdefault("volume", audio_config["volume"])
+            bgm.setdefault("loop", audio_config["loop"])
+            bgm.setdefault("trim_before", audio_config["trim_before"])
+            bgm.setdefault("trim_after", audio_config["trim_after"])
+            scheme["bgm"] = bgm
 
         logger.info("开始渲染已确认分镜: %s 个镜头", len(scheme.get("storyboard", [])))
-        result = render_with_remotion(scheme, materials, str(output_path), timeout=600)
+        render_timeout = max(60, int(os.getenv("REMOTION_RENDER_TIMEOUT", "1800")))
+        result = render_with_remotion(
+            scheme,
+            materials,
+            str(output_path),
+            timeout=render_timeout,
+        )
         if not result:
             raise RuntimeError("Remotion 渲染失败")
+        normalize_output_audio(Path(result), audio_config)
     except Exception as exc:
         try:
             record_evaluation(error=str(exc))

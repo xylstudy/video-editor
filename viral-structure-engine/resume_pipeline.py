@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from graph.builder import build_graph
 from graph.state import ViralEngineState
-from models.video_structure import VideoStructure, ShotInfo, ShotType, TransitionType
+from models.video_structure import VideoStructure, ShotInfo, ShotType, TransitionType, EffectEvent
 from models.material import MaterialInventory, MaterialItem, MaterialType, MaterialQuality
 
 
@@ -64,6 +64,12 @@ def load_video_structure() -> VideoStructure:
             motion_intensity=sd.get("motion_intensity", 0.0),
             color_stats=sd.get("color_stats", {}),
             audio_type=sd.get("audio_type", ""),
+            effect_events=[
+                EffectEvent.from_dict(event, default_id=f"shot_{sd.get('index', 0):03d}_effect_{idx:02d}")
+                for idx, event in enumerate(sd.get("effect_events", []) or [])
+                if isinstance(event, dict)
+            ],
+            match_cut_to_next=sd.get("match_cut_to_next", {}),
         )
         shots.append(shot)
 

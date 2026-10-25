@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import subprocess
@@ -119,7 +120,10 @@ class RendererAgent(BaseAgent):
   ],
   "summary": "整体渲染策略说明"
 }}"""
-        response = await self.llm.chat(prompt, system=self.system_prompt, response_format="json", max_tokens=16384)
+        response = await asyncio.wait_for(
+            self.llm.chat(prompt, system=self.system_prompt, response_format="json", max_tokens=16384),
+            timeout=180,
+        )
         return self.llm.parse_json(response)
 
     async def _generate_component(
@@ -156,7 +160,10 @@ class RendererAgent(BaseAgent):
   "render_config": {{"分镜需要的 custom_render_config 配置"}},
   "test_tips": "如何验证这个组件"
 }}"""
-        response = await self.llm.chat(prompt, system=self.system_prompt, response_format="json")
+        response = await asyncio.wait_for(
+            self.llm.chat(prompt, system=self.system_prompt, response_format="json"),
+            timeout=180,
+        )
         result = self.llm.parse_json(response)
 
         # 把生成的代码写入文件

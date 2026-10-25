@@ -1,0 +1,16 @@
+{
+  "case_id": "case_10",
+  "target_topic": "公路参考迁移到人物文化",
+  "reference_id": "ref_05",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_10\\materials.json",
+  "material_ids": [
+    "mat_08",
+    "mat_09",
+    "mat_22",
+    "mat_24"
+  ],
+  "material_count": 4,
+  "target_duration": 30,
+  "status": "ready"
+}

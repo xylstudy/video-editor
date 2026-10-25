@@ -1,0 +1,16 @@
+{
+  "case_id": "case_04",
+  "target_topic": "自然参考迁移到城市素材",
+  "reference_id": "ref_02",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_02.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_04\\materials.json",
+  "material_ids": [
+    "mat_12",
+    "mat_15",
+    "mat_21",
+    "mat_23"
+  ],
+  "material_count": 4,
+  "target_duration": 30,
+  "status": "ready"
+}

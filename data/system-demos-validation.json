@@ -1,0 +1,474 @@
+{
+  "validated": 52,
+  "total_frames_decoded": 5656,
+  "demos": [
+    {
+      "id": "k_0",
+      "title": "硬切",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 3119453
+    },
+    {
+      "id": "k_1",
+      "title": "淡入",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2881865
+    },
+    {
+      "id": "k_2",
+      "title": "溶解",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2884922
+    },
+    {
+      "id": "k_3",
+      "title": "放大入场",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2789688
+    },
+    {
+      "id": "k_4",
+      "title": "缩小入场",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2753207
+    },
+    {
+      "id": "k_5",
+      "title": "闪白",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2683260
+    },
+    {
+      "id": "k_6",
+      "title": "闪黑",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2687591
+    },
+    {
+      "id": "k_7",
+      "title": "左滑入",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2811582
+    },
+    {
+      "id": "k_8",
+      "title": "右滑入",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2889792
+    },
+    {
+      "id": "k_9",
+      "title": "上滑入",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2802698
+    },
+    {
+      "id": "k_10",
+      "title": "下滑入",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2744722
+    },
+    {
+      "id": "k_11",
+      "title": "左擦除",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2800721
+    },
+    {
+      "id": "k_12",
+      "title": "右擦除",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2775002
+    },
+    {
+      "id": "k_13",
+      "title": "模糊清晰",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2636249
+    },
+    {
+      "id": "k_14",
+      "title": "旋转入场",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2883240
+    },
+    {
+      "id": "k_15",
+      "title": "甩镜头",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2590125
+    },
+    {
+      "id": "k_16",
+      "title": "圆形展开",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2745661
+    },
+    {
+      "id": "k_17",
+      "title": "缩放闪光",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2801029
+    },
+    {
+      "id": "k_18",
+      "title": "故障抖动",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 3047420
+    },
+    {
+      "id": "k_19",
+      "title": "360°旋转",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 3045613
+    },
+    {
+      "id": "k_20",
+      "title": "重度缩放",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2480268
+    },
+    {
+      "id": "k_21",
+      "title": "彩色漏光",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2830784
+    },
+    {
+      "id": "k_22",
+      "title": "冻结帧+RGB偏移",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2827663
+    },
+    {
+      "id": "k_23",
+      "title": "胶片颗粒",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 1548276
+    },
+    {
+      "id": "k_24",
+      "title": "变速时间重映射",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2500259
+    },
+    {
+      "id": "k_25",
+      "title": "运动模糊",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 770888
+    },
+    {
+      "id": "k_26",
+      "title": "强化甩镜头",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 668494
+    },
+    {
+      "id": "k_27",
+      "title": "浮动升起",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 3962930
+    },
+    {
+      "id": "k_28",
+      "title": "缩放弹入",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 4044582
+    },
+    {
+      "id": "k_29",
+      "title": "3D透视旋转",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 3919480
+    },
+    {
+      "id": "k_30",
+      "title": "发光淡入",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 3655542
+    },
+    {
+      "id": "k_31",
+      "title": "视差漂移",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 6116751
+    },
+    {
+      "id": "k_32",
+      "title": "分裂合拢",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 5047621
+    },
+    {
+      "id": "k_33",
+      "title": "模糊变清晰",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 2954283
+    },
+    {
+      "id": "k_34",
+      "title": "打字机效果",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4758527
+    },
+    {
+      "id": "k_35",
+      "title": "霓虹发光",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4742565
+    },
+    {
+      "id": "k_36",
+      "title": "渐变色背景条",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4705542
+    },
+    {
+      "id": "k_37",
+      "title": "弹簧缩放弹入",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4746059
+    },
+    {
+      "id": "k_38",
+      "title": "裁切滑入",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4761856
+    },
+    {
+      "id": "k_39",
+      "title": "文字掉落",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4743064
+    },
+    {
+      "id": "k_40",
+      "title": "波浪摆动",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4724466
+    },
+    {
+      "id": "k_41",
+      "title": "电影上下黑条",
+      "frames": 150,
+      "duration": 5.0,
+      "width": 540,
+      "height": 960,
+      "size": 4684894
+    },
+    {
+      "id": "k_42",
+      "title": "抖音旅行快节奏",
+      "frames": 116,
+      "duration": 3.867,
+      "width": 540,
+      "height": 960,
+      "size": 3680974
+    },
+    {
+      "id": "k_43",
+      "title": "抖音旅行电影感",
+      "frames": 116,
+      "duration": 3.867,
+      "width": 540,
+      "height": 960,
+      "size": 3994770
+    },
+    {
+      "id": "k_44",
+      "title": "抖音旅行创意风",
+      "frames": 116,
+      "duration": 3.867,
+      "width": 540,
+      "height": 960,
+      "size": 3942049
+    },
+    {
+      "id": "k_45",
+      "title": "前3秒抓眼球",
+      "frames": 85,
+      "duration": 2.833,
+      "width": 540,
+      "height": 960,
+      "size": 2479365
+    },
+    {
+      "id": "k_46",
+      "title": "音乐卡点",
+      "frames": 135,
+      "duration": 4.5,
+      "width": 540,
+      "height": 960,
+      "size": 5042830
+    },
+    {
+      "id": "k_47",
+      "title": "5段式情绪设计",
+      "frames": 160,
+      "duration": 5.333,
+      "width": 540,
+      "height": 960,
+      "size": 4926397
+    },
+    {
+      "id": "k_48",
+      "title": "前景背景分离",
+      "frames": 120,
+      "duration": 4.0,
+      "width": 540,
+      "height": 960,
+      "size": 3973081
+    },
+    {
+      "id": "k_49",
+      "title": "速度对比",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 2681255
+    },
+    {
+      "id": "k_50",
+      "title": "转场不做重复",
+      "frames": 158,
+      "duration": 5.267,
+      "width": 540,
+      "height": 960,
+      "size": 5065653
+    },
+    {
+      "id": "k_51",
+      "title": "胶片质感",
+      "frames": 90,
+      "duration": 3.0,
+      "width": 540,
+      "height": 960,
+      "size": 1520539
+    }
+  ]
+}

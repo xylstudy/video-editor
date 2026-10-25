@@ -17,11 +17,14 @@ def build_knowledge_extract_prompt(
 - 节奏模式
 - 情绪设计
 - 包装风格
+- 独立特效（effect_type）：贴纸属于特效。卡通五官、星星/怒气涂鸦、文字弹入、箭头、撕纸描边、主体残影等须分别提炼，不能只写入包装组合。
+
+特效条目必须有分析结果中的原始证据。structured_data 保留 effect_key、evidence（镜头索引、绝对起止秒、主体、位置、运动路径、遮罩方式、parameters）。同一种效果的重复出现合并为多条 evidence；不同贴纸手法分别入库。未观察到的效果不要补造。
 
 {{
   "knowledge_entries": [
     {{
-      "type": "structure_template/hook_technique/rhythm_pattern/emotion_design/packaging_style",
+      "type": "structure_template/hook_technique/rhythm_pattern/emotion_design/packaging_style/effect_type",
       "title": "知识标题",
       "content": "自然语言描述（200字以内）",
       "structured_data": {{}},

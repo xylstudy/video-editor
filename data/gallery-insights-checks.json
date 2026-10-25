@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-20T07:50:16.322Z",
+  "checks": [
+    "desktop portfolio: no horizontal overflow",
+    "mobile portfolio comparison: no horizontal overflow",
+    "mobile portfolio: no horizontal overflow",
+    "portfolio compact cover gallery, real frame capture, search, mode filter, correct reference/output links, task/project/download actions",
+    "desktop insight library: no horizontal overflow",
+    "tablet aggregate insights: no horizontal overflow",
+    "mobile aggregate insights: no horizontal overflow",
+    "mobile dimension detail: no horizontal overflow",
+    "insight structure filter, independent single-video counters, complete findings, selected-shot evidence, aggregate scope, collapsed explorer",
+    "mocked missing single report does not use aggregate statistics; empty/error/recovery states",
+    "shared knowledge detail remains usable"
+  ],
+  "runtime_errors": []
+}

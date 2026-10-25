@@ -1,0 +1,18 @@
+{
+  "case_id": "case_14",
+  "target_topic": "交通方式混剪",
+  "reference_id": "ref_05",
+  "reference_video": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\media\\references\\ref_05.mp4",
+  "materials_json": "E:\\实习项目\\cupcut-claw\\multi-agent-video-editor\\viral-structure-engine\\data\\datasets\\travel_vlog_batch_v1\\cases\\case_14\\materials.json",
+  "material_ids": [
+    "mat_13",
+    "mat_15",
+    "mat_16",
+    "mat_17",
+    "mat_18",
+    "mat_21"
+  ],
+  "material_count": 6,
+  "target_duration": 30,
+  "status": "ready"
+}

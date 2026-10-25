@@ -16,6 +16,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { deleteGene, extractGeneKnowledge, getGene, mediaUrl } from '../api.js'
+import { compactText, geneDisplayTitle, shortHeading } from '../library.js'
 import {
   Badge,
   Button,
@@ -45,12 +46,19 @@ function SectionTitle({ icon: Icon, children }) {
 }
 
 function ReportRow({ label, children }) {
+  const text = Array.isArray(children) ? children.filter((item) => item != null && item !== false).join('') : children
   return (
-    <div className="flex gap-3 py-2 text-sm">
-      <span className="w-24 shrink-0 text-[#5a5a7a]">{label}</span>
-      <span className="text-[#c8c8e0]">{children || '—'}</span>
+    <div className="vc-report-row">
+      <span>{label}</span>
+      <ReportText text={text || '—'} />
     </div>
   )
+}
+
+function ReportText({ text, limit = 110 }) {
+  const value = String(text || '')
+  if (value.length <= limit) return <p className="vc-report-text">{value || '—'}</p>
+  return <details className="vc-report-readmore"><summary><span className="vc-report-excerpt">{compactText(value, limit)}</span><span className="vc-report-expand">展开全文</span><span className="vc-report-collapse">收起全文</span></summary><p className="vc-report-text">{value}</p></details>
 }
 
 /* 节奏曲线（纯 CSS 柱状图） */
@@ -269,6 +277,7 @@ export default function GeneDetail() {
   const [gene, setGene] = useState(null)
   const [extracting, setExtracting] = useState(false)
   const [extractMsg, setExtractMsg] = useState(null)
+  const [activeTab, setActiveTab] = useState('overview')
   const geneStatus = gene?.status
 
   useEffect(() => {
@@ -323,7 +332,7 @@ export default function GeneDetail() {
   return (
     <div>
       <SectionHeader
-        title={gene.title}
+        title={geneDisplayTitle(gene)}
         description={gene.source_filename}
         backTo="/genes"
         actions={
@@ -381,39 +390,47 @@ export default function GeneDetail() {
       )}
 
       {/* 视频预览 */}
-      <Card className="mb-6 p-5">
+      <Card className="vc-gene-source mb-6 p-5">
         <SectionTitle icon={Clapperboard}>源视频</SectionTitle>
-        <div className="overflow-hidden rounded-xl bg-black">
-          <video src={mediaUrl(`/genes/${gene.id}/video`)} controls className="max-h-[420px] w-full" />
+        <div className="vc-gene-source-layout">
+          <div className="vc-gene-source-player"><video src={mediaUrl(`/genes/${gene.id}/video`)} controls playsInline preload="metadata" /></div>
+          <div className="vc-gene-source-facts">
+            <span className="vc-gene-source-kicker">GENE {String(gene.id).padStart(2, '0')}</span>
+            <h3>{compactText(gene.structure_type || st.category || '视频结构分析', 24)}</h3>
+            <div className="vc-gene-metrics"><span><strong>{Number(gene.duration || report?.duration || 0).toFixed(1)}</strong>秒</span><span><strong>{gene.shot_count || report?.shot_count || 0}</strong>镜头</span></div>
+            <dl><div><dt>开场方式</dt><dd>{compactText(gene.hook_method || hook.method || '—', 28)}</dd></div><div><dt>整体情绪</dt><dd>{compactText(gene.overall_emotion || sa.overall_emotion || '—', 28)}</dd></div></dl>
+            <p className="vc-gene-original-title">原始名称：{gene.title}</p>
+          </div>
         </div>
       </Card>
 
       {report && (
         <>
+          <div className="vc-report-tabs" aria-label="分析维度">{[['overview', '核心概览'], ['hook', '开场 Hook'], ['structure', '结构与节奏'], ['packaging', '包装风格'], ['shots', `镜头标注 · ${report.shots?.length || 0}`]].map(([key, label]) => <button type="button" key={key} aria-pressed={activeTab === key} onClick={() => setActiveTab(key)} className={activeTab === key ? 'is-active' : ''}>{label}</button>)}</div>
           {/* 基因概览 */}
+          {activeTab === 'overview' && (
           <Card className="mb-6 p-5">
             <SectionTitle icon={Dna}>基因概览</SectionTitle>
             <div className="mb-4 flex flex-wrap gap-1.5">
-              {st.category && <Badge color="indigo">{st.category}</Badge>}
-              {meta.narrative_type && <Badge color="blue">叙事: {meta.narrative_type}</Badge>}
-              {sa.persona_type && <Badge color="purple">人设: {sa.persona_type}</Badge>}
-              {sa.overall_emotion && <Badge color="green">情绪: {sa.overall_emotion}</Badge>}
+              {st.category && <Badge color="indigo">{compactText(st.category, 16)}</Badge>}
+              {meta.narrative_type && <Badge color="blue">叙事: {compactText(meta.narrative_type, 16)}</Badge>}
+              {sa.persona_type && <Badge color="purple">人设: {compactText(sa.persona_type, 16)}</Badge>}
+              {sa.overall_emotion && <Badge color="green">情绪: {compactText(sa.overall_emotion, 16)}</Badge>}
               <Badge color="gray">{report.duration?.toFixed(1)}s</Badge>
               <Badge color="gray">{report.shot_count} 镜头</Badge>
               {report.resolution && <Badge color="gray">{report.resolution.join('×')}</Badge>}
             </div>
             {sa.overall_summary && (
-              <p className="text-sm leading-relaxed text-[#c8c8e0]">{sa.overall_summary}</p>
+              <ReportText text={sa.overall_summary} />
             )}
             {st.core_characteristics && (
-              <p className="mt-2 text-xs leading-relaxed text-[#8888a8]">
-                结构特征：{st.core_characteristics}
-              </p>
+              <div className="mt-3"><ReportRow label="结构特征">{st.core_characteristics}</ReportRow></div>
             )}
           </Card>
+          )}
 
           {/* Hook 策略 */}
-          <Card className="mb-6 p-5">
+          {activeTab === 'hook' && <Card className="mb-6 p-5">
             <SectionTitle icon={Zap}>前 3 秒 Hook 策略</SectionTitle>
             <div className="divide-y divide-[#2a2a42]">
               <ReportRow label="方法">{hook.method}</ReportRow>
@@ -421,10 +438,10 @@ export default function GeneDetail() {
               <ReportRow label="效果评估">{hook.effectiveness}</ReportRow>
               <ReportRow label="与正文衔接">{hook.connection_to_body}</ReportRow>
             </div>
-          </Card>
+          </Card>}
 
           {/* 段落结构 */}
-          {sa.script_structure?.length > 0 && (
+          {activeTab === 'structure' && sa.script_structure?.length > 0 && (
             <Card className="mb-6 p-5">
               <SectionTitle icon={Scissors}>脚本段落结构</SectionTitle>
               <div className="space-y-3">
@@ -441,7 +458,7 @@ export default function GeneDetail() {
                         {seg.emotion} · 节奏{seg.rhythm}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-[#c8c8e0]">{seg.content_summary}</p>
+                    <div className="mt-2"><ReportText text={seg.content_summary} /></div>
                   </div>
                 ))}
               </div>
@@ -449,14 +466,13 @@ export default function GeneDetail() {
           )}
 
           {/* 节奏分析 */}
-          {rhythm.curve_points?.length > 0 && (
+          {activeTab === 'structure' && rhythm.curve_points?.length > 0 && (
             <Card className="mb-6 p-5">
               <SectionTitle icon={Music}>节奏曲线</SectionTitle>
               <RhythmChart points={rhythm.curve_points} />
               <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-[#8888a8]">
                 {rhythm.pattern && <span>模式: {rhythm.pattern}</span>}
                 {rhythm.estimated_bpm_range && <span>BPM: {rhythm.estimated_bpm_range}</span>}
-                {rhythm.bgm_style_guess && <span>BGM: {rhythm.bgm_style_guess}</span>}
                 {rhythm.climax_position_percent != null && (
                   <span>高潮位置: {rhythm.climax_position_percent}%</span>
                 )}
@@ -464,11 +480,12 @@ export default function GeneDetail() {
                   <span>前 3 秒: {rhythm.front_3s_shot_count} 个镜头</span>
                 )}
               </div>
+              {rhythm.bgm_style_guess && <div className="mt-3"><ReportRow label="BGM 风格">{rhythm.bgm_style_guess}</ReportRow></div>}
             </Card>
           )}
 
           {/* 包装分析 + 关键技法 */}
-          <div className="mb-6 grid gap-6 lg:grid-cols-2">
+          {activeTab === 'packaging' && <div className="mb-6">
             <Card className="p-5">
               <SectionTitle icon={Scissors}>包装风格</SectionTitle>
               <div className="divide-y divide-[#2a2a42]">
@@ -490,22 +507,22 @@ export default function GeneDetail() {
                 </ReportRow>
               </div>
             </Card>
+          </div>}
 
-            <Card className="p-5">
+            {activeTab === 'overview' && <Card className="mb-6 p-5">
               <SectionTitle icon={Sparkles}>关键技法</SectionTitle>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="vc-technique-list">
                 {(report.key_techniques || []).map((t, i) => (
-                  <Badge key={i} color="indigo">{t}</Badge>
+                  <details key={i}><summary><span>{String(i + 1).padStart(2, '0')}</span><strong>{shortHeading(t, 36)}</strong><ChevronDown size={14} /></summary><p>{t}</p></details>
                 ))}
                 {(!report.key_techniques || report.key_techniques.length === 0) && (
                   <span className="text-sm text-[#5a5a7a]">—</span>
                 )}
               </div>
-            </Card>
-          </div>
+            </Card>}
 
           {/* 逐镜头标注 */}
-          {report.shots?.length > 0 && (
+          {activeTab === 'shots' && report.shots?.length > 0 && (
             <Card className="p-5">
               <SectionTitle icon={Clapperboard}>逐镜头功能标注（{report.shots.length} 个镜头）</SectionTitle>
               <ul className="divide-y divide-[#2a2a42]">
@@ -515,6 +532,7 @@ export default function GeneDetail() {
                       src={mediaUrl(`/genes/${gene.id}/frames/shot_${String(s.index ?? i).padStart(3, '0')}.jpg`)}
                       alt={`镜头 ${(s.index ?? i) + 1}`}
                       className="mt-0.5 h-16 w-10 shrink-0 rounded-md bg-black object-cover"
+                      loading="lazy"
                       onError={(e) => { e.currentTarget.style.display = 'none' }}
                     />
                     <span className="mt-0.5 w-8 shrink-0 text-xs font-bold text-[#5a5a7a]">
@@ -524,7 +542,7 @@ export default function GeneDetail() {
                       <Badge color="blue">{s.shot_type || 'unknown'}</Badge>
                       {s.emotion && <Badge color="green">{s.emotion}</Badge>}
                       {s.has_face && <Badge color="purple">人脸</Badge>}
-                      <span className="text-sm text-[#c8c8e0]">{s.visual_description}</span>
+                      <div className="w-full min-w-0"><ReportText text={s.visual_description} /></div>
                     </div>
                   </li>
                 ))}
