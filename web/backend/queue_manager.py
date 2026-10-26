@@ -93,6 +93,7 @@ class TaskQueue:
                 logger.warning(f"Task {item.task_id} not found")
                 return
 
+            workflow_stage = task.workflow_stage
             task.status = TaskStatus.RUNNING
             task.error_message = None
             if task.workflow_stage == "render":
@@ -129,12 +130,14 @@ class TaskQueue:
                 pass
 
         try:
-            result_path = await run_pipeline(
-                task_id=item.task_id,
-                project_id=item.project_id,
-                user_id=item.user_id,
-                emit_progress=emit_progress,
-            )
+            from task_usage import task_usage_scope
+            with task_usage_scope(item.task_id, item.project_id, item.user_id, f"workflow_{workflow_stage}"):
+                result_path = await run_pipeline(
+                    task_id=item.task_id,
+                    project_id=item.project_id,
+                    user_id=item.user_id,
+                    emit_progress=emit_progress,
+                )
             with Session(engine) as session:
                 task = session.get(Task, item.task_id)
                 if task.type.value == "end_to_end" and task.workflow_stage == "prepare":

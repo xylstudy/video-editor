@@ -33,6 +33,10 @@ def _imwrite(image_path: str, image) -> None:
     encoded.tofile(str(target))
 
 
+from config.usage_tracking import instrument_tools
+
+
+@instrument_tools
 class FaceTools:
     def __init__(self):
         self.face_cascade = None

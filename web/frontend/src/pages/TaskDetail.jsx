@@ -13,6 +13,7 @@ import {
 import StepTimeline from '../components/StepTimeline.jsx'
 import LogTerminal from '../components/LogTerminal.jsx'
 import StoryboardEditor from '../components/StoryboardEditor.jsx'
+import TaskUsage from '../components/TaskUsage.jsx'
 
 const TASK_TYPE_LABELS = {
   end_to_end: '端到端生成',
@@ -248,6 +249,8 @@ export default function TaskDetail() {
         </div>
       )}
 
+      <TaskUsage key={id} taskId={id} status={task.status} learningStatus={learning?.status} learningLoaded={learningLoaded} />
+
       {task.status === 'awaiting_confirmation' && draftError && (
         <div className="mb-6">
           <InfoBar type="error">{draftError}</InfoBar>
@@ -302,7 +305,6 @@ export default function TaskDetail() {
               <span>全片解码：{evaluation.media?.full_decode_valid ? '通过' : '未通过'}</span>
               <span>音轨：{evaluation.media?.has_audio === false ? '未检测到' : evaluation.media?.has_audio === true ? '存在' : '未知'}</span>
               <span>素材覆盖：{evaluation.quality?.material_coverage == null ? '未知' : `${Math.round(evaluation.quality.material_coverage * 100)}%`}</span>
-              <span>模型 Token：{evaluation.llm_usage?.total_tokens ?? '未提供'}</span>
             </div>
           )}
           {evaluation.render_review && (

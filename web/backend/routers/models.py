@@ -67,6 +67,11 @@ def _mask_api_key(api_key: str) -> str:
     return f"{api_key[:3]}••••{api_key[-4:]}"
 
 
+def _validate_price_pair(input_price, output_price):
+    if (input_price is None) != (output_price is None):
+        raise HTTPException(status_code=422, detail="费用估算需要同时填写输入价格和输出价格，或同时留空")
+
+
 def _to_read(config: ModelConfiguration) -> ModelConfigurationRead:
     raw_api_key = decrypt_secret(config.api_key)
     return ModelConfigurationRead(
@@ -83,6 +88,10 @@ def _to_read(config: ModelConfiguration) -> ModelConfigurationRead:
         enabled=config.enabled,
         is_default_vision=config.is_default_vision,
         is_default_text=config.is_default_text,
+        input_price_per_million=config.input_price_per_million,
+        output_price_per_million=config.output_price_per_million,
+        cached_input_price_per_million=config.cached_input_price_per_million,
+        price_currency=config.price_currency,
         last_test_status=config.last_test_status,
         last_test_message=config.last_test_message,
         last_tested_at=config.last_tested_at,
@@ -143,6 +152,7 @@ def create_model(
     session: Session = Depends(get_session),
 ):
     _validate_endpoint(model_in.endpoint_url)
+    _validate_price_pair(model_in.input_price_per_million, model_in.output_price_per_million)
     if model_in.use_for_vision and not model_in.supports_vision:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -160,6 +170,10 @@ def create_model(
         api_key=encrypt_secret(model_in.api_key),
         supports_vision=model_in.supports_vision,
         enabled=model_in.enabled,
+        input_price_per_million=model_in.input_price_per_million,
+        output_price_per_million=model_in.output_price_per_million,
+        cached_input_price_per_million=model_in.cached_input_price_per_million,
+        price_currency=model_in.price_currency,
     )
     session.add(config)
     session.flush()
@@ -201,6 +215,8 @@ def update_model(
 ):
     config = _owned_config(session, current_user.id, config_id)
     changes = model_in.model_dump(exclude_unset=True)
+    _validate_price_pair(changes.get("input_price_per_million", config.input_price_per_million),
+                         changes.get("output_price_per_million", config.output_price_per_million))
     if "endpoint_url" in changes:
         _validate_endpoint(changes["endpoint_url"])
         changes["endpoint_url"] = changes["endpoint_url"].strip().rstrip("/")

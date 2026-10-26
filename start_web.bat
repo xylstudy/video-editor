@@ -1,53 +1,47 @@
 @echo off
 setlocal EnableExtensions
 chcp 65001 >nul
-for /f "usebackq delims=" %%P in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')"`) do set "PATH=%PATH%;%%P"
-
+cd /d "%~dp0"
 set "PROJECT_ROOT=%~dp0"
-set "USE_CONDA=0"
+if not exist "%PROJECT_ROOT%.local" mkdir "%PROJECT_ROOT%.local"
 set "PYTHON_EXE="
+set "PYTHONIOENCODING=utf-8"
+set "PYTHONUTF8=1"
 
-if defined VIDEOCLAW_PYTHON set "PYTHON_EXE=%VIDEOCLAW_PYTHON%"
-if not defined PYTHON_EXE if exist "%PROJECT_ROOT%.venv\Scripts\python.exe" set "PYTHON_EXE=%PROJECT_ROOT%.venv\Scripts\python.exe"
+if defined VIDEOCLAW_PYTHON set "PYTHON_EXE=%VIDEOCLAW_PYTHON:"=%"
+if defined PYTHON_EXE goto run_python
+if exist "%PROJECT_ROOT%.venv\Scripts\python.exe" set "PYTHON_EXE=%PROJECT_ROOT%.venv\Scripts\python.exe"
+if defined PYTHON_EXE goto run_python
 
-if not defined PYTHON_EXE (
-    where conda >nul 2>&1
-    if not errorlevel 1 (
-        conda run -n video-claw python -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)" >nul 2>&1
-        if not errorlevel 1 set "USE_CONDA=1"
-    )
-)
+where conda >nul 2>&1
+if not errorlevel 1 goto run_conda
+where python >nul 2>&1
+if errorlevel 1 goto no_python
+set "PYTHON_EXE=python"
+goto run_python
 
-if not defined PYTHON_EXE if "%USE_CONDA%"=="0" set "PYTHON_EXE=python"
+:run_python
+"%PYTHON_EXE%" -u "%PROJECT_ROOT%scripts\start_web.py" %* 2>"%PROJECT_ROOT%.local\start_web-bootstrap.log"
+set "STARTUP_RESULT=%ERRORLEVEL%"
+goto finish
 
-echo Checking the runtime environment...
-if "%USE_CONDA%"=="1" (
-    conda run -n video-claw python "%PROJECT_ROOT%scripts\preflight.py" --web
-) else (
-    "%PYTHON_EXE%" "%PROJECT_ROOT%scripts\preflight.py" --web
-)
-if errorlevel 1 (
-    echo.
-    echo Startup aborted. Run this command from the project root first: powershell -ExecutionPolicy Bypass -File .\setup_windows.ps1
-    pause
-    exit /b 1
-)
+:run_conda
+call conda run --no-capture-output -n video-claw python -u "%PROJECT_ROOT%scripts\start_web.py" %* 2>"%PROJECT_ROOT%.local\start_web-bootstrap.log"
+set "STARTUP_RESULT=%ERRORLEVEL%"
+goto finish
 
-if /I "%~1"=="--check" exit /b 0
+:no_python
+echo [FAIL] Python 3.11+ was not found. Run setup_windows.ps1 first.
+set "STARTUP_RESULT=1"
 
-if "%USE_CONDA%"=="1" (
-    start "VideoClaw-Backend :8000" /D "%PROJECT_ROOT%web\backend" cmd /k "conda run --no-capture-output -n video-claw python -m uvicorn main:app --host 127.0.0.1 --port 8000"
-    start "VideoClaw-Frontend :5173" /D "%PROJECT_ROOT%web\frontend" cmd /k "conda run --no-capture-output -n video-claw npm run dev"
-) else (
-    start "VideoClaw-Backend :8000" /D "%PROJECT_ROOT%web\backend" cmd /k ""%PYTHON_EXE%" -m uvicorn main:app --host 127.0.0.1 --port 8000"
-    start "VideoClaw-Frontend :5173" /D "%PROJECT_ROOT%web\frontend" cmd /k "npm run dev"
-)
-
+:finish
 echo.
-echo Backend API: http://127.0.0.1:8000/docs
-echo Frontend: http://localhost:5173
-echo Stop services by closing the two command windows.
-echo.
-endlocal
+if "%STARTUP_RESULT%"=="0" goto pause_window
+echo Startup failed. Details: "%PROJECT_ROOT%.local\start_web.log"
+if exist "%PROJECT_ROOT%.local\start_web-bootstrap.log" type "%PROJECT_ROOT%.local\start_web-bootstrap.log"
 
-pause
+:pause_window
+if /I "%~1"=="--check" exit /b %STARTUP_RESULT%
+echo Press any key to close this launcher.
+pause >nul
+exit /b %STARTUP_RESULT%

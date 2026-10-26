@@ -21,6 +21,15 @@ from websocket_manager import ws_manager
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
 
+@router.get("/{task_id}/usage")
+def task_usage(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
+    from task_usage import read_task_usage
+    task, _ = _owned_task(task_id, current_user.id, session)
+    root = _task_root(current_user.id, task.project_id, task_id)
+    evaluation_path = VSE_DIR / "data" / "runs" / f"web_task_{task_id}" / "evaluation" / "report.json"
+    return read_task_usage(root, evaluation_path)
+
+
 @router.get("/{task_id}/learning")
 def task_learning(task_id: int, current_user: User = Depends(get_current_user), session: Session = Depends(get_session)):
     from db_models import LearningJob

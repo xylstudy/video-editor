@@ -1,7 +1,7 @@
 import enum
 import json
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import field_validator
 from sqlmodel import Field, Relationship, SQLModel, Column
@@ -137,6 +137,10 @@ class ModelConfiguration(SQLModel, table=True):
     enabled: bool = Field(default=True)
     is_default_vision: bool = Field(default=False)
     is_default_text: bool = Field(default=False)
+    input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    output_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    cached_input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    price_currency: str = Field(default="CNY")
     last_test_status: Optional[str] = Field(default=None)
     last_test_message: Optional[str] = Field(default=None)
     last_tested_at: Optional[datetime] = Field(default=None)
@@ -158,6 +162,10 @@ class ModelConfigurationCreate(SQLModel):
     enabled: bool = True
     use_for_vision: bool = False
     use_for_text: bool = False
+    input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    output_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    cached_input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    price_currency: Literal["CNY", "USD"] = "CNY"
 
 
 class ModelConfigurationUpdate(SQLModel):
@@ -170,6 +178,10 @@ class ModelConfigurationUpdate(SQLModel):
     api_key: Optional[str] = None
     supports_vision: Optional[bool] = None
     enabled: Optional[bool] = None
+    input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    output_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    cached_input_price_per_million: Optional[float] = Field(default=None, ge=0, le=1_000_000_000)
+    price_currency: Literal["CNY", "USD"] = "CNY"
 
 
 class ModelConfigurationRead(SQLModel):
@@ -186,6 +198,10 @@ class ModelConfigurationRead(SQLModel):
     enabled: bool
     is_default_vision: bool
     is_default_text: bool
+    input_price_per_million: Optional[float] = None
+    output_price_per_million: Optional[float] = None
+    cached_input_price_per_million: Optional[float] = None
+    price_currency: str = "CNY"
     last_test_status: Optional[str]
     last_test_message: Optional[str]
     last_tested_at: Optional[datetime]
