@@ -77,6 +77,7 @@ def _run_command_sync(
     kill_active_process(proc_key) 强制终止。
     """
     import subprocess
+    from config.usage_tracking import child_environment
     emit_callback(step, f"启动: {' '.join(cmd)}", start_percent)
     process = subprocess.Popen(
         cmd,
@@ -91,6 +92,7 @@ def _run_command_sync(
             "PYTHONIOENCODING": "utf-8",
             "PYTHONUTF8": "1",
             **(env_overrides or {}),
+            **child_environment(step),
         },
     )
     if proc_key:

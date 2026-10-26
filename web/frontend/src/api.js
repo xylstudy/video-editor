@@ -31,6 +31,7 @@ api.interceptors.response.use(
 export default api
 
 export const getTaskLearning = (id) => api.get(`/tasks/${id}/learning`)
+export const getTaskUsage = (id, config) => api.get(`/tasks/${id}/usage`, config)
 export const retryTaskLearning = (id) => api.post(`/tasks/${id}/learning/retry`)
 
 /**

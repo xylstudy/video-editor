@@ -162,12 +162,24 @@ def _migrate_chat_memory_columns():
         conn.commit()
 
 
+def _migrate_model_price_columns():
+    with engine.connect() as conn:
+        cols = {row[1] for row in conn.execute(text("PRAGMA table_info(modelconfiguration)"))}
+        for name in ("input_price_per_million", "output_price_per_million", "cached_input_price_per_million"):
+            if name not in cols:
+                conn.execute(text(f"ALTER TABLE modelconfiguration ADD COLUMN {name} FLOAT"))
+        if "price_currency" not in cols:
+            conn.execute(text("ALTER TABLE modelconfiguration ADD COLUMN price_currency VARCHAR DEFAULT 'CNY'"))
+        conn.commit()
+
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
     _migrate_project_gene_column()
     _migrate_task_storyboard_columns()
     _migrate_chat_memory_columns()
     _migrate_gene_progress_columns()
+    _migrate_model_price_columns()
     _migrate_knowledge_ownership()
     _migrate_api_keys_to_models()
 

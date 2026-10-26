@@ -6,6 +6,10 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+from config.usage_tracking import instrument_tools
+
+
+@instrument_tools
 class AudioTools:
     def __init__(self, model_size: Optional[str] = None):
         self.model_size = model_size or "base"

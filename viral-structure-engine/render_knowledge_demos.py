@@ -116,6 +116,10 @@ def source_demo_window(entry: dict) -> dict:
     return {"start": start, "duration": 3. if entry.get("type") == "hook_technique" else 5.}
 
 
+from config.usage_tracking import tracked_tool
+
+
+@tracked_tool("knowledge.render_source_demo")
 def render_source_demo(
     entry: dict,
     source_video: Path,

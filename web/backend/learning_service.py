@@ -136,6 +136,19 @@ async def _resolve_gene(job: LearningJob) -> int:
 
 
 async def process_learning_job(job_id: int):
+    with Session(engine) as session:
+        job = session.get(LearningJob, job_id)
+        if not job or job.status == "completed":
+            return
+        task_id, project_id, user_id = job.task_id, job.project_id, job.user_id
+    if task_id and project_id:
+        from task_usage import task_usage_scope
+        with task_usage_scope(task_id, project_id, user_id, "asset_learning"):
+            return await _process_learning_job(job_id)
+    return await _process_learning_job(job_id)
+
+
+async def _process_learning_job(job_id: int):
     """A failed example never changes a successfully rendered task to FAILED."""
     with Session(engine) as session:
         job = session.get(LearningJob, job_id)

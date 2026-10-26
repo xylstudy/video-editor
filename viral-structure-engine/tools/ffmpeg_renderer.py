@@ -39,6 +39,10 @@ def _find_ffmpeg() -> str:
     return _FFMPEG_PATH
 
 
+from config.usage_tracking import instrument_tools
+
+
+@instrument_tools
 class FFMpegRenderer:
     """基于方案数据的 FFmpeg 渲染器"""
 

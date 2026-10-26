@@ -7,10 +7,12 @@ import logging
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import httpx
 
 from config import settings
+from config.usage_tracking import ModelAttempt, current_context, write_record
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,9 @@ class LLMTools:
 
     def _record_mock(self) -> None:
         self._usage["mock_requests"] += 1
+        context = current_context()
+        write_record(context, "events", uuid4().hex, {"kind": "mock", "model": self.model,
+                     "stage": (context or {}).get("stage", "pipeline"), "status": "completed"})
 
     def _can_call_without_key(self) -> bool:
         return urlparse(self.chat_url).hostname in {"localhost", "127.0.0.1", "::1"}
@@ -210,7 +215,9 @@ class LLMTools:
             body.pop("response_format", None)
         last_error: Exception | None = None
         max_attempts = 10
+        request_id = uuid4().hex
         for attempt in range(max_attempts):
+            metric = None
             try:
                 # Ignore stale process proxy variables. The web app stores an
                 # explicit model endpoint, and routing it through an unrelated
@@ -223,7 +230,9 @@ class LLMTools:
                     if self.api_key:
                         headers["Authorization"] = f"Bearer {self.api_key}"
                     self._usage["attempts"] += 1
+                    metric = ModelAttempt(self.model, self.chat_url, request_id, attempt + 1)
                     resp = await client.post(self.chat_url, headers=headers, json=body)
+                    metric.response({}, resp.status_code)
                     if resp.status_code == 400 and "response_format" in body:
                         logger.warning("response_format not supported, retrying without it")
                         _RESPONSE_FORMAT_UNSUPPORTED.add(self.chat_url)
@@ -231,6 +240,7 @@ class LLMTools:
                         continue
                     resp.raise_for_status()
                     data = resp.json()
+                    metric.response(data.get("usage"), resp.status_code)
                     self._usage["responses"] += 1
                     usage = data.get("usage") or {}
                     if not isinstance(usage, dict):
@@ -251,6 +261,7 @@ class LLMTools:
                     # Never pass it to an Agent when the provider explicitly
                     # reports a length stop; retry atomically with more room.
                     if finish_reason == "length":
+                        metric.data["status"] = "failed"
                         if current_limit < 16384:
                             next_limit = min(16384, current_limit * 2)
                             logger.warning(
@@ -271,6 +282,8 @@ class LLMTools:
                         f"reasoning_tokens={reasoning_tokens}, max_tokens={current_limit})"
                     )
             except LLMEmptyResponseError:
+                if metric is not None:
+                    metric.data["status"] = "failed"
                 raise
             except httpx.HTTPStatusError as e:
                 last_error = e
@@ -297,10 +310,15 @@ class LLMTools:
                 if attempt >= 5:
                     raise
             except Exception as e:
+                if metric is not None:
+                    metric.data["status"] = "failed"
                 last_error = e
                 logger.warning(f"LLM call attempt {attempt + 1} failed: {e}")
                 if attempt >= 5:
                     raise
+            finally:
+                if metric is not None:
+                    metric.finish()
         if last_error is not None:
             raise last_error
         raise RuntimeError("LLM request exhausted retries without a response")

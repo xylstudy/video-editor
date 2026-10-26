@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 
 from config import settings
+from config.usage_tracking import instrument_tools
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,7 @@ def _find_ffmpeg() -> str:
     return _FFMPEG_PATH
 
 
+@instrument_tools
 class VideoTools:
     def __init__(self, work_dir: Optional[str] = None):
         self.work_dir = work_dir or str(settings.TEMP_DIR)

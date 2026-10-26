@@ -1,3 +1,6 @@
+import json
+from urllib.parse import urlparse
+
 from sqlmodel import Session, select
 
 from database import engine
@@ -31,6 +34,15 @@ def get_user_model_env(user_id: int) -> dict[str, str]:
     with Session(engine) as session:
         vision = _default_config(session, user_id, "vision")
         text = _default_config(session, user_id, "text")
+        prices = []
+        for config in session.exec(select(ModelConfiguration).where(ModelConfiguration.user_id == user_id)).all():
+            if config.input_price_per_million is None or config.output_price_per_million is None:
+                continue
+            prices.append({"model": config.model_id, "host": urlparse(config.endpoint_url).hostname,
+                           "input": config.input_price_per_million, "output": config.output_price_per_million,
+                           "cached_input": config.cached_input_price_per_million,
+                           "currency": config.price_currency, "source": "configured", "config_id": config.id})
+        env["VIDEOCLAW_MODEL_PRICES"] = json.dumps(prices)
 
         if vision:
             env.update(

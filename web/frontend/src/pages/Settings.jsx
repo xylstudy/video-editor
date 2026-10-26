@@ -48,6 +48,7 @@ const EMPTY_FORM = {
   endpoint_url: 'https://open.bigmodel.cn/api/paas/v4', endpoint_mode: 'base_url',
   api_format: 'openai_chat_completions', api_key: '', supports_vision: true,
   enabled: true, use_for_vision: true, use_for_text: false,
+  input_price_per_million: '', output_price_per_million: '', cached_input_price_per_million: '', price_currency: 'CNY',
 }
 
 function providerMeta(key) {
@@ -150,6 +151,8 @@ export default function Settings() {
       endpoint_url: model.endpoint_url, endpoint_mode: model.endpoint_mode,
       api_format: model.api_format, api_key: '', supports_vision: model.supports_vision,
       enabled: model.enabled, use_for_vision: model.is_default_vision, use_for_text: model.is_default_text,
+      input_price_per_million: model.input_price_per_million ?? '', output_price_per_million: model.output_price_per_million ?? '',
+      cached_input_price_per_million: model.cached_input_price_per_million ?? '', price_currency: model.price_currency || 'CNY',
     })
     setTestResult(null); setPanelOpen(true)
   }
@@ -161,6 +164,7 @@ export default function Settings() {
       endpoint_url: preset.endpointUrl, model_id: preset.modelId,
       supports_vision: preset.supportsVision, use_for_vision: preset.supportsVision,
       use_for_text: !preset.supportsVision,
+      input_price_per_million: '', output_price_per_million: '', cached_input_price_per_million: '',
     }))
     setTestResult(null)
   }
@@ -173,6 +177,7 @@ export default function Settings() {
     if (!form.endpoint_url.trim()) return '请填写模型请求地址'
     if (!/^https?:\/\//i.test(form.endpoint_url.trim())) return '请求地址需要以 http:// 或 https:// 开头'
     if (form.use_for_vision && !form.supports_vision) return '视觉分析模型必须开启图片输入能力'
+    if ((form.input_price_per_million === '') !== (form.output_price_per_million === '')) return '请同时填写输入价格和输出价格，或同时留空'
     return null
   }
 
@@ -203,6 +208,7 @@ export default function Settings() {
     setSaving(true); setMessage(null)
     try {
       const payload = { ...form, display_name: form.display_name.trim(), model_id: form.model_id.trim(), endpoint_url: form.endpoint_url.trim(), api_key: form.api_key.trim() }
+      for (const key of ['input_price_per_million', 'output_price_per_million', 'cached_input_price_per_million']) payload[key] = form[key] === '' ? null : Number(form[key])
       if (editingId) {
         delete payload.use_for_vision; delete payload.use_for_text
         await updateModel(editingId, payload)
@@ -278,6 +284,16 @@ export default function Settings() {
                   <label className="flex cursor-pointer items-center gap-2 text-xs text-[#8888a8]"><input type="checkbox" checked={form.endpoint_mode === 'full_url'} onChange={(event) => patchForm({ endpoint_mode: event.target.checked ? 'full_url' : 'base_url' })} className="h-4 w-4 accent-[#7c5cfc]" />我填写的是完整的 /chat/completions 请求地址</label>
                   <Field label="API 格式"><SelectInput value={form.api_format} disabled><option value="openai_chat_completions">OpenAI Chat Completions</option></SelectInput></Field>
                   <Field label="API Key" hint={editingId ? '留空将继续使用已保存的密钥' : '本地无鉴权服务可以留空'}><div className="relative"><KeyRound size={15} className="absolute left-3 top-2.5 text-[#5f5f7c]" /><TextInput type="password" autoComplete="new-password" value={form.api_key} onChange={(event) => patchForm({ api_key: event.target.value })} style={{ paddingLeft: '2.25rem' }} placeholder={editingId ? '••••••••（保持不变）' : '输入服务商 API Key'} /></div></Field>
+                </section>
+                <section className="space-y-3">
+                  <div className="text-xs font-semibold text-[#777795]">费用估算（每百万 Token）</div>
+                  <p className="text-xs leading-5 text-[#777795]">按你的服务商或网关实际单价填写，同时填写输入和输出价才会启用。留空时，仅官方 DeepSeek Flash / V4 Pro 使用官方峰时参考价；其他模型显示未计价。单价按调用时保存，不回算历史账单。</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="币种"><SelectInput value={form.price_currency} onChange={(event) => patchForm({ price_currency: event.target.value })}><option value="CNY">人民币 CNY</option><option value="USD">美元 USD</option></SelectInput></Field>
+                    <Field label="输入价格"><TextInput type="number" min="0" step="any" value={form.input_price_per_million} onChange={(event) => patchForm({ input_price_per_million: event.target.value })} placeholder="未配置" /></Field>
+                    <Field label="输出价格"><TextInput type="number" min="0" step="any" value={form.output_price_per_million} onChange={(event) => patchForm({ output_price_per_million: event.target.value })} placeholder="未配置" /></Field>
+                    <Field label="缓存命中输入价（可选）"><TextInput type="number" min="0" step="any" value={form.cached_input_price_per_million} onChange={(event) => patchForm({ cached_input_price_per_million: event.target.value })} placeholder="留空按普通输入价估算" /></Field>
+                  </div>
                 </section>
                 <section className="space-y-3">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#777795]"><Zap size={14} /> 能力与用途</div>

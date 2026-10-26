@@ -246,6 +246,10 @@ def _prepare_assets(materials, asset_dir):
             handle.writeframes((np.clip(audio, -1, 1) * 22000).astype("<i2").tobytes())
 
 
+from config.usage_tracking import tracked_tool
+
+
+@tracked_tool("knowledge.render_personal_teaching_demos")
 def render_personal_teaching_demos(entries, force=False):
     """Replace diagram videos with real edited footage; preserve reference clips."""
     DEMO_OUT_DIR.mkdir(parents=True, exist_ok=True)

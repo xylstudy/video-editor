@@ -9,6 +9,7 @@ from typing import Any, Awaitable, Callable, Optional
 from pydantic import ConfigDict, ValidationError, create_model
 
 from config.llm_client import LLMTools
+from config.usage_tracking import tracked_tool
 
 logger = logging.getLogger(__name__)
 
@@ -158,9 +159,17 @@ class BaseAgent(ABC):
     ) -> None:
         """Register this Agent's allow-listed tools with strict JSON schemas."""
         descriptions = descriptions or {}
+        measured = {}
+        for name, handler in handlers.items():
+            if name != "done":
+                wrapped = tracked_tool(f"{type(self).__name__}.{name}")(handler)
+                if getattr(handler, "__self__", None) is self:
+                    setattr(self, handler.__name__, wrapped)
+                handler = wrapped
+            measured[name] = handler
         self.tools = {
             name: ToolDefinition.from_handler(name, handler, descriptions.get(name))
-            for name, handler in handlers.items()
+            for name, handler in measured.items()
         }
 
     def list_tools(self) -> list[dict[str, Any]]:

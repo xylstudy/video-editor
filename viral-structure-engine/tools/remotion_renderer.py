@@ -166,6 +166,10 @@ def _fallback_custom_video_components(scheme: dict, materials: list[dict[str, st
     return result
 
 
+from config.usage_tracking import tracked_tool
+
+
+@tracked_tool("remotion.render_with_remotion")
 def render_with_remotion(
     scheme: Any,
     material_items: list[Any],

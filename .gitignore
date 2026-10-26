@@ -68,6 +68,7 @@ get_video/frames_analysis/
 # 本地工具/临时文件
 .workbuddy/
 .local/
+Video-Claw-账号密码.txt
 vc_proj.json
 
 # Local test workspaces
